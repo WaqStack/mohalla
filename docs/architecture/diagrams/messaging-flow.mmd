@@ -1,0 +1,48 @@
+%% Messaging - idempotent delivery and message requests - ADR-009
+sequenceDiagram
+    autonumber
+    actor S as Sender
+    participant SA as Sender App
+    participant API as API - messaging module
+    participant DB as PostgreSQL
+    participant WS as Socket.IO
+    participant RA as Recipient App
+    participant W as Worker
+
+    SA->>SA: generate client_message_id (UUIDv7) BEFORE sending
+    SA->>SA: show optimistic bubble - state SENDING
+    SA->>API: POST /conversations/{id}/messages
+
+    API->>DB: check block either direction (BR-025)
+    alt blocked
+        API-->>SA: refused - NEVER discloses the block (MSG-FR-006)
+    end
+
+    API->>DB: INSERT message ON CONFLICT (conversation_id, client_message_id) DO NOTHING
+    Note right of DB: unique constraint makes retry idempotent<br/>EDGE-020, EDGE-021
+    API->>DB: PERSIST before acknowledging
+    API-->>SA: 201 with server timestamp - bubble becomes SENT
+
+    alt recipient follows sender - accepted conversation
+        API->>WS: emit to recipient room
+        WS->>RA: new message within 3s (NFR-PERF-007)
+        API->>DB: enqueue push notification
+        W->>RA: FCM push (NOTIF-FR-004)
+    else recipient does NOT follow sender - MESSAGE REQUEST
+        API->>DB: conversation state = REQUEST (MSG-FR-005)
+        API->>WS: emit request-count update only
+        Note right of W: NO PUSH NOTIFICATION EVER<br/>BR-027 - this is the safety property
+    end
+
+    Note over RA,DB: RECIPIENT DECIDES - MSG-FR-005
+    RA->>API: accept / decline / block
+    alt accept
+        API->>DB: state = ACCEPTED - moves to inbox
+    else decline
+        API->>DB: state = DECLINED
+        Note right of API: sender receives NO signal (BR-028)
+    end
+
+    Note over SA,DB: FALLBACK if realtime unavailable
+    SA->>API: GET /conversations/{id}/messages?since=...
+    Note right of SA: polling reuses the SAME client_message_id,<br/>so transport switching cannot duplicate

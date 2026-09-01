@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Foundation placeholder mark. A designed launcher icon is a Stage 3 deliverable
+  that has not been produced yet; this exists only so the project builds.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,44 L54,32 L72,44 L72,74 L60,74 L60,58 L48,58 L48,74 L36,74 Z" />
+</vector>

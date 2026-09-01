@@ -1,0 +1,54 @@
+%% Authentication and session lifecycle - AUTH-FR-001/002/005/010, ADR-008
+sequenceDiagram
+    autonumber
+    actor U as Visitor
+    participant A as Android App
+    participant API as API - identity module
+    participant DB as PostgreSQL
+    participant S as SMS Provider
+
+    Note over U,S: REGISTRATION - AUTH-FR-001
+    U->>A: phone + DOB + password + terms
+    A->>A: client validation only (SEC-010 re-checks server-side)
+    A->>API: POST /auth/register
+    API->>DB: age >= 13 server clock (BR-002)
+    API->>DB: identifier not on banned list (BR-036, hashed)
+    API->>DB: INSERT user state=UNVERIFIED (24h expiry, EDGE-002)
+    API->>S: dispatch 6-digit OTP
+    API-->>A: 202 - uniform response (SEC-006)
+
+    Note over U,DB: VERIFICATION - AUTH-FR-002
+    U->>A: enter OTP
+    A->>API: POST /auth/verify-otp
+    API->>DB: check code, expiry 10min, attempts < 5 (SEC-003)
+    alt valid
+        API->>DB: state=ACTIVE, invalidate OTP
+        API->>DB: INSERT session (opaque token hashed)
+        API-->>A: session token -> username selection
+    else 5 attempts reached
+        API->>DB: invalidate OTP, lock number 15 min
+        API-->>A: 429 with cooldown (SEC-007)
+    end
+
+    Note over U,DB: LOGIN - AUTH-FR-005
+    U->>A: phone + password
+    A->>API: POST /auth/login
+    API->>DB: verify Argon2id hash (SEC-001)
+    Note right of API: wrong password, unknown number and banned<br/>return identical response AND timing (SEC-006)
+    API->>DB: count active sessions
+    alt 5 sessions already
+        API->>DB: revoke oldest reason=EVICTED (EDGE-009)
+    end
+    API->>DB: INSERT session
+    alt state = SUSPENDED
+        API-->>A: session + read-only flag + reason + expiry (BR-034)
+    else state = PENDING_DELETION
+        API-->>A: session + restore offer (SET-FR-005)
+    else state = ACTIVE
+        API-->>A: session
+    end
+
+    Note over API,DB: REVOCATION - BR-035, EDGE-010
+    API->>DB: on suspend/ban/delete/password change
+    DB->>DB: UPDATE sessions SET revoked_at, reason
+    Note right of DB: next request from any device fails<br/>within one request cycle

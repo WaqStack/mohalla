@@ -1,0 +1,30 @@
+{
+  "name": "@mohalla/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mohalla API - foundation only. Health endpoints and empty module shells.",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/main.js",
+    "dev": "node --watch dist/main.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.0.1",
+    "@nestjs/core": "12.0.1",
+    "@nestjs/platform-express": "12.0.1",
+    "pg": "8.23.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.1",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.7.0",
+    "@types/pg": "8.15.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

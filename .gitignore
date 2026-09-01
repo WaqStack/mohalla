@@ -1,0 +1,57 @@
+# ---- Secrets: never commit ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*serviceAccount*.json
+*google-services.json
+secrets/
+*.crt
+
+# ---- Node ----
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.eslintcache
+npm-debug.log*
+.npm/
+
+# ---- Android / Gradle ----
+.gradle/
+local.properties
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+.cxx/
+apps/android/build/
+apps/android/**/build/
+apps/android/build-log.txt
+
+# ---- IDE / editor ----
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Local infrastructure state ----
+.docker-data/
+pgdata/
+*.pid
+*.sqlite
+
+# ---- Toolchain (installed outside the repo; guard anyway) ----
+.toolchain/

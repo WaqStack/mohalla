@@ -1,0 +1,8 @@
+{
+  "name": "@mohalla/eslint-plugin-mohalla",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Project lint rules. Includes the RTL gate that fails the build on physical CSS sides.",
+  "main": "index.js",
+  "type": "module"
+}

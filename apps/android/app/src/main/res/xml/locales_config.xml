@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Per-app language support. Urdu is declared as a peer of English, not as a
+  fallback, so a user can select Urdu in Android's own app-language setting.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ur" />
+</locale-config>

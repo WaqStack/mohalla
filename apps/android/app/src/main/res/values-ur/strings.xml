@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Urdu string catalogue.
+
+  Every key in values/strings.xml must exist here. The CI localization parity
+  check treats a missing Urdu key as a build failure (LOCALE-FR-001, REL-002),
+  so this file cannot silently fall behind.
+-->
+<resources>
+    <string name="app_name">محلہ</string>
+    <string name="foundation_title">محلہ — بنیاد</string>
+    <string name="foundation_subtitle">شہرساز کمیونٹی پلیٹ فارم</string>
+    <string name="foundation_body">یہ بلڈ صرف یہ ثابت کرنے کے لیے ہے کہ اینڈرائیڈ پروجیکٹ کمپائل ہوتا ہے اور درست طریقے سے آئینہ دار ہوتا ہے۔ کوئی پروڈکٹ فیچر شامل نہیں ہے۔</string>
+    <string name="foundation_direction_label">لے آؤٹ سمت</string>
+    <string name="foundation_locale_label">زبان</string>
+</resources>

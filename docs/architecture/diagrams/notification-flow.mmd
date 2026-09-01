@@ -1,0 +1,38 @@
+%% Notification pipeline - durable record first, push best-effort - ADR-014
+flowchart TB
+    tx["Business transaction<br/>like - comment - follow - message - RSVP - moderation"]
+    outbox["Write outbox row<br/>IN THE SAME TRANSACTION"]
+    tx --> outbox
+    outbox --> commit["COMMIT"]
+
+    commit --> worker["Worker reads outbox"]
+    worker --> rec["CREATE notification record<br/>DURABLE - source of truth<br/>NOTIF-FR-002"]
+
+    rec --> e1{"Own action?"}
+    e1 -->|"yes"| drop1["Drop - NOTIF-FR-003"]
+    e1 -->|"no"| e2{"Block either direction?"}
+    e2 -->|"yes"| drop2["Drop - BR-025"]
+    e2 -->|"no"| e3{"Message Request?"}
+    e3 -->|"yes"| inapp["In-app count only<br/>NO PUSH EVER - BR-027"]
+    e3 -->|"no"| e4{"Category enabled?"}
+    e4 -->|"no"| inapp2["In-app centre only<br/>preferences gate PUSH only<br/>NOTIF-FR-007"]
+    e4 -->|"yes"| e5{"More than 5 likes<br/>same post within 1h?"}
+    e5 -->|"yes"| batch["Collapse into summary<br/>NOTIF-FR-003"]
+    e5 -->|"no"| loc["Render template in RECIPIENT language<br/>LOCALE-FR-006<br/>user content NEVER translated"]
+    batch --> loc
+
+    loc --> push["Push worker -> FCM"]
+    push --> ok{"Delivered?"}
+    ok -->|"yes"| deep["Android deep link to causing item"]
+    ok -->|"invalid token"| rm["Remove device token"]
+    ok -->|"transient"| retry["Retry with backoff -> dead-letter<br/>alerted - SS33"]
+
+    note["FCM outage is INVISIBLE to the user -<br/>records accumulate in the centre.<br/>A push failure never fails the business transaction."]
+    retry -.-> note
+
+    del["Target deleted"] --> purge["DELETE notifications referencing it<br/>never a dead link - NOTIF-FR-002"]
+
+    classDef guard fill:#FAE7E5,stroke:#A32C2C,color:#1C2530
+    classDef ok2 fill:#E6F0E7,stroke:#2E6B3E,color:#1C2530
+    class e1,e2,e3,e4,e5 guard
+    class rec,inapp,inapp2,note ok2

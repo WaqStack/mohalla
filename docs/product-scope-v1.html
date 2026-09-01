@@ -1,0 +1,1568 @@
+<title>Shehersaaz Community Platform Scope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+/* ---------- tokens: light (bare :root = complete palette) ---------- */
+:root{
+  --paper:#EFF2F5;
+  --surface:#FFFFFF;
+  --surface-2:#F7F9FB;
+  --ink:#0F1D28;
+  --ink-2:#394957;
+  --muted:#6B7D8C;
+  --line:#D5DEE5;
+  --line-soft:#E7ECF1;
+  --blue:#15597F;
+  --blue-deep:#0E3C57;
+  --blue-soft:#E2EEF6;
+  --orange:#A8480A;
+  --orange-soft:#FAE9DC;
+  --teal:#1C6A5E;
+  --teal-soft:#DFEFEB;
+  --grey-soft:#E9EDF0;
+  --grid:rgba(21,89,127,.09);
+  --shadow:0 1px 2px rgba(15,29,40,.05), 0 8px 24px -12px rgba(15,29,40,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B131A;
+    --surface:#121D26;
+    --surface-2:#17232E;
+    --ink:#E1E9EF;
+    --ink-2:#AFBECA;
+    --muted:#7C8E9C;
+    --line:#26343F;
+    --line-soft:#1D2A34;
+    --blue:#74B6DD;
+    --blue-deep:#A6D2EC;
+    --blue-soft:#15303F;
+    --orange:#E4894B;
+    --orange-soft:#38220F;
+    --teal:#57BFAD;
+    --teal-soft:#0F302B;
+    --grey-soft:#212E38;
+    --grid:rgba(116,182,221,.10);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B131A;
+  --surface:#121D26;
+  --surface-2:#17232E;
+  --ink:#E1E9EF;
+  --ink-2:#AFBECA;
+  --muted:#7C8E9C;
+  --line:#26343F;
+  --line-soft:#1D2A34;
+  --blue:#74B6DD;
+  --blue-deep:#A6D2EC;
+  --blue-soft:#15303F;
+  --orange:#E4894B;
+  --orange-soft:#38220F;
+  --teal:#57BFAD;
+  --teal-soft:#0F302B;
+  --grey-soft:#212E38;
+  --grid:rgba(116,182,221,.10);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  font-size:16.5px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+.layout{display:grid;grid-template-columns:1fr;gap:40px;align-items:start}
+@media(min-width:1000px){
+  .layout{grid-template-columns:216px minmax(0,1fr);gap:56px}
+}
+
+/* ---------- masthead ---------- */
+.masthead{
+  position:relative;
+  margin:0 -24px 44px;
+  padding:56px 24px 40px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(to bottom, transparent 0%, var(--paper) 92%),
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 28px);
+}
+.mast-inner{max-width:1180px;margin:0 auto}
+.eyebrow{
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  margin-bottom:22px;
+}
+.org{
+  font-family:Archivo,system-ui,sans-serif;font-weight:600;font-size:12px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--blue);
+}
+.org-ur{
+  font-family:"Noto Nastaliq Urdu",serif;font-size:19px;line-height:2.1;
+  color:var(--ink-2);direction:rtl;
+}
+h1{
+  font-family:Archivo,system-ui,sans-serif;
+  font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.03;
+  letter-spacing:-.025em;margin:0 0 18px;text-wrap:balance;
+}
+h1 .v{display:block;color:var(--muted);font-weight:500;font-size:.42em;letter-spacing:.02em;margin-top:14px}
+.deck{
+  font-size:19px;line-height:1.55;color:var(--ink-2);max-width:60ch;margin:0 0 30px;
+}
+.meta{
+  display:flex;flex-wrap:wrap;gap:0;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  letter-spacing:.03em;text-transform:uppercase;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:16px;
+}
+.meta div{padding-right:32px;margin-right:32px;border-right:1px solid var(--line-soft)}
+.meta div:last-child{border-right:0;margin-right:0;padding-right:0}
+.meta b{display:block;color:var(--ink);font-weight:500;margin-top:3px;text-transform:none;font-size:13px;letter-spacing:0}
+
+/* ---------- status banner ---------- */
+.banner{
+  background:var(--orange-soft);
+  border:1px solid color-mix(in srgb, var(--orange) 34%, transparent);
+  border-radius:4px;padding:22px 24px;margin:0 0 44px;
+  display:grid;gap:10px;
+}
+.banner .tag{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--orange);font-weight:500;
+}
+.banner h2{
+  font-family:Archivo,sans-serif;font-size:20px;font-weight:600;
+  margin:0;letter-spacing:-.01em;color:var(--ink);
+}
+.banner p{margin:0;color:var(--ink-2);font-size:16px;max-width:72ch}
+
+/* ---------- sidebar nav ---------- */
+.toc{font-family:Archivo,system-ui,sans-serif}
+@media(min-width:1000px){
+  .toc{position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto}
+}
+.toc-label{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:6px;
+}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{
+  display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:baseline;
+  padding:5px 0;font-size:13.5px;line-height:1.35;color:var(--ink-2);
+  text-decoration:none;border-bottom:1px solid transparent;
+}
+.toc a::before{
+  content:counter(t,decimal-leading-zero);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);
+}
+.toc a:hover{color:var(--blue)}
+.toc a:hover::before{color:var(--blue)}
+.toc a:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:2px}
+details.toc-m{margin-bottom:32px}
+details.toc-m summary{
+  font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--blue);cursor:pointer;padding:12px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+@media(min-width:1000px){details.toc-m{display:none}}
+@media(max-width:999px){.toc-desk{display:none}}
+
+/* ---------- sections ---------- */
+section{margin:0 0 62px;scroll-margin-top:20px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.sec-num{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--blue);
+  font-weight:500;letter-spacing:.06em;
+}
+h2.sec{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:clamp(23px,3vw,30px);
+  letter-spacing:-.018em;margin:0;text-wrap:balance;
+}
+.rule{height:2px;background:var(--ink);opacity:.85;margin:0 0 24px;width:38px;border-radius:2px}
+h3{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:17px;letter-spacing:-.005em;
+  margin:34px 0 10px;color:var(--ink);
+}
+h4{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:28px 0 10px;
+}
+p{margin:0 0 16px;max-width:70ch}
+ul,ol{margin:0 0 16px;padding-left:22px;max-width:70ch}
+li{margin-bottom:6px}
+strong{font-weight:600;color:var(--ink)}
+em{font-style:italic;color:var(--ink-2)}
+a{color:var(--blue)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  padding:24px 26px;margin:0 0 20px;box-shadow:var(--shadow);
+}
+.card > :last-child{margin-bottom:0}
+.card-t{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:16px;margin:0 0 4px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+}
+.grid2{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:700px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* pull quote / vision */
+.vision{
+  border-left:3px solid var(--blue);background:var(--blue-soft);
+  padding:26px 30px;border-radius:0 5px 5px 0;margin:0 0 22px;
+}
+.vision p{
+  font-size:21px;line-height:1.48;color:var(--ink);margin:0;max-width:none;
+  font-style:italic;
+}
+.vision .attrib{
+  font-family:Archivo,sans-serif;font-style:normal;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--blue);margin-top:16px;font-weight:600;
+}
+
+/* ---------- pills ---------- */
+.p{
+  display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  font-weight:500;letter-spacing:.05em;padding:3px 7px;border-radius:3px;
+  white-space:nowrap;line-height:1.5;text-transform:uppercase;
+  border:1px solid transparent;
+}
+.p-must{background:var(--blue-soft);color:var(--blue);border-color:color-mix(in srgb,var(--blue) 26%,transparent)}
+.p-should{background:var(--teal-soft);color:var(--teal);border-color:color-mix(in srgb,var(--teal) 26%,transparent)}
+.p-could{background:var(--grey-soft);color:var(--muted);border-color:var(--line)}
+.p-not{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.p-warn{background:var(--orange-soft);color:var(--orange);border-color:color-mix(in srgb,var(--orange) 30%,transparent)}
+.p-done{background:var(--teal-soft);color:var(--teal);border-color:color-mix(in srgb,var(--teal) 26%,transparent)}
+
+/* ---------- tables ---------- */
+.tw{
+  overflow-x:auto;border:1px solid var(--line);border-radius:5px;
+  background:var(--surface);margin:0 0 20px;box-shadow:var(--shadow);
+  -webkit-overflow-scrolling:touch;
+}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+thead th{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:left;
+  padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  white-space:nowrap;position:sticky;top:0;
+}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.45}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+td.id{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--blue);white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.ctr{text-align:center}
+.yes{color:var(--teal);font-weight:600}
+.no{color:var(--muted)}
+.mod-cap{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink);padding:14px 14px 6px;
+  border-bottom:1px solid var(--line);background:var(--surface-2);
+}
+.tw.mod{margin-bottom:14px}
+
+/* ---------- journey / flow ---------- */
+.flow{
+  background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  padding:22px 24px;margin:0 0 20px;overflow-x:auto;box-shadow:var(--shadow);
+}
+.flow pre{
+  margin:0;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.75;
+  color:var(--ink-2);white-space:pre;
+}
+.flow .hl{color:var(--orange);font-weight:500}
+.flow-t{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:14px;
+}
+
+/* ---------- out of scope ---------- */
+.oos{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:700px){.oos{grid-template-columns:1fr 1fr}}
+.oos-g{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:18px 20px}
+.oos-g h4{margin:0 0 10px}
+.oos-g ul{list-style:none;padding:0;margin:0}
+.oos-g li{
+  font-size:14px;color:var(--ink-2);padding-left:20px;position:relative;margin-bottom:5px;
+}
+.oos-g li::before{
+  content:"×";position:absolute;left:4px;top:0;color:var(--orange);
+  font-family:"IBM Plex Mono",monospace;font-size:13px;
+}
+
+/* ---------- phase 2 tiers ---------- */
+.tier{border-left:3px solid var(--line);padding-left:20px;margin-bottom:26px}
+.tier.t1{border-left-color:var(--blue)}
+.tier.t2{border-left-color:var(--teal)}
+.tier.t3{border-left-color:var(--muted)}
+.tier-h{
+  font-family:Archivo,sans-serif;font-weight:600;font-size:12px;letter-spacing:.11em;
+  text-transform:uppercase;margin-bottom:14px;color:var(--ink);
+}
+.p2{margin-bottom:18px}
+.p2 .n{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-right:8px;
+}
+.p2 .t{font-family:Archivo,sans-serif;font-weight:600;font-size:15.5px}
+.p2 dl{margin:6px 0 0;font-size:14.5px;color:var(--ink-2);max-width:70ch}
+.p2 dt{
+  font-family:Archivo,sans-serif;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-top:7px;
+}
+.p2 dd{margin:1px 0 0}
+
+/* ---------- risk rows ---------- */
+.risk{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.r-sev{background:var(--orange-soft);color:var(--orange)}
+.r-hi{background:var(--grey-soft);color:var(--ink-2)}
+.r-med{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+
+/* ---------- open decisions ---------- */
+.od{
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--muted);
+  border-radius:0 5px 5px 0;padding:22px 24px;margin-bottom:16px;
+}
+.od.block{border-left-color:var(--orange);background:var(--surface)}
+.od-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.od-id{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--blue);font-weight:500}
+.od-t{font-family:Archivo,sans-serif;font-weight:600;font-size:16px}
+.od dl{margin:0;font-size:15px}
+.od dt{
+  font-family:Archivo,sans-serif;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-top:12px;
+}
+.od dd{margin:2px 0 0;color:var(--ink-2)}
+.od dd strong{color:var(--ink)}
+
+/* ---------- checklist ---------- */
+.check{list-style:none;padding:0;margin:0 0 20px;max-width:none}
+.check li{
+  display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:baseline;
+  padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:15.5px;margin:0;
+}
+.check li::before{
+  content:"✓";font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--teal);font-weight:600;
+}
+.check li.open::before{content:"○";color:var(--orange)}
+.check li.open{color:var(--ink-2)}
+
+/* ---------- metric grid ---------- */
+.mgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));margin-bottom:20px}
+.metric{
+  background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:16px 18px;
+}
+.metric .v{
+  font-family:Archivo,sans-serif;font-weight:700;font-size:27px;line-height:1;
+  color:var(--blue-deep);font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+}
+.metric .l{
+  font-family:Archivo,sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);margin-top:7px;font-weight:500;line-height:1.35;
+}
+
+/* ---------- final ask ---------- */
+.ask{
+  background:var(--surface);border:2px solid var(--ink);border-radius:5px;
+  padding:34px 32px;margin-top:40px;
+}
+.ask h2{
+  font-family:Archivo,sans-serif;font-weight:700;font-size:clamp(22px,3.4vw,30px);
+  margin:0 0 14px;letter-spacing:-.02em;text-wrap:balance;
+}
+.ask p{color:var(--ink-2);max-width:66ch}
+.ask ul{list-style:none;padding:0;margin:18px 0 0}
+.ask li{
+  padding:12px 0;border-top:1px solid var(--line-soft);font-size:15.5px;color:var(--ink-2);
+}
+.ask li b{font-family:Archivo,sans-serif;font-weight:600;color:var(--ink)}
+
+footer{
+  margin-top:52px;padding-top:22px;border-top:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.05em;
+  color:var(--muted);text-transform:uppercase;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+
+.note{
+  font-size:14.5px;color:var(--ink-2);background:var(--surface-2);
+  border:1px solid var(--line-soft);border-radius:4px;padding:14px 18px;margin:0 0 18px;
+  max-width:74ch;
+}
+.note b{color:var(--ink)}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="masthead">
+  <div class="mast-inner">
+    <div class="eyebrow">
+      <span class="org">Shehersaaz</span>
+      <span class="org-ur">شہر ساز</span>
+    </div>
+    <h1>Community Platform<span class="v">Product Scope · Version 1</span></h1>
+    <p class="deck">A bilingual civic platform for Pakistan — where awareness becomes discussion, discussion becomes connection, and connection becomes action.</p>
+    <div class="meta">
+      <div>Prepared<b>31 August 2026</b></div>
+      <div>Platform<b>Android + Admin Web</b></div>
+      <div>Team<b>2 developers</b></div>
+      <div>Status<b>Draft for approval</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<div class="banner">
+  <span class="tag">One decision outstanding · OD-011</span>
+  <h2>The feature set is approved-ready. The timeline is not yet resolved.</h2>
+  <p>After removing video posts, polls, and AI moderation, this scope needs roughly <strong>90 developer-days</strong>. Two developers over 50 calendar days provides <strong>70</strong>. Section&nbsp;19 sets out four ways to close the gap. Everything else in this document is decided.</p>
+</div>
+
+<div class="layout">
+
+  <nav class="toc toc-desk" aria-label="Contents">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><a href="#s1">Executive Summary</a></li>
+      <li><a href="#s2">Product Vision</a></li>
+      <li><a href="#s3">Problem Statement</a></li>
+      <li><a href="#s4">Product Objectives</a></li>
+      <li><a href="#s5">Target Users</a></li>
+      <li><a href="#s6">User Roles</a></li>
+      <li><a href="#s7">Core User Journey</a></li>
+      <li><a href="#s8">MVP Modules</a></li>
+      <li><a href="#s9">Feature Matrix</a></li>
+      <li><a href="#s10">Must-Have</a></li>
+      <li><a href="#s11">Should-Have</a></li>
+      <li><a href="#s12">Could-Have</a></li>
+      <li><a href="#s13">Out of Scope</a></li>
+      <li><a href="#s14">Phase 2 Backlog</a></li>
+      <li><a href="#s15">Admin Requirements</a></li>
+      <li><a href="#s16">Safety &amp; Moderation</a></li>
+      <li><a href="#s17">Assumptions</a></li>
+      <li><a href="#s18">Constraints</a></li>
+      <li><a href="#s19">Open Questions</a></li>
+      <li><a href="#s20">Success Criteria</a></li>
+      <li><a href="#s21">Scope Summary</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <details class="toc-m">
+    <summary>Contents · 21 sections</summary>
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        <li><a href="#s1">Executive Summary</a></li>
+        <li><a href="#s2">Product Vision</a></li>
+        <li><a href="#s3">Problem Statement</a></li>
+        <li><a href="#s4">Product Objectives</a></li>
+        <li><a href="#s5">Target Users</a></li>
+        <li><a href="#s6">User Roles</a></li>
+        <li><a href="#s7">Core User Journey</a></li>
+        <li><a href="#s8">MVP Modules</a></li>
+        <li><a href="#s9">Feature Matrix</a></li>
+        <li><a href="#s10">Must-Have</a></li>
+        <li><a href="#s11">Should-Have</a></li>
+        <li><a href="#s12">Could-Have</a></li>
+        <li><a href="#s13">Out of Scope</a></li>
+        <li><a href="#s14">Phase 2 Backlog</a></li>
+        <li><a href="#s15">Admin Requirements</a></li>
+        <li><a href="#s16">Safety &amp; Moderation</a></li>
+        <li><a href="#s17">Assumptions</a></li>
+        <li><a href="#s18">Constraints</a></li>
+        <li><a href="#s19">Open Questions</a></li>
+        <li><a href="#s20">Success Criteria</a></li>
+        <li><a href="#s21">Scope Summary</a></li>
+      </ol>
+    </nav>
+  </details>
+
+  <!-- 1 -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec">Executive Summary</h2></div>
+    <div class="rule"></div>
+    <p>We are building an <strong>Android-first bilingual civic community platform</strong> that lets citizens across Pakistan discover awareness content, discuss local issues, connect with each other and with civic organizations, and gather at community events — in <strong>Urdu or English</strong>, their choice.</p>
+    <p>This is <strong>not</strong> a general-purpose social network and <strong>not</strong> an entertainment app. It is a mobilization platform: awareness → discussion → connection → participation.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-t">Version 1 delivers</div>
+        <ul>
+          <li>Android application</li>
+          <li>Admin Web Portal</li>
+          <li>Full Urdu + English interface with right-to-left layout</li>
+          <li>88 must-have features across 15 modules</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-t">Version 1 deliberately excludes</div>
+        <ul>
+          <li>iOS and public web</li>
+          <li>Video posts and in-app video calling</li>
+          <li>Groups, group chat, and polls</li>
+          <li>Marketplace, advertising, and monetization</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec">Product Vision</h2></div>
+    <div class="rule"></div>
+    <div class="vision">
+      <p>A bilingual mobile community platform that allows citizens across Pakistan to share civic awareness, connect with people and organizations working on the same issues, and come together at community events — in Urdu or English.</p>
+      <div class="attrib">Positioning · Facebook is where you scroll. This is where you act.</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec">Problem Statement</h2></div>
+    <div class="rule"></div>
+    <p>Pakistani civic communities coordinate today through WhatsApp groups and shared phone numbers. That model fails them in six specific ways.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>What breaks</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td>WhatsApp content is unsearchable and disappears</td><td>Awareness material is shared once, then lost forever</td></tr>
+          <tr><td>No threading — every topic collides in one stream</td><td>Serious discussion is impossible</td></tr>
+          <tr><td>1,024-member cap per group</td><td>Communities fragment into dozens of disconnected groups</td></tr>
+          <tr><td>Phone numbers exposed to strangers</td><td><strong>Serious safety and privacy risk, especially for women</strong></td></tr>
+          <tr><td>No moderation tools</td><td>Spam, harassment, and misinformation spread unchecked</td></tr>
+          <tr><td>Nothing is permanent or discoverable</td><td>New members join with zero context</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Why existing platforms don't fill the gap</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Platform</th><th>Why it fails this audience</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Facebook / TikTok</strong></td><td>Optimized for entertainment; civic content drowns in the algorithm</td></tr>
+          <tr><td><strong>Twitter / X</strong></td><td>English-first, low Pakistani penetration, hostile discourse</td></tr>
+          <tr><td><strong>LinkedIn</strong></td><td>Professional only, English-first, no community or civic layer</td></tr>
+          <tr><td><strong>All of them</strong></td><td>English-first, poor Urdu support, no right-to-left native experience</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>Solution.</b> A permanent, searchable, moderated, Urdu-native home for civic awareness and community action — where content persists, people are findable, organizations are verifiable, discussion is threaded, and gatherings are organized.</div>
+  </section>
+
+  <!-- 4 -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec">Product Objectives</h2></div>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:52px">#</th><th>Objective</th><th>Measure of success</th></tr></thead>
+        <tbody>
+          <tr><td class="id">O1</td><td>Give civic awareness content a permanent, searchable home</td><td>Content stays findable indefinitely; search used by &gt;30% of active users</td></tr>
+          <tr><td class="id">O2</td><td>Let citizens connect without exposing phone numbers</td><td>&gt;50% of user-to-user contact happens via in-app direct message</td></tr>
+          <tr><td class="id">O3</td><td>Enable community gatherings to be organized and attended</td><td>10 or more events created per month, with RSVPs</td></tr>
+          <tr><td class="id">O4</td><td>Serve Urdu speakers as first-class users, not an afterthought</td><td>40% or more of users select the Urdu interface</td></tr>
+          <tr><td class="id">O5</td><td>Maintain a safe, moderated civic space</td><td>Median report-to-resolution time under 24 hours</td></tr>
+          <tr><td class="id">O6</td><td>Ship a working, stable product to real users</td><td>Live on Google Play with 1,000 registered users at 12 months</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec">Target Users</h2></div>
+    <div class="rule"></div>
+
+    <div class="card">
+      <div class="card-t">Civic-Minded Citizen <span class="p p-must">Primary</span></div>
+      <div class="tw" style="margin-top:14px;box-shadow:none">
+        <table style="min-width:0">
+          <tbody>
+            <tr><td style="width:150px"><strong>Description</strong></td><td>Ordinary Pakistani adult. Android user, Facebook-literate, comfortable in Urdu and/or English. All age groups, nationwide.</td></tr>
+            <tr><td><strong>Main need</strong></td><td>Know what is happening in my community; find people who care about the same issues; participate.</td></tr>
+            <tr><td><strong>Main activities</strong></td><td>Register, build profile, browse feed, read awareness content, follow people and organizations, post, comment, like, message, RSVP to events</td></tr>
+            <tr><td><strong>Permissions</strong></td><td>Full standard user permissions</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Verified Organization <span class="p p-should">Secondary</span></div>
+      <div class="tw" style="margin-top:14px;box-shadow:none">
+        <table style="min-width:0">
+          <tbody>
+            <tr><td style="width:150px"><strong>Description</strong></td><td>NGO, community group, or civic institution. In Version 1 this is a normal user account carrying a verified badge — not a separate page system.</td></tr>
+            <tr><td><strong>Main need</strong></td><td>Distribute awareness material credibly; announce and fill events; build a following.</td></tr>
+            <tr><td><strong>Main activities</strong></td><td>Everything a citizen can do, plus: carries a verified badge, creates events, is discoverable as an organization</td></tr>
+            <tr><td><strong>Permissions</strong></td><td>Standard user + verified badge + organization account flag</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Platform Administrator <span class="p p-warn">Essential</span></div>
+      <div class="tw" style="margin-top:14px;box-shadow:none">
+        <table style="min-width:0">
+          <tbody>
+            <tr><td style="width:150px"><strong>Description</strong></td><td>Shehersaaz team member operating the Admin Web Portal. Small trusted group.</td></tr>
+            <tr><td><strong>Main need</strong></td><td>Keep the platform safe, credible, and active.</td></tr>
+            <tr><td><strong>Main activities</strong></td><td>Review reports, remove content, suspend users, publish official announcements, verify organizations, monitor platform health</td></tr>
+            <tr><td><strong>Permissions</strong></td><td>Full moderation and administration. All admins have equal power in Version 1.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note"><b>Deliberately not created:</b> Moderator, Expert, Journalist, Government, and Volunteer roles. Three roles is the minimum that works. Every extra role multiplies permission logic, testing, and admin interface. Role granularity belongs in Phase 2, driven by real operational pain rather than speculation.</div>
+  </section>
+
+  <!-- 6 -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec">User Roles</h2></div>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Role</th><th>Count</th><th>Access</th><th>Suspendable</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Guest</strong></td><td class="no">—</td><td>None. Login is required to view any content.</td><td class="no">n/a</td></tr>
+          <tr><td><strong>Registered User — Individual</strong></td><td>Unlimited</td><td>Full application</td><td class="yes">Yes</td></tr>
+          <tr><td><strong>Registered User — Organization</strong></td><td>Unlimited</td><td>Full application + verified badge</td><td class="yes">Yes</td></tr>
+          <tr><td><strong>Administrator</strong></td><td>Small, manually created</td><td>Admin Web Portal only</td><td>Manually</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2 class="sec">Core User Journey</h2></div>
+    <div class="rule"></div>
+
+    <div class="flow">
+      <div class="flow-t">7.1 — New citizen · first-time experience</div>
+<pre>Opens app
+   │
+   ├─▸ Chooses language        <span class="hl">Urdu / English — the first screen, before anything else</span>
+   │
+   ├─▸ Registers with phone number
+   ├─▸ Verifies via OTP
+   ├─▸ Confirms age 13+ · Accepts Terms and Community Guidelines
+   │
+   ├─▸ Creates profile         name · photo · city · bio · individual or organization
+   │
+   ├─▸ SUGGESTED ACCOUNTS      <span class="hl">cold-start critical — pre-seeded orgs and active users</span>
+   ├─▸ Follows 3–5 accounts
+   │
+   ├─▸ Lands on FEED
+   │      ├── Featured / Announcements   admin-curated, always populated
+   │      └── Following feed             newest first
+   │
+   ├─▸ Reads awareness post · Likes · Comments
+   ├─▸ Receives notification when someone replies
+   └─▸ Returns to app</pre>
+    </div>
+
+    <div class="flow">
+      <div class="flow-t">7.2 — Active citizen · recurring loop</div>
+<pre>Push notification ─▸ Opens app
+   │
+   ├─▸ Reads feed ──┬─▸ Likes / Comments
+   │                ├─▸ Opens Discover, follows new people
+   │                ├─▸ Searches for a topic or person
+   │                └─▸ Sends a direct message
+   │
+   ├─▸ Creates a post          text · image · PDF · link
+   │
+   └─▸ Sees an EVENT ─▸ Taps RSVP ─▸ Gets reminder notification
+          │
+          └─▸ On event day ─▸ Taps "Join Meeting"
+                                 └─▸ Opens Zoom / Meet externally
+                                     or shows the physical location</pre>
+    </div>
+
+    <div class="flow">
+      <div class="flow-t">7.3 — Safety journey · encountering harmful content</div>
+<pre>Sees harmful post
+   │
+   ├─▸ Taps ⋯ ─▸ Report ─▸ selects a reason
+   │
+   ├─▸ Post reaches 3 reports from 3 different users
+   │
+   ├─▸ <span class="hl">AUTOMATICALLY HIDDEN from all feeds — no admin wait</span>
+   │
+   ├─▸ Enters the Admin Moderation Queue
+   │      └─▸ Admin restores it, or deletes it permanently
+   │
+   └─▸ Reporter can also BLOCK the user
+          └─▸ blocked user cannot see, follow, comment on, or message them</pre>
+    </div>
+
+    <div class="flow">
+      <div class="flow-t">7.4 — Administrator journey</div>
+<pre>Logs into Admin Web Portal
+   │
+   ├─▸ Dashboard    open reports · new users · posts today
+   │
+   ├─▸ MODERATION QUEUE ─▸ Review auto-hidden content
+   │        ├─▸ Restore            false report
+   │        └─▸ Delete permanently
+   │               └─▸ Optionally suspend or ban the author
+   │
+   ├─▸ USERS ─▸ Search ─▸ View activity ─▸ Suspend / Ban / Reinstate
+   │
+   ├─▸ ANNOUNCEMENTS ─▸ Write ─▸ Publish to Featured section
+   │                              └─▸ Push notification to all users
+   │
+   └─▸ VERIFICATION ─▸ Review request ─▸ Grant or revoke verified badge</pre>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2 class="sec">MVP Modules</h2></div>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:130px">Module</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="id">AUTH</td><td>Registration, OTP verification, login, sessions, age gate</td></tr>
+          <tr><td class="id">PROFILE</td><td>User identity, individual and organization accounts, verified badge</td></tr>
+          <tr><td class="id">LOCALE</td><td>Urdu/English switching, right-to-left layout, font rendering</td></tr>
+          <tr><td class="id">SOCIAL</td><td>Follow and unfollow graph</td></tr>
+          <tr><td class="id">POST</td><td>Content creation — text, images, links, PDF</td></tr>
+          <tr><td class="id">MEDIA</td><td>Image and document upload, compression, storage, viewing</td></tr>
+          <tr><td class="id">FEED</td><td>Following feed, Discover feed, Featured and Announcements</td></tr>
+          <tr><td class="id">ENGAGE</td><td>Likes, comments, replies, sharing</td></tr>
+          <tr><td class="id">MSG</td><td>One-to-one private messaging</td></tr>
+          <tr><td class="id">EVENT</td><td>Event creation, RSVP, external meeting links</td></tr>
+          <tr><td class="id">SEARCH</td><td>Find people, posts, and events</td></tr>
+          <tr><td class="id">NOTIF</td><td>Push and in-app notifications</td></tr>
+          <tr><td class="id">SAFETY</td><td>Report, block, threshold auto-hide, community guidelines</td></tr>
+          <tr><td class="id">ADMIN</td><td>Admin Web Portal — moderation, users, announcements, verification</td></tr>
+          <tr><td class="id">SETTINGS</td><td>Language, password, notifications, blocked list, account deletion</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2 class="sec">MVP Feature Matrix</h2></div>
+    <div class="rule"></div>
+    <p>Every feature carries a unique identifier so it can become a development task without renaming. Priority uses MoSCoW.</p>
+    <p style="margin-bottom:26px">
+      <span class="p p-must">Must</span>&nbsp;
+      <span class="p p-should">Should</span>&nbsp;
+      <span class="p p-could">Could</span>&nbsp;
+      <span class="p p-not">Not now → Phase 2</span>
+    </p>
+
+    <div class="tw mod"><div class="mod-cap">Authentication</div><table>
+      <thead><tr><th style="width:96px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">AUTH-001</td><td>Register with phone number</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Primary identity in Pakistan; email is secondary</td></tr>
+        <tr><td class="id">AUTH-002</td><td>OTP / SMS verification</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Only realistic spam barrier for open public registration</td></tr>
+        <tr><td class="id">AUTH-003</td><td>Email registration alternative</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Fallback and reduces SMS cost</td></tr>
+        <tr><td class="id">AUTH-004</td><td>Login and logout</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">AUTH-005</td><td>Password reset</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Users will lock themselves out on day one</td></tr>
+        <tr><td class="id">AUTH-006</td><td>Age gate — 13+ declaration</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Legal requirement and app store requirement</td></tr>
+        <tr><td class="id">AUTH-007</td><td>Accept Terms and Community Guidelines</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Legal basis for enforcement and suspension</td></tr>
+        <tr><td class="id">AUTH-008</td><td>Persistent session</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Users will not re-login daily</td></tr>
+        <tr><td class="id">AUTH-009</td><td>Admin login, separate and hardened</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Admin portal cannot share user authentication</td></tr>
+        <tr><td class="id">AUTH-010</td><td>Google sign-in</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Reduces friction; first to cut if time runs short</td></tr>
+        <tr><td class="id">AUTH-011</td><td>Two-factor authentication</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Localization</div><table>
+      <thead><tr><th style="width:110px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">LOCALE-001</td><td>Language selection on first launch</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>This is the product's core differentiator</td></tr>
+        <tr><td class="id">LOCALE-002</td><td>Full Urdu interface translation</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>"Urdu-first" is meaningless without it</td></tr>
+        <tr><td class="id">LOCALE-003</td><td><strong>Right-to-left layout for Urdu</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Not optional — every screen must mirror</td></tr>
+        <tr><td class="id">LOCALE-004</td><td>Correct Urdu font rendering</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Default Android Urdu rendering is poor and hurts credibility</td></tr>
+        <tr><td class="id">LOCALE-005</td><td>Language preference persists</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">LOCALE-006</td><td>Switch language anytime in Settings</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Bilingual users switch contextually</td></tr>
+        <tr><td class="id">LOCALE-007</td><td>Mixed-script content displays correctly</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Real posts mix Urdu, English, and Roman Urdu in one paragraph</td></tr>
+        <tr><td class="id">LOCALE-008</td><td>Urdu numerals and date formatting</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Polish</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">User Profile</div><table>
+      <thead><tr><th style="width:112px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">PROFILE-001</td><td>Create profile — name, photo, city, bio</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Identity is the base of any social graph</td></tr>
+        <tr><td class="id">PROFILE-002</td><td>Choose account type: individual or organization</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Drives the verification path</td></tr>
+        <tr><td class="id">PROFILE-003</td><td>Edit profile</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">PROFILE-004</td><td>View another user's profile</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">PROFILE-005</td><td>Profile displays the user's posts</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>How you decide whether to follow someone</td></tr>
+        <tr><td class="id">PROFILE-006</td><td><strong>Verified Organization badge</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Trust signal; core to civic credibility</td></tr>
+        <tr><td class="id">PROFILE-007</td><td>Follower and following counts</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Social proof</td></tr>
+        <tr><td class="id">PROFILE-008</td><td>City / location field</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>A nationwide app needs geography for relevance</td></tr>
+        <tr><td class="id">PROFILE-009</td><td>Interests / topic selection</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Improves suggestions; cut if time-pressed</td></tr>
+        <tr><td class="id">PROFILE-010</td><td>Full Organization Pages, multi-admin</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>7 dev-days; the badge delivers most of the value</td></tr>
+        <tr><td class="id">PROFILE-011</td><td>Cover photo</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Cosmetic</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Social Graph</div><table>
+      <thead><tr><th style="width:106px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">SOCIAL-001</td><td>Follow a user</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Follow, not friend-request, is correct for public civic content</td></tr>
+        <tr><td class="id">SOCIAL-002</td><td>Unfollow</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">SOCIAL-003</td><td>Followers and following lists</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Discovery path</td></tr>
+        <tr><td class="id">SOCIAL-004</td><td><strong>Suggested accounts to follow</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Cold-start critical — an empty feed on day one loses the user permanently</td></tr>
+        <tr><td class="id">SOCIAL-005</td><td>Mutual friending</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Wrong model for public civic content</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Posts</div><table>
+      <thead><tr><th style="width:96px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">POST-001</td><td>Create text post</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>The core unit of the product</td></tr>
+        <tr><td class="id">POST-002</td><td>Post in Urdu, English, or mixed</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core differentiator</td></tr>
+        <tr><td class="id">POST-003</td><td>Attach a single image</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Awareness material is overwhelmingly visual</td></tr>
+        <tr><td class="id">POST-004</td><td>Attach multiple images, maximum four</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Posters, flyers, event photo sets</td></tr>
+        <tr><td class="id">POST-005</td><td>Attach a link with preview</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Also the Version 1 route for video — YouTube and Facebook links</td></tr>
+        <tr><td class="id">POST-006</td><td>Attach a PDF document, 10 MB limit</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Directly serves the "awareness material" purpose</td></tr>
+        <tr><td class="id">POST-007</td><td>Delete own post</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>User control; legally expected</td></tr>
+        <tr><td class="id">POST-008</td><td>Edit own post</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Convenience</td></tr>
+        <tr><td class="id">POST-009</td><td>Category / topic tag on a post</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Enables filtering; cheap now, expensive to retrofit</td></tr>
+        <tr><td class="id">POST-010</td><td>Character limit, about 3,000</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Prevents abuse and layout breakage</td></tr>
+        <tr><td class="id">POST-011</td><td><strong>Video posts, up to 1 minute</strong></td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>8 dev-days plus the highest recurring cost. Deferred by decision.</td></tr>
+        <tr><td class="id">POST-012</td><td><strong>Polls</strong></td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>3 dev-days. Engagement toy, not core value.</td></tr>
+        <tr><td class="id">POST-013</td><td>Repost / quote-post</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Media</div><table>
+      <thead><tr><th style="width:104px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">MEDIA-001</td><td>Image upload from camera or gallery</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">MEDIA-002</td><td><strong>Client-side image compression</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Non-negotiable — Pakistani mobile data is expensive and slow</td></tr>
+        <tr><td class="id">MEDIA-003</td><td>Cloud storage and delivery</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core infrastructure</td></tr>
+        <tr><td class="id">MEDIA-004</td><td>Full-screen image viewer with zoom</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Awareness posters must be readable</td></tr>
+        <tr><td class="id">MEDIA-005</td><td>PDF upload and open</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Supports POST-006</td></tr>
+        <tr><td class="id">MEDIA-006</td><td>Upload size limits enforced</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Cost control</td></tr>
+        <tr><td class="id">MEDIA-007</td><td>Video upload, transcoding, streaming</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Deferred alongside POST-011</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Feed</div><table>
+      <thead><tr><th style="width:96px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">FEED-001</td><td>Following feed, newest first</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">FEED-002</td><td><strong>Featured / Announcements section</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Guarantees the feed is never empty; gives Shehersaaz an official voice</td></tr>
+        <tr><td class="id">FEED-003</td><td><strong>Discover feed — all public posts</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Cold-start critical — a user following nobody must still see something</td></tr>
+        <tr><td class="id">FEED-004</td><td>Infinite scroll / pagination</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">FEED-005</td><td>Pull to refresh</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Expected behaviour</td></tr>
+        <tr><td class="id">FEED-006</td><td>Filter feed by category</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Uses POST-009</td></tr>
+        <tr><td class="id">FEED-007</td><td>Saved / bookmarked posts</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Valuable for awareness material — keep if time allows</td></tr>
+        <tr><td class="id">FEED-008</td><td>Algorithmic ranking</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Pointless below roughly 50,000 users; large cost</td></tr>
+        <tr><td class="id">FEED-009</td><td>Location-based feed</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Engagement</div><table>
+      <thead><tr><th style="width:112px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">ENGAGE-001</td><td>Like and unlike a post</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Lowest-friction participation signal</td></tr>
+        <tr><td class="id">ENGAGE-002</td><td>Comment on a post</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Discussion is the point of a civic platform</td></tr>
+        <tr><td class="id">ENGAGE-003</td><td>Reply to a comment, one level</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Solves WhatsApp's biggest failure — no threading</td></tr>
+        <tr><td class="id">ENGAGE-004</td><td>Delete own comment</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>User control</td></tr>
+        <tr><td class="id">ENGAGE-005</td><td>Like and comment counts</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Social proof</td></tr>
+        <tr><td class="id">ENGAGE-006</td><td>Post author can delete comments on own post</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Distributes moderation load away from admins</td></tr>
+        <tr><td class="id">ENGAGE-007</td><td><strong>Share post externally, e.g. WhatsApp</strong></td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Primary growth channel — WhatsApp is how Pakistan shares</td></tr>
+        <tr><td class="id">ENGAGE-008</td><td>@mentions</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Nice to have</td></tr>
+        <tr><td class="id">ENGAGE-009</td><td>Hashtags</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Categories cover this need more simply</td></tr>
+        <tr><td class="id">ENGAGE-010</td><td>Multiple reaction types</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Cosmetic</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Messaging</div><table>
+      <thead><tr><th style="width:92px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">MSG-001</td><td><strong>One-to-one direct message</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>The direct replacement for sharing phone numbers</td></tr>
+        <tr><td class="id">MSG-002</td><td>Conversation list / inbox</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">MSG-003</td><td>Send text messages</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">MSG-004</td><td>Near-real-time delivery</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Users expect WhatsApp-like immediacy</td></tr>
+        <tr><td class="id">MSG-005</td><td>Message notification</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Unnotified messages are unread messages</td></tr>
+        <tr><td class="id">MSG-006</td><td><strong>Message requests from non-followers</strong></td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Key harassment defence, especially for women users</td></tr>
+        <tr><td class="id">MSG-007</td><td>Blocking prevents all messaging</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Safety</td></tr>
+        <tr><td class="id">MSG-008</td><td>Report a conversation</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Direct messages are where harassment happens</td></tr>
+        <tr><td class="id">MSG-009</td><td>Send an image in a direct message</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Expected, but adds moderation surface</td></tr>
+        <tr><td class="id">MSG-010</td><td>Read receipts</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Polish</td></tr>
+        <tr><td class="id">MSG-011</td><td>Group chat</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2 — this is where the WhatsApp replacement completes</td></tr>
+        <tr><td class="id">MSG-012</td><td>Voice notes</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2; high value for lower-literacy users</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Events</div><table>
+      <thead><tr><th style="width:104px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">EVENT-001</td><td>Create event — title, description, date, time</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>The mobilization layer</td></tr>
+        <tr><td class="id">EVENT-002</td><td>Event type: online or physical</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Both are needed</td></tr>
+        <tr><td class="id">EVENT-003</td><td><strong>External meeting link — Zoom or Meet</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Replaces in-app video at roughly 5% of the cost</td></tr>
+        <tr><td class="id">EVENT-004</td><td>Physical location field</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Community gatherings are often in person</td></tr>
+        <tr><td class="id">EVENT-005</td><td>RSVP — going or interested</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Turns intent into attendance</td></tr>
+        <tr><td class="id">EVENT-006</td><td>Upcoming events list</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Discovery</td></tr>
+        <tr><td class="id">EVENT-007</td><td>Event detail screen with attendee count</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Social proof drives attendance</td></tr>
+        <tr><td class="id">EVENT-008</td><td><strong>Event reminder notification</strong></td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>The biggest single lever on actual turnout</td></tr>
+        <tr><td class="id">EVENT-009</td><td>Edit or cancel own event</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Plans change</td></tr>
+        <tr><td class="id">EVENT-010</td><td>Add to phone calendar</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Convenience</td></tr>
+        <tr><td class="id">EVENT-011</td><td><strong>In-app video conferencing</strong></td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>45–70 dev-days. Rejected — external links used instead.</td></tr>
+        <tr><td class="id">EVENT-012</td><td>Ticketing / paid events</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 3</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Search</div><table>
+      <thead><tr><th style="width:108px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">SEARCH-001</td><td>Search users by name</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>You cannot follow who you cannot find</td></tr>
+        <tr><td class="id">SEARCH-002</td><td><strong>Search posts by keyword</strong></td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>The single biggest advantage over WhatsApp</td></tr>
+        <tr><td class="id">SEARCH-003</td><td><strong>Search across Urdu script and Roman Urdu</strong></td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Most Pakistanis type Roman Urdu; script-only search will feel broken</td></tr>
+        <tr><td class="id">SEARCH-004</td><td>Search events</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Nice to have</td></tr>
+        <tr><td class="id">SEARCH-005</td><td>Recent searches</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Polish</td></tr>
+        <tr><td class="id">SEARCH-006</td><td>Advanced filters</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Notifications</div><table>
+      <thead><tr><th style="width:100px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">NOTIF-001</td><td><strong>Push notifications</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>The primary retention mechanism — without it users never return</td></tr>
+        <tr><td class="id">NOTIF-002</td><td>In-app notification centre</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Catches what push misses</td></tr>
+        <tr><td class="id">NOTIF-003</td><td>Notify on like</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core engagement loop</td></tr>
+        <tr><td class="id">NOTIF-004</td><td>Notify on comment or reply</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core engagement loop</td></tr>
+        <tr><td class="id">NOTIF-005</td><td>Notify on new follower</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core engagement loop</td></tr>
+        <tr><td class="id">NOTIF-006</td><td>Notify on direct message</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Messaging is useless without it</td></tr>
+        <tr><td class="id">NOTIF-007</td><td>Admin broadcast announcement</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>How Shehersaaz reaches everyone</td></tr>
+        <tr><td class="id">NOTIF-008</td><td>Event reminders</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Supports EVENT-008</td></tr>
+        <tr><td class="id">NOTIF-009</td><td>Notification on/off preferences</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Prevents uninstalls from notification fatigue</td></tr>
+        <tr><td class="id">NOTIF-010</td><td>Notifications in the selected language</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Consistency with LOCALE</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Safety &amp; Moderation</div><table>
+      <thead><tr><th style="width:106px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">SAFETY-001</td><td>Report a post</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Mandatory for open public registration</td></tr>
+        <tr><td class="id">SAFETY-002</td><td>Report a comment</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Mandatory</td></tr>
+        <tr><td class="id">SAFETY-003</td><td>Report a user</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Mandatory</td></tr>
+        <tr><td class="id">SAFETY-004</td><td>Report a message or conversation</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Direct messages need it most</td></tr>
+        <tr><td class="id">SAFETY-005</td><td>Report reason categories</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Lets admins triage by severity</td></tr>
+        <tr><td class="id">SAFETY-006</td><td>Block a user</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Mandatory</td></tr>
+        <tr><td class="id">SAFETY-007</td><td>Block hides content both ways and prevents contact</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>A partial block is not a block</td></tr>
+        <tr><td class="id">SAFETY-008</td><td>Unblock and view blocked list</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>User control</td></tr>
+        <tr><td class="id">SAFETY-009</td><td><strong>Auto-hide at 3 reports from 3 distinct users</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Fast removal without AI cost or false-deletion risk</td></tr>
+        <tr><td class="id">SAFETY-010</td><td>Community Guidelines in-app, both languages</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Legal basis for enforcement</td></tr>
+        <tr><td class="id">SAFETY-011</td><td>Private / public profile toggle</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Meaningful control for cautious users</td></tr>
+        <tr><td class="id">SAFETY-012</td><td>Rate limiting on posts and messages</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Cheap, blocks the most common spam attack</td></tr>
+        <tr><td class="id">SAFETY-013</td><td>AI / automated content moderation</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Poor Urdu accuracy; risks deleting legitimate civic speech</td></tr>
+        <tr><td class="id">SAFETY-014</td><td>Appeal a suspension</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2 — handle via email initially</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Administration · Web Portal</div><table>
+      <thead><tr><th style="width:104px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">ADMIN-001</td><td>Secure admin login</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Foundational</td></tr>
+        <tr><td class="id">ADMIN-002</td><td><strong>Moderation queue</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>The number one daily admin job</td></tr>
+        <tr><td class="id">ADMIN-003</td><td>Restore wrongly-hidden content</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Protects legitimate civic speech</td></tr>
+        <tr><td class="id">ADMIN-004</td><td>Permanently delete any post or comment</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">ADMIN-005</td><td>Search and view any user</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Prerequisite to acting on a user</td></tr>
+        <tr><td class="id">ADMIN-006</td><td>Suspend user, temporary</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Proportionate enforcement</td></tr>
+        <tr><td class="id">ADMIN-007</td><td>Ban user, permanent</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">ADMIN-008</td><td>Reinstate a suspended user</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Mistakes happen</td></tr>
+        <tr><td class="id">ADMIN-009</td><td><strong>Publish announcement to Featured</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Shehersaaz's official voice; keeps the feed alive</td></tr>
+        <tr><td class="id">ADMIN-010</td><td><strong>Grant or revoke verified badge</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Trust infrastructure</td></tr>
+        <tr><td class="id">ADMIN-011</td><td>Dashboard — users, posts, events, open reports</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Basic operational awareness</td></tr>
+        <tr><td class="id">ADMIN-012</td><td>Audit log of admin actions</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Accountability — matters for a civic organization</td></tr>
+        <tr><td class="id">ADMIN-013</td><td>Admin portal in English only</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Deliberate — saves translation effort; admins are staff</td></tr>
+        <tr><td class="id">ADMIN-014</td><td>Manage event listings</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Largely covered by ADMIN-004</td></tr>
+        <tr><td class="id">ADMIN-015</td><td>Granular admin roles and permissions</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2 — all admins equal in Version 1</td></tr>
+        <tr><td class="id">ADMIN-016</td><td>Category management interface</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Categories are fixed in Version 1</td></tr>
+        <tr><td class="id">ADMIN-017</td><td>Advanced analytics and reporting</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+        <tr><td class="id">ADMIN-018</td><td>Bulk actions</td><td><span class="p p-not">Not now</span></td><td class="ctr no">—</td><td>Phase 2</td></tr>
+      </tbody></table></div>
+
+    <div class="tw mod"><div class="mod-cap">Settings</div><table>
+      <thead><tr><th style="width:88px">ID</th><th>Feature</th><th style="width:86px">Priority</th><th style="width:52px">MVP</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td class="id">SET-001</td><td>Switch language, Urdu ↔ English</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core differentiator</td></tr>
+        <tr><td class="id">SET-002</td><td>Change password</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Basic security</td></tr>
+        <tr><td class="id">SET-003</td><td>View and manage blocked users</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Safety</td></tr>
+        <tr><td class="id">SET-004</td><td><strong>Delete account permanently</strong></td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Legal requirement and Google Play policy requirement</td></tr>
+        <tr><td class="id">SET-005</td><td>Logout</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Core</td></tr>
+        <tr><td class="id">SET-006</td><td>Privacy Policy and Terms links</td><td><span class="p p-must">Must</span></td><td class="ctr yes">✓</td><td>Legal and app store requirement</td></tr>
+        <tr><td class="id">SET-007</td><td>Notification preferences</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Retention</td></tr>
+        <tr><td class="id">SET-008</td><td>Help / contact support</td><td><span class="p p-should">Should</span></td><td class="ctr yes">✓</td><td>Support channel</td></tr>
+        <tr><td class="id">SET-009</td><td>About / app version</td><td><span class="p p-could">Could</span></td><td class="ctr yes">✓</td><td>Support diagnostics</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <!-- 10 -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2 class="sec">Must-Have Features</h2></div>
+    <div class="rule"></div>
+    <p>The application cannot launch without these. If any is missing, Version 1 does not ship.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Group</th><th class="num" style="width:70px">Count</th><th>Items</th></tr></thead>
+        <tbody>
+          <tr><td>Authentication</td><td class="num">8</td><td>Phone registration, OTP, login/logout, password reset, age gate, terms, sessions, admin login</td></tr>
+          <tr><td>Localization</td><td class="num">6</td><td>Language selection, Urdu translation, right-to-left layout, Urdu fonts, persistence, mixed-script display</td></tr>
+          <tr><td>Profile</td><td class="num">6</td><td>Create, account type, edit, view others, posts on profile, verified organization badge</td></tr>
+          <tr><td>Social Graph</td><td class="num">3</td><td>Follow, unfollow, suggested accounts</td></tr>
+          <tr><td>Posts</td><td class="num">5</td><td>Text post, bilingual posting, single image, delete own post, character limit</td></tr>
+          <tr><td>Media</td><td class="num">4</td><td>Image upload, compression, storage and delivery, full-screen viewer, size limits</td></tr>
+          <tr><td>Feed</td><td class="num">5</td><td>Following feed, Featured section, Discover feed, pagination, pull to refresh</td></tr>
+          <tr><td>Engagement</td><td class="num">4</td><td>Like, comment, delete own comment, counts</td></tr>
+          <tr><td>Messaging</td><td class="num">6</td><td>Direct message, inbox, send text, real-time delivery, notification, block enforcement, report</td></tr>
+          <tr><td>Events</td><td class="num">7</td><td>Create, online/physical type, external meeting link, location, RSVP, list, detail</td></tr>
+          <tr><td>Search</td><td class="num">1</td><td>Search users</td></tr>
+          <tr><td>Notifications</td><td class="num">6</td><td>Push, notification centre, like/comment/follow/message alerts</td></tr>
+          <tr><td>Safety</td><td class="num">10</td><td>Report ×4, reasons, block, block enforcement, unblock, auto-hide, guidelines</td></tr>
+          <tr><td>Administration</td><td class="num">11</td><td>Login, moderation queue, restore, delete, user search, suspend, ban, reinstate, announcements, verification, English-only</td></tr>
+          <tr><td>Settings</td><td class="num">6</td><td>Language, password, blocked list, delete account, logout, legal links</td></tr>
+          <tr><td><strong>Total</strong></td><td class="num"><strong>88</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2 class="sec">Should-Have Features</h2></div>
+    <div class="rule"></div>
+    <p>Build these if the schedule holds. They are the first items sacrificed if Version 1 runs late.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:190px">ID</th><th>Feature</th></tr></thead>
+        <tbody>
+          <tr><td class="id">AUTH-003</td><td>Email registration alternative</td></tr>
+          <tr><td class="id">PROFILE-007 · 008</td><td>Follower counts · City field</td></tr>
+          <tr><td class="id">SOCIAL-003</td><td>Followers and following lists</td></tr>
+          <tr><td class="id">POST-004 · 005 · 006 · 009</td><td>Multiple images · Link previews · <strong>PDF attachment</strong> · Category tags</td></tr>
+          <tr><td class="id">MEDIA-005</td><td>PDF viewing</td></tr>
+          <tr><td class="id">FEED-006</td><td>Filter by category</td></tr>
+          <tr><td class="id">ENGAGE-003 · 006 · 007</td><td>Comment replies · Author deletes comments · <strong>External sharing</strong></td></tr>
+          <tr><td class="id">MSG-006</td><td><strong>Message requests from non-followers</strong></td></tr>
+          <tr><td class="id">EVENT-008 · 009</td><td><strong>Event reminders</strong> · Edit and cancel event</td></tr>
+          <tr><td class="id">SEARCH-002 · 003</td><td><strong>Post search</strong> · <strong>Roman Urdu search</strong></td></tr>
+          <tr><td class="id">NOTIF-007 – 010</td><td>Admin broadcast · Event reminders · Preferences · Localized text</td></tr>
+          <tr><td class="id">SAFETY-011 · 012</td><td>Private profile toggle · Rate limiting</td></tr>
+          <tr><td class="id">ADMIN-011 · 012</td><td>Dashboard statistics · Audit log</td></tr>
+          <tr><td class="id">SET-007 · 008</td><td>Notification preferences · Help</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>Product owner note.</b> POST-006 (PDF), ENGAGE-007 (WhatsApp sharing), MSG-006 (message requests), and SEARCH-003 (Roman Urdu) are the four to fight hardest to keep. They map directly to the stated purpose, the growth channel, women's safety, and how Pakistanis actually type.</div>
+  </section>
+
+  <!-- 12 -->
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2 class="sec">Could-Have Features</h2></div>
+    <div class="rule"></div>
+    <p>Build only if genuinely ahead of schedule. Expect most of these to slip to Phase 2 — that is an acceptable outcome.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:170px">ID</th><th>Feature</th></tr></thead>
+        <tbody>
+          <tr><td class="id">AUTH-010</td><td>Google sign-in</td></tr>
+          <tr><td class="id">LOCALE-008</td><td>Urdu numerals and dates</td></tr>
+          <tr><td class="id">PROFILE-009</td><td>Interests and topics</td></tr>
+          <tr><td class="id">POST-008</td><td>Edit own post</td></tr>
+          <tr><td class="id">FEED-007</td><td>Saved posts</td></tr>
+          <tr><td class="id">ENGAGE-008</td><td>@mentions</td></tr>
+          <tr><td class="id">MSG-009 · 010</td><td>Image in direct message · Read receipts</td></tr>
+          <tr><td class="id">EVENT-010</td><td>Add to calendar</td></tr>
+          <tr><td class="id">SEARCH-004 · 005</td><td>Event search · Recent searches</td></tr>
+          <tr><td class="id">ADMIN-014</td><td>Event management interface</td></tr>
+          <tr><td class="id">SET-009</td><td>About and version</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2 class="sec">Out of Scope</h2></div>
+    <div class="rule"></div>
+    <p>Explicitly not in Version 1. This list exists to prevent scope creep.</p>
+    <div class="oos">
+      <div class="oos-g"><h4>Platforms</h4><ul>
+        <li>iOS application</li><li>Public web application</li><li>Tablet-optimized layouts</li><li>Desktop application</li>
+      </ul></div>
+      <div class="oos-g"><h4>Video &amp; real-time media</h4><ul>
+        <li>Video posts of any length</li><li>Video upload, transcoding, streaming</li><li>In-app video conferencing</li><li>Voice calls · Video calls</li><li>Live streaming</li><li>Stories · Reels · Short-form video feed</li>
+      </ul></div>
+      <div class="oos-g"><h4>Social features</h4><ul>
+        <li>Groups / Communities / Sub-forums</li><li>Group messaging</li><li>Voice notes</li><li>Polls</li><li>Repost and quote-post</li><li>Hashtags</li><li>Multiple reaction types</li><li>Friend requests / mutual friending</li><li>Full Organization Pages</li>
+      </ul></div>
+      <div class="oos-g"><h4>Intelligence</h4><ul>
+        <li>Algorithmic feed ranking</li><li>AI content moderation</li><li>AI recommendations</li><li>Automatic Urdu ↔ English translation</li><li>Trending topics</li>
+      </ul></div>
+      <div class="oos-g"><h4>Business</h4><ul>
+        <li>Monetization of any kind</li><li>Advertising</li><li>Subscriptions and premium tiers</li><li>Donations and fundraising</li><li>Marketplace and classifieds</li><li>Jobs board</li><li>Paid or ticketed events</li>
+      </ul></div>
+      <div class="oos-g"><h4>Other</h4><ul>
+        <li>Granular admin roles</li><li>Advanced analytics</li><li>Third-party integrations / public API</li><li>Offline mode</li><li>Dark mode</li><li>Two-factor authentication</li><li>Suspension appeals workflow</li><li>Location and GPS features</li><li>Complaint or issue-tracking workflow</li>
+      </ul></div>
+    </div>
+    <div class="note"><b>Scope-creep protection.</b> Anything on this list requires a formal change request that explicitly names which Version 1 feature is being removed to pay for it.</div>
+  </section>
+
+  <!-- 14 -->
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2 class="sec">Phase 2 Backlog</h2></div>
+    <div class="rule"></div>
+    <p>Nothing here is cancelled. Each item is deferred with a stated reason, value, and dependency.</p>
+
+    <div class="tier t1">
+      <div class="tier-h">Tier 1 · Immediately after Version 1 launch</div>
+
+      <div class="p2"><span class="n">01</span><span class="t">Group Messaging</span>
+        <dl>
+          <dt>Excluded because</dt><dd>About 12 dev-days; Version 1 needed one-to-one messaging first to prove the model works</dd>
+          <dt>Value</dt><dd>Completes the WhatsApp replacement. This is the feature that makes real groups migrate.</dd>
+          <dt>Depends on</dt><dd>MSG-001 through MSG-008 shipped and stable</dd>
+          <dt>Priority</dt><dd><span class="p p-must">Highest</span></dd>
+        </dl>
+      </div>
+
+      <div class="p2"><span class="n">02</span><span class="t">Video Posts, up to 1 minute</span>
+        <dl>
+          <dt>Excluded because</dt><dd>8 dev-days plus the largest recurring storage and bandwidth cost</dd>
+          <dt>Value</dt><dd>Awareness content performs dramatically better as video in Pakistan</dd>
+          <dt>Depends on</dt><dd>Real budget data from Version 1; storage and delivery decision</dd>
+          <dt>Priority</dt><dd><span class="p p-must">High</span></dd>
+        </dl>
+      </div>
+
+      <div class="p2"><span class="n">03</span><span class="t">Full Organization Pages</span>
+        <dl>
+          <dt>Excluded because</dt><dd>7 dev-days; the verified badge covered the trust need</dd>
+          <dt>Value</dt><dd>Multiple staff managing one account; organization-level analytics; prerequisite for donations</dd>
+          <dt>Depends on</dt><dd>PROFILE-006, ADMIN-010</dd>
+          <dt>Priority</dt><dd><span class="p p-must">High</span></dd>
+        </dl>
+      </div>
+
+      <div class="p2"><span class="n">04</span><span class="t">iOS Application</span>
+        <dl>
+          <dt>Excluded because</dt><dd>Under 10% of the Pakistani market; 25 dev-days</dd>
+          <dt>Value</dt><dd>Reaches decision-makers, donors, and diaspora — disproportionately iOS users</dd>
+          <dt>Depends on</dt><dd>Stable Version 1 API</dd>
+          <dt>Priority</dt><dd><span class="p p-should">Medium-high</span></dd>
+        </dl>
+      </div>
+
+      <div class="p2"><span class="n">05</span><span class="t">Groups / Communities</span>
+        <dl>
+          <dt>Excluded because</dt><dd>About 15 dev-days; needs the base platform proven first</dd>
+          <dt>Value</dt><dd>Lets the platform scale from one national feed into city and topic communities</dd>
+          <dt>Depends on</dt><dd>Feed, posts, moderation</dd>
+          <dt>Priority</dt><dd><span class="p p-should">Medium-high</span></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tier t2">
+      <div class="tier-h">Tier 2 · Growth phase</div>
+      <div class="tw" style="box-shadow:none"><table>
+        <thead><tr><th style="width:40px">#</th><th style="width:210px">Feature</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="id">06</td><td>Public web application</td><td>Reach and search discoverability; content shareable outside the app. About 18 dev-days.</td></tr>
+          <tr><td class="id">07</td><td>Voice notes</td><td>High value for lower-literacy users — a genuine accessibility win for Pakistan</td></tr>
+          <tr><td class="id">08</td><td>Polls</td><td>Lightweight civic consultation and opinion gathering</td></tr>
+          <tr><td class="id">09</td><td>Location / city-based feeds</td><td>Essential once nationwide usage makes one national feed too noisy</td></tr>
+          <tr><td class="id">10</td><td>Granular admin roles</td><td>Separate moderators from super-admins as the admin team grows</td></tr>
+          <tr><td class="id">11</td><td>Suspension appeals workflow</td><td>Fairness; reduces support email load</td></tr>
+          <tr><td class="id">12</td><td>Saved posts and collections</td><td>Turns the app into a reference library for awareness material</td></tr>
+          <tr><td class="id">13</td><td>Advanced analytics</td><td>Measure which awareness content actually drives participation</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="tier t3">
+      <div class="tier-h">Tier 3 · Requires proven scale</div>
+      <div class="tw" style="box-shadow:none"><table>
+        <thead><tr><th style="width:40px">#</th><th style="width:210px">Feature</th><th>Rationale and dependencies</th></tr></thead>
+        <tbody>
+          <tr><td class="id">14</td><td>Donations / fundraising</td><td>Depends on full Organization Pages, a payment gateway, regulatory compliance, and financial-audit obligations. Handling money in Pakistan brings legal requirements well beyond app development — treat as a separate project, not a feature.</td></tr>
+          <tr><td class="id">15</td><td>Jobs board</td><td>Depends on Organization Pages and sufficient organization density. Needs a critical mass of employers before it looks anything but empty.</td></tr>
+          <tr><td class="id">16</td><td>Advertising</td><td>Needs roughly 50,000+ active users to be worth anything. <strong>Caution:</strong> advertising on a civic-trust platform risks the credibility that is the core asset — prefer sponsorship or partner placement over open ad networks.</td></tr>
+          <tr><td class="id">17</td><td>AI content moderation</td><td>Revisit once Urdu and Roman Urdu model quality can be verified against real platform content</td></tr>
+          <tr><td class="id">18</td><td>Algorithmic feed</td><td>Only meaningful above roughly 50,000 users</td></tr>
+          <tr><td class="id">19</td><td>Auto-translation Urdu ↔ English</td><td>Would meaningfully bridge the two language communities</td></tr>
+          <tr><td class="id">20</td><td>In-app video conferencing</td><td>Only if external links prove to be a genuine, measured blocker</td></tr>
+          <tr><td class="id">21</td><td>Public API and integrations</td><td>Government, civil-society, and civic-data partnerships</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section id="s15">
+    <div class="sec-head"><span class="sec-num">15</span><h2 class="sec">Admin Requirements</h2></div>
+    <div class="rule"></div>
+    <h3>Operational model</h3>
+    <ul>
+      <li>Admin Web Portal with an <strong>English-only interface</strong> — deliberate, since admins are Shehersaaz staff</li>
+      <li>Small trusted admin group; accounts created manually</li>
+      <li><strong>All admins have equal permissions in Version 1</strong> — no role hierarchy</li>
+      <li>Target: the moderation queue is reviewed <strong>at least once daily</strong></li>
+    </ul>
+    <h3>Day-one capabilities</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:180px">Requirement</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Moderation queue</strong></td><td>All auto-hidden and reported content, sorted by report count and age</td></tr>
+          <tr><td><strong>Restore</strong></td><td>Undo a wrongful auto-hide — protects legitimate civic criticism</td></tr>
+          <tr><td><strong>Delete</strong></td><td>Permanently remove any post or comment</td></tr>
+          <tr><td><strong>User lookup</strong></td><td>Search by name, phone, or email; view full activity history</td></tr>
+          <tr><td><strong>Suspend</strong></td><td>Temporary, fixed-duration removal of posting rights</td></tr>
+          <tr><td><strong>Ban</strong></td><td>Permanent account termination</td></tr>
+          <tr><td><strong>Reinstate</strong></td><td>Reverse a suspension or ban</td></tr>
+          <tr><td><strong>Announcements</strong></td><td>Publish to the Featured section, optionally with a push notification to all users</td></tr>
+          <tr><td><strong>Verification</strong></td><td>Grant or revoke the Organization verified badge</td></tr>
+          <tr><td><strong>Dashboard</strong></td><td>Total users, new users today, posts today, events, open reports</td></tr>
+          <tr><td><strong>Audit log</strong></td><td>Every admin action recorded with actor, target, timestamp, and reason</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Explicitly deferred</h4>
+    <p>Granular roles and permissions · Bulk actions · Category management interface (categories are fixed in Version 1) · Advanced analytics and exports · Automated enforcement rules.</p>
+  </section>
+
+  <!-- 16 -->
+  <section id="s16">
+    <div class="sec-head"><span class="sec-num">16</span><h2 class="sec">Safety &amp; Moderation Requirements</h2></div>
+    <div class="rule"></div>
+    <h3>The model — post-moderation with automated threshold hiding</h3>
+    <div class="flow">
+<pre>User publishes post ─▸ <span class="hl">LIVE IMMEDIATELY</span>   no approval delay
+        │
+        ├─▸ Users report it
+        │
+        ├─▸ 3 reports from 3 DISTINCT users
+        │        │
+        │        ├─▸ <span class="hl">AUTO-HIDDEN from all feeds</span>
+        │        └─▸ Author is notified
+        │
+        └─▸ Enters the Admin Moderation Queue
+                 ├─▸ RESTORE                 false report
+                 └─▸ DELETE PERMANENTLY
+                          └─▸ Optional: suspend or ban the author</pre>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-t">Why this design</div>
+        <ul>
+          <li>Harmful content disappears in minutes without waiting for an admin</li>
+          <li>A human always makes the permanent decision — a legitimate citizen complaint is never auto-deleted</li>
+          <li>Near-zero recurring cost; about one dev-day to build</li>
+          <li>Requiring three <em>distinct</em> accounts resists trivial gaming</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-t">Privacy commitments</div>
+        <ul>
+          <li>Phone numbers are <strong>never</strong> shown to other users — used only for authentication</li>
+          <li>This is the single most important privacy improvement over the WhatsApp status quo</li>
+          <li>Deleting an account removes personal data; content is deleted or anonymized</li>
+          <li>No location tracking in Version 1</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Mandatory safety controls</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Control</th><th style="width:190px">Status</th></tr></thead>
+        <tbody>
+          <tr><td>Report post, comment, user, and conversation</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Report reason categories</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Block user — two-way content hiding, no contact</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Admin content removal</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Admin account suspension and ban</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Permanent account deletion by the user</td><td><span class="p p-done">Required · legal</span></td></tr>
+          <tr><td>Minimum age 13, stated in Terms</td><td><span class="p p-done">Required · legal</span></td></tr>
+          <tr><td>Community Guidelines in Urdu and English</td><td><span class="p p-done">Required</span></td></tr>
+          <tr><td>Rate limiting on posting and messaging</td><td><span class="p p-should">Strongly recommended</span></td></tr>
+          <tr><td>Message requests from non-followers</td><td><span class="p p-should">Strongly recommended</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 17 -->
+  <section id="s17">
+    <div class="sec-head"><span class="sec-num">17</span><h2 class="sec">Assumptions</h2></div>
+    <div class="rule"></div>
+    <p>These are assumptions, not confirmed requirements. Each is a risk if wrong.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:50px">#</th><th>Assumption</th><th style="width:96px">Risk</th></tr></thead>
+        <tbody>
+          <tr><td class="id">A1</td><td>Shehersaaz will seed the platform with real awareness content <strong>before</strong> public launch</td><td><span class="risk r-sev">Severe</span></td></tr>
+          <tr><td class="id">A2</td><td>Shehersaaz has an existing audience — social media, mailing list, community — to invite</td><td><span class="risk r-sev">Severe</span></td></tr>
+          <tr><td class="id">A3</td><td>At least one person will review the moderation queue daily from day one</td><td><span class="risk r-sev">Severe</span></td></tr>
+          <tr><td class="id">A4</td><td>Urdu translation of all interface text is provided by Shehersaaz, not the developers</td><td><span class="risk r-hi">High</span></td></tr>
+          <tr><td class="id">A5</td><td>Community Guidelines, Terms, and Privacy Policy will be written by Shehersaaz</td><td><span class="risk r-hi">High</span></td></tr>
+          <tr><td class="id">A6</td><td>An SMS/OTP budget exists for per-message cost across Pakistan</td><td><span class="risk r-hi">High</span></td></tr>
+          <tr><td class="id">A7</td><td>A Google Play Developer account exists or will be created in time</td><td><span class="risk r-hi">High</span></td></tr>
+          <tr><td class="id">A8</td><td>Two developers are full-time on this, not split across other work</td><td><span class="risk r-sev">Severe</span></td></tr>
+          <tr><td class="id">A9</td><td>"Reasonable budget" covers hosting, storage, SMS, and Play Store fees</td><td><span class="risk r-hi">High</span></td></tr>
+          <tr><td class="id">A10</td><td>Users will accept phone-number registration</td><td><span class="risk r-med">Medium</span></td></tr>
+          <tr><td class="id">A11</td><td>The category/topic list will be provided by Shehersaaz and hard-coded in Version 1</td><td><span class="risk r-med">Medium</span></td></tr>
+          <tr><td class="id">A12</td><td>No regulatory approval is required to operate a social platform in Pakistan — PECA and PTA rules should be verified by Shehersaaz</td><td><span class="risk r-hi">High</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 18 -->
+  <section id="s18">
+    <div class="sec-head"><span class="sec-num">18</span><h2 class="sec">Constraints</h2></div>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th style="width:130px">Constraint</th><th style="width:190px">Value</th><th>Implication</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Team</strong></td><td>2 developers</td><td>About 70 dev-days across 50 calendar days</td></tr>
+          <tr><td><strong>Timeline</strong></td><td>50 days — under review</td><td>Scope required about 114 dev-days before cuts; about 90 after</td></tr>
+          <tr><td><strong>Platform</strong></td><td>Android only</td><td>iOS and web users unserved until Phase 2</td></tr>
+          <tr><td><strong>Budget</strong></td><td>Reasonable</td><td>Rules out video infrastructure and AI moderation</td></tr>
+          <tr><td><strong>Language</strong></td><td>Urdu + English, right-to-left required</td><td>Every screen must be built and tested twice</td></tr>
+          <tr><td><strong>Network</strong></td><td>Pakistani mobile data — slow, costly, intermittent</td><td>Aggressive image compression is mandatory, not optional</td></tr>
+          <tr><td><strong>Devices</strong></td><td>Wide range of low-to-mid Android phones</td><td>Must run on older Android versions and low-RAM devices</td></tr>
+          <tr><td><strong>Moderation</strong></td><td>Human-only, small team</td><td>Threshold auto-hide is essential to make this survivable</td></tr>
+          <tr><td><strong>Cold start</strong></td><td>Launching at zero users</td><td>Featured section, Discover feed, and seeded content are mandatory</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 19 -->
+  <section id="s19">
+    <div class="sec-head"><span class="sec-num">19</span><h2 class="sec">Open Questions</h2></div>
+    <div class="rule"></div>
+
+    <div class="od block">
+      <div class="od-h"><span class="od-id">OD-011</span><span class="od-t">Timeline relief valve</span><span class="p p-warn">Blocking</span></div>
+      <dl>
+        <dt>Decision</dt>
+        <dd>After cutting video, polls, and AI moderation, the scope needs about <strong>90 dev-days</strong>. Two developers over 50 days provides <strong>70</strong>. We are roughly <strong>20 dev-days short</strong>.</dd>
+        <dt>Options</dt>
+        <dd>
+          <strong>(i)</strong> Extend to about 65 days &nbsp;·&nbsp;
+          <strong>(ii)</strong> Add a third developer for the sprint &nbsp;·&nbsp;
+          <strong>(iii)</strong> Cut private messaging to Phase 2, saving 10 days but weakening the "stop sharing phone numbers" differentiator &nbsp;·&nbsp;
+          <strong>(iv)</strong> Ship on day 50 with all should-have features dropped — no PDF, no post search, no external sharing, no event reminders, no message requests
+        </dd>
+        <dt>Recommendation</dt>
+        <dd><strong>(i) — extend to about 65 days.</strong></dd>
+        <dt>Why</dt>
+        <dd>Two extra weeks is a small price for the difference between a product that works and one that limps. Option (iii) removes the strongest safety argument. Option (iv) removes the four features most tied to the stated purpose.</dd>
+        <dt>Decision required</dt>
+        <dd><strong>Yes — this is the only blocking item.</strong></dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-014</span><span class="od-t">Final product name</span></div>
+      <dl>
+        <dt>Options</dt><dd>Retain a working title, adopt "Shehersaaz Community", or commission a new Urdu-first name</dd>
+        <dt>Recommendation</dt><dd>Decide before Play Store submission, not before development. Not blocking.</dd>
+        <dt>Decision required</dt><dd>Yes, but later</dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-015</span><span class="od-t">Who writes the legal and policy documents</span></div>
+      <dl>
+        <dt>Scope</dt><dd>Terms of Service, Privacy Policy, and Community Guidelines — in Urdu and English</dd>
+        <dt>Recommendation</dt><dd>Shehersaaz owns this. <strong>Google Play will reject the app without a live Privacy Policy URL.</strong> Start now; it takes longer than people expect.</dd>
+        <dt>Decision required</dt><dd>Yes — assign an owner this week</dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-016</span><span class="od-t">Who provides the Urdu translations</span></div>
+      <dl>
+        <dt>Scope</dt><dd>Roughly 300–400 interface strings need professional Urdu translation</dd>
+        <dt>Recommendation</dt><dd>A native Urdu speaker at Shehersaaz, not machine translation. Poor Urdu on an Urdu-first app destroys the core value proposition.</dd>
+        <dt>Decision required</dt><dd>Yes — assign an owner</dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-017</span><span class="od-t">Fixed category list</span></div>
+      <dl>
+        <dt>Scope</dt><dd>What are the topic categories? For example: Environment · Education · Health · Infrastructure · Women's Rights · Youth · Governance</dd>
+        <dt>Recommendation</dt><dd>Shehersaaz provides a list of 8–12, hard-coded in Version 1</dd>
+        <dt>Decision required</dt><dd>Yes — before development starts</dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-018</span><span class="od-t">Launch and seeding plan</span></div>
+      <dl>
+        <dt>Question</dt><dd>How do the first 100 users arrive, and what content greets them?</dd>
+        <dt>Recommendation</dt><dd>Before public launch, seed 30+ awareness posts, 3+ upcoming events, 10+ verified organizations, and 5+ active accounts. Then invite in waves, not all at once.</dd>
+        <dt>Decision required</dt><dd>Yes — a launch-plan item rather than a development item, but assumptions A1 and A2 make it the single biggest risk to the 1,000-user goal</dd>
+      </dl>
+    </div>
+
+    <div class="od">
+      <div class="od-h"><span class="od-id">OD-019</span><span class="od-t">Pakistani regulatory compliance</span></div>
+      <dl>
+        <dt>Question</dt><dd>Does operating a social platform in Pakistan carry PTA registration or PECA compliance obligations?</dd>
+        <dt>Recommendation</dt><dd>Shehersaaz should obtain a legal opinion. Outside product scope, but it could affect launch.</dd>
+        <dt>Decision required</dt><dd>Yes — verify independently</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 20 -->
+  <section id="s20">
+    <div class="sec-head"><span class="sec-num">20</span><h2 class="sec">MVP Success Criteria</h2></div>
+    <div class="rule"></div>
+
+    <h3>Launch criteria — Version 1 is not done until all are true</h3>
+    <ul class="check">
+      <li>All 88 must-have features implemented and tested</li>
+      <li>Full Urdu interface with correct right-to-left layout on every screen</li>
+      <li>Live on Google Play, passing review</li>
+      <li>Admin portal deployed and Shehersaaz staff trained</li>
+      <li>Privacy Policy, Terms, and Community Guidelines published in both languages</li>
+      <li>Platform seeded with content before public invitation</li>
+      <li>Tested on at least three low-to-mid-range Android devices</li>
+      <li>Report → auto-hide → admin review flow verified end to end</li>
+    </ul>
+
+    <h3>Three-month targets</h3>
+    <div class="mgrid">
+      <div class="metric"><div class="v">300</div><div class="l">Registered users</div></div>
+      <div class="metric"><div class="v">100</div><div class="l">Weekly active users</div></div>
+      <div class="metric"><div class="v">50</div><div class="l">Posts per week</div></div>
+      <div class="metric"><div class="v">30%</div><div class="l">Urdu interface users</div></div>
+      <div class="metric"><div class="v">5</div><div class="l">Events created</div></div>
+      <div class="metric"><div class="v">98%</div><div class="l">Crash-free sessions</div></div>
+      <div class="metric"><div class="v">&lt;24h</div><div class="l">Report to resolution</div></div>
+    </div>
+
+    <h3>Twelve-month targets</h3>
+    <div class="mgrid">
+      <div class="metric"><div class="v">1,000</div><div class="l">Registered users</div></div>
+      <div class="metric"><div class="v">400</div><div class="l">Monthly active users</div></div>
+      <div class="metric"><div class="v">300</div><div class="l">Posts per month</div></div>
+      <div class="metric"><div class="v">50%</div><div class="l">Users who have sent a direct message</div></div>
+      <div class="metric"><div class="v">10</div><div class="l">Events per month</div></div>
+      <div class="metric"><div class="v">25</div><div class="l">Verified organizations</div></div>
+      <div class="metric"><div class="v">40%</div><div class="l">Urdu interface users</div></div>
+      <div class="metric"><div class="v">25%</div><div class="l">30-day retention</div></div>
+    </div>
+
+    <h3>Failure signals — reassess if these appear</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Signal</th><th style="width:280px">What it means</th></tr></thead>
+        <tbody>
+          <tr><td>Under 20% of registered users ever return after day one</td><td>Onboarding or cold-start failure</td></tr>
+          <tr><td>Fewer than 10 posts per week at month two</td><td>No genuine community need, or seeding failed</td></tr>
+          <tr><td>Moderation queue untouched for more than three days</td><td>Operational capacity failure</td></tr>
+          <tr><td>Under 10% choose Urdu</td><td>Core differentiator invalidated — revisit positioning</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 21 -->
+  <section id="s21">
+    <div class="sec-head"><span class="sec-num">21</span><h2 class="sec">Final Scope Summary</h2></div>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <tbody>
+          <tr><td style="width:210px"><strong>Product</strong></td><td>Bilingual Urdu/English civic community platform for Pakistan</td></tr>
+          <tr><td><strong>Platform, Version 1</strong></td><td>Android application + Admin Web Portal</td></tr>
+          <tr><td><strong>Positioning</strong></td><td>Civic awareness and community mobilization — not entertainment, not general social media</td></tr>
+          <tr><td><strong>Core loop</strong></td><td>Awareness content → discussion → connection → community events</td></tr>
+          <tr><td><strong>Primary user</strong></td><td>Civic-minded Pakistani citizen · Android · Facebook-literate · all ages · nationwide</td></tr>
+          <tr><td><strong>Roles</strong></td><td>User (Individual) · User (Organization, verified) · Administrator</td></tr>
+          <tr><td><strong>MVP modules</strong></td><td class="num" style="text-align:left">15</td></tr>
+          <tr><td><strong>Must-have features</strong></td><td class="num" style="text-align:left">88</td></tr>
+          <tr><td><strong>Should-have features</strong></td><td class="num" style="text-align:left">About 28</td></tr>
+          <tr><td><strong>Could-have features</strong></td><td class="num" style="text-align:left">About 12</td></tr>
+          <tr><td><strong>Deferred to Phase 2</strong></td><td>21 items across three tiers</td></tr>
+          <tr><td><strong>Key differentiators</strong></td><td>Urdu-first with true right-to-left · Permanent and searchable · Verified organizations · Events and mobilization · No phone-number exposure</td></tr>
+          <tr><td><strong>Biggest excluded item</strong></td><td>In-app video conferencing, replaced by external meeting links at roughly 5% of the cost</td></tr>
+          <tr><td><strong>Biggest risk</strong></td><td>Cold start — reaching users with an empty app</td></tr>
+          <tr><td><strong>Timeline</strong></td><td>50 days requested · about 65 days required · <strong>OD-011 unresolved</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Two things for the record</h3>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-t">Cold start is a bigger risk than any feature here</div>
+        <p style="margin:0">Assumptions A1 and A2 are marked severe for a reason. A perfectly built app with an empty feed fails. The seeding plan (OD-018) deserves the same seriousness as the build.</p>
+      </div>
+      <div class="card">
+        <div class="card-t">The differentiator is Urdu, permanence, and privacy — not breadth</div>
+        <p style="margin:0">When someone asks in week six "can we just add video, polls, or groups," the answer that protects this project is: yes — in Phase 2, and here is the list it is already on.</p>
+      </div>
+    </div>
+
+    <h3>Scope status</h3>
+    <div class="card" style="border-left:3px solid var(--orange)">
+      <div class="card-t">Ready for approval — with one unresolved decision <span class="p p-warn">OD-011</span></div>
+      <p>The product scope is complete and internally consistent. Every feature is decided, prioritized, and justified. Nothing about the product definition is ambiguous.</p>
+      <p style="margin-bottom:0">One delivery decision remains open: the timeline relief valve. It does not change <em>what</em> gets built — it changes when it lands, or how thin Version 1 feels. It is a resourcing decision only Shehersaaz can make.</p>
+    </div>
+
+    <h3>Approval checklist</h3>
+    <ul class="check">
+      <li>Product purpose defined</li>
+      <li>Target users defined</li>
+      <li>User roles defined</li>
+      <li>Core user journey defined</li>
+      <li>MVP finalized</li>
+      <li>Phase 2 separated</li>
+      <li>Out-of-scope items documented</li>
+      <li>Admin requirements defined</li>
+      <li>Safety requirements defined</li>
+      <li>Feature list finalized</li>
+      <li class="open">Open critical questions resolved — OD-011 pending</li>
+    </ul>
+    <p><strong>10 of 11 complete.</strong></p>
+  </section>
+
+  <div class="ask">
+    <h2>Do you approve this as the Version 1 product scope?</h2>
+    <p>No design, architecture, database, technology selection, or development work begins until this document is explicitly approved.</p>
+    <ul>
+      <li><b>Approved</b> — together with a decision on OD-011 (option i, ii, iii, or iv)</li>
+      <li><b>Approved with changes</b> — name the changes, and this document and its decision log are updated</li>
+      <li><b>Not approved</b> — name what is wrong</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>Shehersaaz · Community Platform · Product Scope v1</span>
+    <span>Draft for approval · 31 August 2026</span>
+  </footer>
+
+  </main>
+</div>
+</div>

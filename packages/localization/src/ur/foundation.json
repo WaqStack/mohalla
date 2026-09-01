@@ -1,0 +1,11 @@
+{
+  "foundation.appName": "محلہ",
+  "foundation.status.ready": "تیار",
+  "foundation.status.notReady": "تیار نہیں",
+  "foundation.error.generic": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔",
+  "foundation.error.network": "انٹرنیٹ کنکشن نہیں ہے۔",
+  "foundation.action.retry": "دوبارہ کوشش کریں",
+  "foundation.action.cancel": "منسوخ کریں",
+  "foundation.language.english": "English",
+  "foundation.language.urdu": "اردو"
+}

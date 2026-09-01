@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mohalla</string>
+    <string name="foundation_title">Mohalla — Foundation</string>
+    <string name="foundation_subtitle">Shehersaaz Community Platform</string>
+    <string name="foundation_body">This build exists to prove the Android project compiles and mirrors correctly. No product feature is implemented.</string>
+    <string name="foundation_direction_label">Layout direction</string>
+    <string name="foundation_locale_label">Locale</string>
+</resources>

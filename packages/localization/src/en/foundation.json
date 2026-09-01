@@ -1,0 +1,11 @@
+{
+  "foundation.appName": "Mohalla",
+  "foundation.status.ready": "Ready",
+  "foundation.status.notReady": "Not ready",
+  "foundation.error.generic": "Something went wrong. Please try again.",
+  "foundation.error.network": "No internet connection.",
+  "foundation.action.retry": "Retry",
+  "foundation.action.cancel": "Cancel",
+  "foundation.language.english": "English",
+  "foundation.language.urdu": "اردو"
+}

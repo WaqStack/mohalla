@@ -1,0 +1,89 @@
+/*
+ * Admin console base styles.
+ *
+ * RULE: logical properties only.
+ *   use  margin-inline-start   not  margin-left
+ *   use  padding-inline-end    not  padding-right
+ *   use  inset-inline-start    not  left
+ *   use  text-align: start     not  text-align: left
+ *   use  border-inline-start   not  border-left
+ *
+ * The RTL lint rule fails the build on the physical forms. This is not a style
+ * preference - LOCALE-FR-003, BR-041 and REL-002 require full mirroring, and
+ * physical properties silently break it for Urdu.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Foundation subset of the Mohalla design tokens. The full set lives in
+     packages/tokens and is generated, not hand-copied. */
+  --color-surface: #ffffff;
+  --color-ink: #10242b;
+  --color-muted: #5b7078;
+  --color-accent: #125f70;
+  --color-border: #dfe7ea;
+
+  --space-2: 0.5rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+
+  --radius-md: 10px;
+
+  /* Urdu Naskh needs more leading than Latin at the same size, so the type
+     scale carries a line-height per direction rather than one shared value. */
+  --line-height-latin: 1.5;
+  --line-height-urdu: 1.85;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: #0d1a1f;
+    --color-ink: #eef4f6;
+    --color-muted: #9db0b7;
+    --color-border: #24383f;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  line-height: var(--line-height-latin);
+}
+
+html[dir='rtl'] body {
+  line-height: var(--line-height-urdu);
+}
+
+main {
+  max-width: 60rem;
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+  padding-block: var(--space-6);
+  text-align: start;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-block-end: var(--space-4);
+  /* Logical, so the accent bar moves to the right edge in Urdu automatically. */
+  border-inline-start: 3px solid var(--color-accent);
+}
+
+.muted {
+  color: var(--color-muted);
+}

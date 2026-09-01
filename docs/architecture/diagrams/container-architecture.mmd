@@ -1,0 +1,43 @@
+%% Container Architecture
+flowchart TB
+    subgraph client["Client Tier"]
+        android["Android App - Kotlin/Compose<br/>UX-AUTH/SETUP/HOME/SEARCH/CREATE/<br/>EVENT/MSG/PROFILE/SET/SAFE/STATE<br/>61 screens"]
+    end
+
+    subgraph web["Web Tier - Next.js single deployment"]
+        portal["Admin Portal - authenticated<br/>UX-ADM-001 to 009"]
+        public["Public surface - unauthenticated<br/>App-Links interstitial - ENGAGE-FR-007<br/>Policy documents - PRIV-017<br/>ARCH-CONFLICT-008"]
+    end
+
+    subgraph app["Application Tier - one codebase"]
+        rest["REST API<br/>/api/v1/m - mobile<br/>/api/v1/a - admin"]
+        ws["Socket.IO Gateway<br/>message delivery - receipts<br/>unread - presence"]
+        jobs["Worker Process<br/>outbox - push - reminders<br/>erasure - suspension expiry<br/>media validation - sweeps"]
+    end
+
+    subgraph data["Data Tier"]
+        pg[("PostgreSQL 18<br/>15 module schemas<br/>FTS + pg_trgm<br/>pg-boss queue<br/>append-only audit")]
+        obj[("Object Storage<br/>quarantine/ and media/")]
+    end
+
+    edge["CDN - immutable media only<br/>no API response cached"]
+
+    android -->|"Bearer opaque session"| rest
+    android -->|"authenticated handshake"| ws
+    android --> edge
+    portal -->|"separate admin session"| rest
+    public -.->|"no API access"| public
+
+    rest --> pg
+    ws --> pg
+    jobs --> pg
+    rest --> obj
+    jobs --> obj
+    edge --> obj
+    rest -.->|"enqueue"| pg
+    pg -.->|"dequeue"| jobs
+
+    classDef tier fill:#E4EFF4,stroke:#145A73,color:#1C2530
+    classDef store fill:#E6F0E7,stroke:#2E6B3E,color:#1C2530
+    class android,portal,public,rest,ws,jobs tier
+    class pg,obj,edge store

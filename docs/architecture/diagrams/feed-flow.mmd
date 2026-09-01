@@ -1,0 +1,33 @@
+%% Feed assembly - fan-out on read with keyset pagination - ADR-020
+flowchart TB
+    open["App opens Home - UX-HOME-001"]
+    par1["Featured request<br/>independent endpoint"]
+    par2["Following request<br/>keyset cursor"]
+
+    open --> par1
+    open --> par2
+
+    par1 --> feat["SELECT announcements<br/>WHERE not expired<br/>ORDER BY created_at DESC LIMIT 5<br/>FEED-FR-002"]
+    feat --> render1["Renders FIRST - before follow data resolves<br/>cold-start guarantee RSK-001"]
+
+    par2 --> q["SELECT posts<br/>JOIN follows ON author"]
+    q --> f1["EXCLUDE blocked either direction<br/>BR-027 - SEC-019"]
+    f1 --> f2["EXCLUDE visibility_state != VISIBLE<br/>auto-hidden - deleted - BR-028"]
+    f2 --> f3["EXCLUDE banned authors<br/>suspended authors REMAIN visible"]
+    f3 --> f4["ORDER BY created_at DESC, id DESC<br/>LIMIT 20 - BR-026, NFR-PERF-006"]
+    f4 --> cur["Return opaque cursor<br/>encodes (created_at, id)"]
+    cur --> render2["Feed renders"]
+
+    cur --> stable["Stable under insertion<br/>no duplicate, no skip<br/>EDGE-017, FEED-FR-004"]
+
+    render2 --> refresh["Pull to refresh<br/>query FORWARD of newest key<br/>prepend - preserve scroll<br/>FEED-FR-005"]
+
+    empty{"Following empty?"}
+    render2 --> empty
+    empty -->|"yes"| disc["Featured still populated<br/>+ prompt into Discover<br/>FEED-FR-001 A1"]
+    empty -->|"no"| done["Normal feed"]
+
+    classDef guard fill:#FAE7E5,stroke:#A32C2C,color:#1C2530
+    classDef ok fill:#E6F0E7,stroke:#2E6B3E,color:#1C2530
+    class f1,f2,f3 guard
+    class render1,stable,disc ok

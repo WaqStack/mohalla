@@ -1,0 +1,47 @@
+%% Account deletion lifecycle - ADR-019, SET-FR-004/005, BR-009, PRIV-007
+stateDiagram-v2
+    [*] --> UNVERIFIED: register AUTH-FR-001
+    UNVERIFIED --> ACTIVE: OTP verified AUTH-FR-002
+    UNVERIFIED --> [*]: 24h expiry EDGE-002
+
+    ACTIVE --> SUSPENDED: admin ADMIN-FR-006
+    SUSPENDED --> ACTIVE: expiry auto BR-034 / reinstate ADMIN-FR-008
+    ACTIVE --> BANNED: admin ADMIN-FR-007
+    BANNED --> ACTIVE: reinstate ADMIN-FR-008
+
+    ACTIVE --> PENDING_DELETION: user deletes SET-FR-004
+    SUSPENDED --> PENDING_DELETION: allowed BR-008
+    PENDING_DELETION --> ACTIVE: login + restore within 30d SET-FR-005
+    PENDING_DELETION --> DELETED: day 30 erasure PRIV-007
+    DELETED --> [*]
+
+    note right of PENDING_DELETION
+      IMMEDIATE on request:
+      - all sessions invalidated BR-035
+      - profile gone from search, feeds,
+        follower lists, suggestions
+      - posts and comments REMAIN as Deleted User
+      - pending message requests withdrawn EDGE-030
+      - identifier reserved, re-registration
+        refused and redirected EDGE-029
+    end note
+
+    note right of DELETED
+      IRREVERSIBLE at day 30:
+      - erased: phone, email, DOB, name,
+        photo, city, bio, tokens, sessions
+      - posts/comments: TEXT KEPT,
+        author to anonymous actor BR-009
+      - messages: BODY KEPT for counterpart,
+        sender anonymised BR-046
+        ARCH-CONFLICT-004 - legal review
+      - identifier hash to reserved list
+      - audit entries retained pseudonymously
+    end note
+
+    note left of BANNED
+      Banned account cannot log in,
+      so it cannot reach the deletion path.
+      Identifier hash on banned list
+      permanently BR-036, ARCH-CONFLICT-005
+    end note

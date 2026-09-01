@@ -1,0 +1,362 @@
+%% Database ERD - Shehersaaz Community Platform V1
+%% 33 tables. All PKs are UUIDv7 unless stated. See 07-database-design.md for the full catalogue.
+erDiagram
+
+    users ||--o| profiles : "has"
+    users ||--o{ user_identifiers : "verified by"
+    users ||--o{ sessions : "authenticates via"
+    users ||--o{ otp_challenges : "challenged by"
+    users ||--o| deletion_requests : "may request"
+
+    users ||--o{ follows : "follower"
+    users ||--o{ blocks : "blocker"
+    users ||--o{ posts : "authors"
+    users ||--o{ comments : "authors"
+    users ||--o{ likes : "gives"
+    users ||--o{ events : "creates"
+    users ||--o{ event_rsvps : "responds"
+    users ||--o{ messages : "sends"
+    users ||--o{ reports : "files"
+    users ||--o{ notifications : "receives"
+    users ||--o{ device_tokens : "registers"
+    users ||--o{ notification_preferences : "configures"
+    users ||--o{ media : "owns"
+    users ||--o{ profile_interests : "selects"
+
+    profiles }o--o| media : "photo"
+
+    posts ||--o{ post_media : "attaches"
+    post_media }o--|| media : "references READY only"
+    posts ||--o| link_previews : "may have"
+    posts ||--o{ comments : "receives"
+    posts ||--o{ likes : "receives"
+    posts }o--o| categories : "tagged"
+
+    comments ||--o{ comments : "one-level reply"
+
+    events }o--o| categories : "tagged"
+    events ||--o{ event_rsvps : "receives"
+
+    conversations ||--o{ conversation_participants : "has exactly 2"
+    conversations ||--o{ messages : "contains"
+    messages }o--o| media : "may attach"
+
+    reports }o--|| moderation_cases : "aggregates into"
+    moderation_cases }o--o| admins : "resolved by"
+
+    admins ||--o{ admin_sessions : "authenticates via"
+    admins ||--o{ enforcement_actions : "issues"
+    admins ||--o{ announcements : "publishes"
+    admins ||--o{ audit_log : "generates"
+    enforcement_actions }o--|| users : "targets"
+
+    banned_identifiers }o--o| users : "originated from"
+
+    outbox ||--o{ notifications : "produces"
+
+    users {
+        uuid id PK "uuidv7"
+        enum identity_type "PHONE_PRIMARY | EMAIL_PRIMARY - D-16"
+        enum state "UNVERIFIED ACTIVE SUSPENDED BANNED PENDING_DELETION DELETED"
+        enum account_type "INDIVIDUAL | ORGANIZATION - BR-011"
+        citext username UK "immutable - BR-005"
+        text password_hash "Argon2id - SEC-001"
+        date date_of_birth "PRIV-002 - never exposed"
+        timestamptz created_at
+        timestamptz state_changed_at
+        timestamptz suspended_until "BR-034"
+    }
+
+    user_identifiers {
+        uuid id PK
+        uuid user_id FK
+        enum kind "PHONE | EMAIL"
+        text value_normalized "never in a public DTO - PRIV-003"
+        bytea value_hash UK "peppered"
+        boolean is_primary
+        timestamptz verified_at
+    }
+
+    banned_identifiers {
+        bytea identifier_hash PK "peppered - ARCH-CONFLICT-005"
+        timestamptz banned_at
+        text reason
+    }
+
+    sessions {
+        uuid id PK
+        uuid user_id FK
+        bytea token_hash UK "opaque - ADR-008"
+        text device_label
+        timestamptz expires_at
+        timestamptz revoked_at
+        enum revoked_reason "LOGOUT PASSWORD_CHANGE PASSWORD_RESET SUSPENDED BANNED DELETED EVICTED ADMIN"
+    }
+
+    otp_challenges {
+        uuid id PK
+        bytea identifier_hash
+        enum purpose "REGISTRATION | PASSWORD_RESET"
+        bytea code_hash
+        smallint attempts "max 5 - SEC-003"
+        timestamptz expires_at "10 min"
+        timestamptz consumed_at
+    }
+
+    admins {
+        uuid id PK
+        citext email UK "SEPARATE store - SEC-020"
+        text password_hash
+        enum state "ACTIVE | DISABLED"
+        timestamptz created_at "CLI only - S2-CR-005"
+    }
+
+    admin_sessions {
+        uuid id PK
+        uuid admin_id FK
+        bytea token_hash UK
+        timestamptz expires_at "8h absolute - SEC-024"
+    }
+
+    profiles {
+        uuid user_id PK
+        text display_name "not unique - BR-010"
+        text bio
+        text city "free text - PRIV-012"
+        uuid photo_media_id FK
+        boolean verified_badge "admin-granted only - ADMIN-FR-010"
+        integer follower_count "denormalised - ARCH-CONFLICT-003"
+        integer following_count
+        integer post_count
+        tsvector search_norm "generated - ADR-011"
+    }
+
+    categories {
+        smallint id PK
+        text slug UK
+        text name_en
+        text name_ur "DEP-012 - OD-017"
+        smallint sort_order
+    }
+
+    profile_interests {
+        uuid user_id PK
+        smallint category_id PK
+    }
+
+    follows {
+        uuid follower_id PK
+        uuid followee_id PK
+        timestamptz created_at
+    }
+
+    blocks {
+        uuid blocker_id PK
+        uuid blocked_id PK
+        timestamptz created_at
+    }
+
+    posts {
+        uuid id PK
+        uuid author_id FK
+        text body "max 3000 graphemes - BR-012"
+        smallint category_id FK "zero or one - BR-017"
+        enum visibility_state "VISIBLE AUTO_HIDDEN ADMIN_REMOVED AUTHOR_DELETED"
+        integer like_count
+        integer comment_count
+        smallint distinct_report_count "threshold 3 - BR-032"
+        timestamptz edited_at "POST-FR-008"
+        timestamptz created_at
+        tsvector search_norm
+    }
+
+    media {
+        uuid id PK
+        uuid owner_user_id FK
+        enum kind "IMAGE | DOCUMENT"
+        enum state "PENDING_UPLOAD | PROCESSING | READY | REJECTED - ADR-013"
+        text storage_key "random - SEC-015"
+        text thumb_key
+        text mime_verified "by content inspection - SEC-013"
+        integer byte_size
+    }
+
+    post_media {
+        uuid post_id PK
+        uuid media_id PK
+        smallint position "0-3 - max 4 - BR-013"
+    }
+
+    link_previews {
+        uuid post_id PK
+        text url
+        text title
+        text description
+        timestamptz fetched_at "server-side fetch - SEC-014"
+    }
+
+    likes {
+        uuid user_id PK
+        uuid post_id PK
+        timestamptz created_at
+    }
+
+    comments {
+        uuid id PK
+        uuid post_id FK
+        uuid author_id FK
+        uuid parent_comment_id FK "one level only - BR-033"
+        text body "max 1000"
+        enum visibility_state
+        smallint distinct_report_count "threshold 3"
+        timestamptz created_at
+    }
+
+    conversations {
+        uuid id PK
+        uuid user_low_id "ordered pair - one per pair - BR-024"
+        uuid user_high_id
+        timestamptz last_message_at
+    }
+
+    conversation_participants {
+        uuid conversation_id PK
+        uuid user_id PK
+        enum request_state "ACCEPTED | PENDING | DECLINED - MSG-FR-005"
+        integer unread_count
+        timestamptz last_read_at
+        timestamptz hidden_at "set on block - MSG-FR-003"
+    }
+
+    messages {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        uuid client_message_id "client-generated - EDGE-021"
+        text body "max 2000"
+        uuid media_id FK
+        timestamptz created_at "server clock orders both sides"
+        timestamptz read_at
+    }
+
+    events {
+        uuid id PK
+        uuid creator_id FK
+        text title
+        text description
+        enum event_type "ONLINE | PHYSICAL"
+        timestamptz starts_at "must be future at creation"
+        text timezone "Asia/Karachi default"
+        text meeting_url "gated to 30 min before - EVENT-FR-003"
+        text location_text
+        smallint category_id FK
+        enum visibility_state
+        enum status "SCHEDULED | CANCELLED"
+        integer going_count "COUNT ONLY - no attendee list - ARCH-CONFLICT-006"
+        integer interested_count
+        smallint distinct_report_count "threshold 2 - BR-044"
+        tsvector search_norm
+    }
+
+    event_rsvps {
+        uuid event_id PK
+        uuid user_id PK
+        enum response "GOING | INTERESTED"
+        timestamptz created_at
+    }
+
+    notifications {
+        uuid id PK
+        uuid recipient_id FK
+        enum type "LIKE COMMENT REPLY FOLLOW MESSAGE EVENT_REMINDER EVENT_CHANGED ANNOUNCEMENT MODERATION ENFORCEMENT"
+        uuid actor_id FK
+        text target_type
+        uuid target_id
+        timestamptz read_at
+        timestamptz created_at "90-day retention - NOTIF-FR-002"
+    }
+
+    notification_preferences {
+        uuid user_id PK
+        text category PK
+        boolean push_enabled "gates PUSH only - NOTIF-FR-007"
+    }
+
+    device_tokens {
+        uuid id PK
+        uuid user_id FK
+        text fcm_token UK
+        timestamptz invalidated_at
+    }
+
+    outbox {
+        uuid id PK
+        text aggregate_type
+        uuid aggregate_id
+        text event_type
+        jsonb payload
+        timestamptz processed_at "written in the SAME transaction - ADR-014"
+    }
+
+    reports {
+        uuid id PK
+        uuid reporter_id FK
+        enum target_type "POST COMMENT EVENT PROFILE CONVERSATION"
+        uuid target_id
+        enum reason_code "8 reasons - SAFETY-FR-003"
+        enum severity "CRITICAL HIGH MEDIUM LOW"
+        text note "max 500"
+        timestamptz created_at
+    }
+
+    moderation_cases {
+        uuid id PK
+        enum target_type
+        uuid target_id
+        enum state "OPEN RESOLVED_RESTORED RESOLVED_DELETED RESOLVED_NO_ACTION CLOSED_AUTHOR_DELETED"
+        smallint distinct_report_count
+        enum max_severity "orders the queue - ADMIN-FR-002"
+        uuid resolved_by_admin_id FK
+        text resolution_reason "mandatory - BR-038"
+        integer version "optimistic lock - EDGE-024"
+    }
+
+    enforcement_actions {
+        uuid id PK
+        uuid admin_id FK
+        uuid target_user_id FK "NEVER an admin - BR-ADM-001"
+        enum action "SUSPEND BAN REINSTATE"
+        interval duration "24h | 7d | 30d"
+        text reason "mandatory"
+        timestamptz expires_at
+    }
+
+    announcements {
+        uuid id PK
+        uuid admin_id FK
+        text title_en
+        text title_ur "both required - ADMIN-FR-009"
+        text body_en
+        text body_ur
+        timestamptz expires_at "max 90 days"
+        timestamptz broadcast_sent_at "max 2 per week - NOTIF-FR-005"
+    }
+
+    audit_log {
+        uuid id PK
+        uuid actor_admin_id FK
+        text action_type
+        text target_type
+        uuid target_id
+        text reason
+        uuid correlation_id
+        timestamptz created_at "APPEND ONLY - REVOKE UPDATE DELETE - ADR-018"
+    }
+
+    deletion_requests {
+        uuid user_id PK
+        timestamptz requested_at
+        timestamptz scheduled_erasure_at "requested_at + 30 days"
+        timestamptz restored_at "SET-FR-005"
+        timestamptz completed_at "irreversible - PRIV-007"
+    }

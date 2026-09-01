@@ -1,0 +1,1539 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mohalla Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap">
+
+<style>
+/* ============ TOKENS — the product's own, single committed light theme ============ */
+:root{
+  --bg-primary:#F6F4EF; --bg-secondary:#EFECE5;
+  --surface-primary:#FFFFFF; --surface-sunken:#F1EEE7;
+  --text-primary:#1C2530; --text-secondary:#566573; --text-tertiary:#8B98A5; --text-inverse:#FFFFFF;
+  --border-default:#E2DED5; --border-strong:#CFC9BD;
+  --brand-primary:#145A73; --brand-primary-hover:#0F485C; --brand-primary-subtle:#E4EFF4;
+  --brand-secondary:#6B4E9E; --brand-secondary-subtle:#EFEAF7;
+  --success:#1F7A5C; --success-subtle:#E3F1EC;
+  --warning:#9A6510; --warning-subtle:#FBF0DE;
+  --error:#A32C2C; --error-subtle:#FAE7E5;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-full:999px;
+  --e1:0 1px 2px rgba(28,37,48,.04), 0 2px 8px rgba(28,37,48,.06);
+  --e2:0 2px 4px rgba(28,37,48,.06), 0 8px 24px rgba(28,37,48,.10);
+  --e3:0 4px 8px rgba(28,37,48,.08), 0 16px 40px rgba(28,37,48,.14);
+  --shell:#20303C; --shell-2:#2A3D4B; --shell-t:#C6D4DE;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--shell);color:var(--shell-t);
+  font-family:"Be Vietnam Pro",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ============ SHELL ============ */
+.shell{max-width:1180px;margin:0 auto;padding:28px 20px 56px}
+.shead{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+.stitle{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em;margin:0}
+.stitle span{color:#8ECAE6}
+.ssub{font-size:14px;line-height:1.55;color:var(--shell-t);max-width:66ch;margin:6px 0 22px}
+.ssub b{color:#fff;font-weight:600}
+.ctrls{display:flex;gap:20px;flex-wrap:wrap;align-items:center;
+  background:var(--shell-2);border-radius:12px;padding:14px 18px;margin-bottom:8px}
+.cgrp{display:flex;align-items:center;gap:9px}
+.clab{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:#8FA6B4}
+.seg{display:flex;background:rgba(0,0,0,.28);border-radius:8px;padding:3px}
+.seg button{border:0;background:transparent;color:#A8BCC8;font-family:inherit;font-size:13px;
+  font-weight:600;padding:6px 13px;border-radius:6px;cursor:pointer}
+.seg button.on{background:#8ECAE6;color:#12222C}
+.tog{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#A8BCC8;user-select:none}
+.tog input{appearance:none;width:38px;height:22px;border-radius:11px;background:rgba(0,0,0,.35);
+  position:relative;cursor:pointer;margin:0;flex:none;transition:background .15s}
+.tog input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;
+  border-radius:50%;background:#7F97A5;transition:.15s}
+.tog input:checked{background:#8ECAE6}
+.tog input:checked::after{left:19px;background:#12222C}
+.tog.on{color:#fff}
+.hint{font-family:"IBM Plex Mono",monospace;font-size:11px;color:#7F97A5;margin:0 0 26px}
+
+.stage{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap}
+.flows{width:230px;flex:none}
+.flows h3{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:#8FA6B4;margin:0 0 10px;padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.14)}
+.flows button{display:block;width:100%;text-align:left;border:0;background:transparent;
+  color:var(--shell-t);font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:7px;
+  cursor:pointer;line-height:1.35}
+.flows button:hover{background:rgba(255,255,255,.07);color:#fff}
+.flows button .fid{font-family:"IBM Plex Mono",monospace;font-size:10px;color:#7F97A5;margin-right:7px}
+.flows button:hover .fid{color:#8ECAE6}
+@media(max-width:900px){.flows{width:100%}}
+
+/* ============ DEVICE ============ */
+.device{flex:none;position:relative}
+.frame{width:390px;height:800px;background:var(--bg-primary);border-radius:34px;
+  border:9px solid #0E1A22;box-shadow:0 30px 70px -20px rgba(0,0,0,.65);
+  overflow:hidden;display:flex;flex-direction:column;position:relative}
+@media(max-width:520px){
+  html,body{overflow:hidden}                 /* the app owns the screen */
+  .shell{padding:0}
+  .shead,.ssub,.hint,.flows{display:none}
+  .ctrls{border-radius:0;margin:0;padding:0 12px;gap:16px;font-size:12px;
+    height:46px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch}
+  .ctrls::-webkit-scrollbar{height:0}
+  .cgrp,.tog{flex:none;white-space:nowrap}
+  .stage{gap:0;display:block}
+  .device{width:100%}
+  .frame{width:100%;height:calc(100vh - 46px);height:calc(100dvh - 46px);
+    border-radius:0;border-width:0;box-shadow:none}
+}
+.statusbar{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--bg-primary)}
+.banner-slot{flex:none}
+.viewport{flex:1;overflow:hidden;position:relative;min-height:0}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg-primary)}
+.screen.active{display:flex}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.body::-webkit-scrollbar{width:0}
+
+/* ============ TYPE ============ */
+.t-display{font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.02em}
+.t-h1{font-size:26px;line-height:32px;font-weight:700;letter-spacing:-.018em}
+.t-h2{font-size:21px;line-height:28px;font-weight:600;letter-spacing:-.012em}
+.t-h3{font-size:18px;line-height:24px;font-weight:600;letter-spacing:-.008em}
+.t-title{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.004em}
+.t-bodylg{font-size:17px;line-height:26px}
+.t-body{font-size:15px;line-height:22px}
+.t-bodysm{font-size:13px;line-height:18px}
+.t-caption{font-size:12px;line-height:16px;font-weight:500}
+.t-label{font-size:11px;line-height:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.sec{color:var(--text-secondary)}
+[dir=rtl] .t-label{text-transform:none;letter-spacing:.02em}
+[dir=rtl]{font-family:"Noto Naskh Arabic",serif}
+[dir=rtl] .t-bodylg{line-height:31px}
+[dir=rtl] .t-body{line-height:26px}
+[dir=rtl] .t-title{line-height:27px}
+[dir=rtl] .t-h2{line-height:34px}
+[dir=rtl] .t-h3{line-height:30px}
+[dir=rtl] .t-bodysm{line-height:22px}
+.nastaliq{font-family:"Noto Nastaliq Urdu",serif;line-height:2}
+
+/* ============ PRIMITIVES ============ */
+.tile{display:inline-block;background:currentColor;
+  clip-path:polygon(50% 0%,71% 12%,88% 12%,88% 29%,100% 50%,88% 71%,88% 88%,71% 88%,50% 100%,29% 88%,12% 88%,12% 71%,0% 50%,12% 29%,12% 12%,29% 12%)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;
+  padding:0 20px;border-radius:var(--r-md);border:1px solid transparent;font-size:15px;
+  font-weight:600;font-family:inherit;cursor:pointer;width:100%;transition:filter .12s,background .12s}
+.btn:active{filter:brightness(.93)}
+.btn-pri{background:var(--brand-primary);color:#fff}
+.btn-sec{background:var(--surface-primary);color:var(--brand-primary);border-color:var(--border-strong)}
+.btn-ghost{background:transparent;color:var(--brand-primary)}
+.btn-dest{background:var(--error);color:#fff}
+.btn-desto{background:var(--surface-primary);color:var(--error);border-color:var(--error)}
+.btn-dis{background:var(--bg-secondary);color:var(--text-tertiary);cursor:not-allowed}
+.btn-ev{background:var(--brand-secondary);color:#fff}
+.btn-sm{min-height:38px;padding:0 15px;font-size:13.5px;width:auto}
+.btn:focus-visible{outline:2px solid var(--brand-primary);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;min-height:26px;padding:2px 10px;
+  border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:0;font-family:inherit}
+.av{border-radius:var(--r-full);display:grid;place-items:center;font-weight:700;color:#fff;flex:none;overflow:hidden}
+.av-88{width:88px;height:88px;font-size:32px}
+.av-44{width:44px;height:44px;font-size:16px}
+.av-40{width:40px;height:40px;font-size:15px}
+.av-32{width:32px;height:32px;font-size:13px}
+.av-24{width:24px;height:24px;font-size:10px}
+.vb{display:inline-grid;place-items:center;position:relative;width:15px;height:15px;color:var(--brand-primary);flex:none}
+.vb .tile{position:absolute;inset:0}
+.vb i{position:relative;color:#fff;font-size:9px;font-weight:700;font-style:normal;line-height:1}
+.vb.sm{width:13px;height:13px}.vb.sm i{font-size:8px}
+.vb.lg{width:18px;height:18px}.vb.lg i{font-size:11px}
+.inp{width:100%;min-height:48px;padding:13px 15px;border-radius:var(--r-md);
+  border:1px solid var(--border-strong);background:var(--surface-primary);
+  font-family:inherit;font-size:15px;color:var(--text-primary)}
+.inp:focus{outline:0;border-color:var(--brand-primary);box-shadow:0 0 0 3px rgba(20,90,115,.14)}
+.inp::placeholder{color:var(--text-tertiary)}
+.divtile{display:flex;align-items:center;gap:9px}
+.divtile i{flex:1;height:1px;background:var(--border-default)}
+.divtile .tile{width:8px;height:8px;color:var(--border-strong);flex:none}
+
+/* ============ CHROME ============ */
+.topbar{background:var(--bg-primary);border-bottom:1px solid var(--border-default);
+  display:flex;align-items:center;padding:14px 16px;gap:15px;flex:none}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;
+  color:var(--text-secondary);font-size:18px;cursor:pointer;border-radius:var(--r-full);
+  position:relative;margin:-10px;font-family:inherit}
+.iconbtn:active{background:var(--bg-secondary)}
+.badge{position:absolute;top:6px;inset-inline-end:5px;background:var(--error);color:#fff;
+  font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;
+  display:grid;place-items:center;padding:0 4px;line-height:1}
+.tabs{display:flex;background:var(--bg-primary);border-bottom:1px solid var(--border-default);flex:none}
+.tabs button{flex:1;border:0;background:transparent;font-family:inherit;font-size:16px;font-weight:600;
+  padding:13px 0;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;
+  transition:color .18s,border-color .18s}
+.tabs button.on{color:var(--brand-primary);border-bottom-color:var(--brand-primary)}
+.tabs .filt{flex:0 0 48px;font-size:15px}
+.nav{background:var(--surface-primary);border-top:1px solid var(--border-default);
+  display:flex;padding:7px 2px 10px;flex:none}
+.nav button{flex:1;border:0;background:transparent;font-family:inherit;cursor:pointer;
+  padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:48px}
+.nav .ico{position:relative;display:grid;place-items:center;width:38px;height:28px;
+  color:var(--text-secondary);font-size:17px}
+.nav .ico .tile{position:absolute;width:28px;height:28px;color:var(--brand-primary);opacity:0}
+.nav .ico em{position:relative;font-style:normal}
+.nav button.on .ico .tile{opacity:1}
+.nav button.on .ico em{color:#fff;font-size:14px}
+.nav .lab{font-size:11px;font-weight:500;color:var(--text-secondary)}
+.nav button.on .lab{color:var(--brand-primary);font-weight:600}
+.nav .create{width:32px;height:32px;border-radius:var(--r-full);background:var(--brand-primary);
+  color:#fff;display:grid;place-items:center;font-size:19px;box-shadow:var(--e2)}
+.nav .create-lab{color:var(--brand-primary);font-weight:600}
+
+/* ============ CARDS ============ */
+.card{background:var(--surface-primary);border-radius:var(--r-lg);box-shadow:var(--e1);
+  overflow:hidden;margin-bottom:12px}
+.pcard{display:flex}
+.acc{width:3px;flex:none}
+.pin{padding:15px;flex:1;min-width:0}
+.arow{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px}
+.aname{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.eng{display:flex;align-items:center;gap:18px;margin-top:12px}
+.eng button{border:0;background:transparent;font-family:inherit;font-size:13px;color:var(--text-secondary);
+  display:flex;align-items:center;gap:6px;cursor:pointer;min-height:44px;padding:0 2px}
+.eng button.liked{color:var(--error);font-weight:600}
+.eng .ic{font-size:16px}
+.media{border-radius:var(--r-md);display:grid;place-items:center;font-weight:600;font-size:12px;
+  letter-spacing:.06em;margin-top:12px}
+.doc{display:flex;gap:12px;align-items:center;background:var(--surface-sunken);
+  border-radius:var(--r-md);padding:14px;margin-top:12px;cursor:pointer}
+.list{background:var(--surface-primary)}
+.row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border-default);
+  cursor:pointer;background:var(--surface-primary);min-height:48px}
+.row:active{background:var(--bg-secondary)}
+.pad{padding:16px}
+.empty{text-align:center;padding:56px 24px}
+.empty .tw{position:relative;display:inline-grid;place-items:center;width:56px;height:56px;margin-bottom:18px}
+.empty .tw .tile{position:absolute;inset:0;color:var(--brand-primary-subtle)}
+.empty .tw em{position:relative;font-size:22px;color:var(--brand-primary);font-style:normal}
+.skel{background:var(--surface-sunken);border-radius:5px}
+
+/* ============ OVERLAYS ============ */
+.scrim{position:absolute;inset:0;background:rgba(28,37,48,.42);display:none;z-index:40;
+  align-items:flex-end;animation:fade .18s ease-out}
+.scrim.open{display:flex}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;background:var(--surface-primary);border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:10px 0 22px;box-shadow:var(--e2);max-height:78%;overflow-y:auto;animation:up .28s cubic-bezier(.16,1,.3,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.handle{width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 16px}
+.toast{position:absolute;inset-inline:16px;bottom:78px;background:#1C2530;color:#fff;
+  border-radius:var(--r-md);padding:14px 16px;display:none;align-items:center;gap:12px;
+  box-shadow:var(--e2);z-index:60;animation:tin .18s ease-out}
+.toast.show{display:flex}
+@keyframes tin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.toast button{border:0;background:transparent;color:#8ECAE6;font-family:inherit;font-size:15px;
+  font-weight:600;cursor:pointer;margin-inline-start:auto}
+.inbanner{padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:13px}
+.steps{display:flex;gap:6px;padding:0 16px 4px}
+.steps i{height:4px;flex:1;border-radius:2px;background:var(--border-default)}
+.steps i.on{background:var(--brand-primary)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="shell">
+  <div class="shead"><h1 class="stitle">Mohalla <span>· clickable prototype</span></h1></div>
+  <p class="ssub">The Shehersaaz community platform, wired for real navigation. <b>Tap the flows on the left, or just use the app.</b> Switch to <b>اردو</b> to walk any flow right-to-left — that is the single most useful thing to test on a real Android phone. Open this page on your phone and it fills the screen.</p>
+
+  <div class="ctrls">
+    <div class="cgrp"><span class="clab">Language</span>
+      <div class="seg" id="langseg">
+        <button class="on" onclick="setLang('en')">English</button>
+        <button onclick="setLang('ur')">اردو</button>
+      </div>
+    </div>
+    <label class="tog" id="tsus"><input type="checkbox" onchange="setSus(this.checked)"><span>Suspended account</span></label>
+    <label class="tog" id="toff"><input type="checkbox" onchange="setOff(this.checked)"><span>Offline</span></label>
+  </div>
+  <p class="hint">Everything below uses the specified tokens, components and copy. Sample data is realistic Pakistani civic content, not lorem.</p>
+
+  <div class="stage">
+    <div class="flows">
+      <h3>Prototype flows</h3>
+      <button onclick="flow('p1')"><span class="fid">P-01</span>New user onboarding</button>
+      <button onclick="flow('p2')"><span class="fid">P-02</span>Log in</button>
+      <button onclick="flow('p3')"><span class="fid">P-03</span>Read the feed</button>
+      <button onclick="flow('p4')"><span class="fid">P-04</span>Create a post</button>
+      <button onclick="flow('p5')"><span class="fid">P-05</span>Like &amp; comment</button>
+      <button onclick="flow('p6')"><span class="fid">P-06</span>Follow someone</button>
+      <button onclick="flow('p7')"><span class="fid">P-07</span>Search</button>
+      <button onclick="flow('p8')"><span class="fid">P-08</span>Messaging &amp; requests</button>
+      <button onclick="flow('p9')"><span class="fid">P-09</span>Events &amp; RSVP</button>
+      <button onclick="flow('p10')"><span class="fid">P-10</span>Notifications</button>
+      <button onclick="flow('p11')"><span class="fid">P-11</span>Report &amp; block</button>
+      <button onclick="flow('p12')"><span class="fid">P-12</span>Delete account · T3</button>
+      <h3 style="margin-top:20px">States</h3>
+      <button onclick="go('s-empty')"><span class="fid">ST</span>Empty feed</button>
+      <button onclick="go('s-loading')"><span class="fid">ST</span>Loading skeletons</button>
+      <button onclick="go('s-unavail')"><span class="fid">ST</span>Content unavailable</button>
+      <button onclick="go('s-review')"><span class="fid">ST</span>Content under review</button>
+    </div>
+
+    <div class="device">
+      <div class="frame" id="frame">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁ 84%</span></div>
+        <div class="banner-slot" id="banners"></div>
+        <div class="viewport" id="vp">
+
+<!-- ══════════ SPLASH ══════════ -->
+<div class="screen active" id="splash" style="align-items:center;justify-content:center">
+  <div style="text-align:center">
+    <span class="tile" style="width:64px;height:64px;color:var(--brand-primary)"></span>
+    <div class="t-h2" style="margin-top:20px;color:var(--text-primary)">Shehersaaz</div>
+    <div style="width:120px;height:3px;background:var(--border-default);border-radius:2px;margin:22px auto 0;overflow:hidden">
+      <div style="width:40%;height:100%;background:var(--brand-primary)"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ LANGUAGE ══════════ -->
+<div class="screen" id="lang">
+  <div class="body" style="display:flex;flex-direction:column;justify-content:center;padding:32px 24px">
+    <div style="text-align:center;margin-bottom:44px">
+      <span class="tile" style="width:52px;height:52px;color:var(--brand-primary)"></span>
+      <div class="t-h2" style="margin-top:16px;color:var(--text-primary)">Shehersaaz</div>
+    </div>
+    <div class="t-h3" style="color:var(--text-primary);text-align:center;margin-bottom:6px">Choose your language</div>
+    <div class="nastaliq" style="font-size:22px;color:var(--text-secondary);text-align:center;margin-bottom:32px">اپنی زبان منتخب کریں</div>
+    <button class="btn btn-sec" style="margin-bottom:12px;min-height:60px;justify-content:space-between" onclick="setLang('ur');go('welcome')">
+      <span class="nastaliq" style="font-size:24px;color:var(--text-primary)">اردو</span><span style="color:var(--text-secondary)">›</span></button>
+    <button class="btn btn-sec" style="min-height:60px;justify-content:space-between" onclick="setLang('en');go('welcome')">
+      <span class="t-h3" style="color:var(--text-primary)">English</span><span style="color:var(--text-secondary)">›</span></button>
+    <div class="t-bodysm sec" style="text-align:center;margin-top:26px" data-ur="آپ بعد میں سیٹنگز سے تبدیل کر سکتے ہیں">You can change this later in Settings</div>
+  </div>
+</div>
+
+<!-- ══════════ WELCOME ══════════ -->
+<div class="screen" id="welcome">
+  <div class="body" style="display:flex;flex-direction:column;justify-content:flex-end;padding:32px 24px 28px">
+    <span class="tile" style="width:44px;height:44px;color:var(--brand-primary);margin-bottom:24px"></span>
+    <div class="t-display" style="color:var(--text-primary);margin-bottom:16px" data-ur="آپ کا محلہ، آن لائن">Your neighbourhood, online</div>
+    <div class="t-bodylg sec" style="margin-bottom:8px" data-ur="اپنے علاقے کی خبریں پڑھیں اور شیئر کریں۔">Read and share what's happening in your area.</div>
+    <div class="t-bodylg sec" style="margin-bottom:8px" data-ur="ان لوگوں اور اداروں سے جڑیں جو کام کر رہے ہیں۔">Connect with the people and organizations doing something about it.</div>
+    <div class="t-bodylg sec" style="margin-bottom:36px" data-ur="کمیونٹی تقریبات میں شامل ہوں۔">Come together at community events.</div>
+    <button class="btn btn-pri" style="margin-bottom:12px" onclick="go('reg1')" data-ur="اکاؤنٹ بنائیں">Create account</button>
+    <button class="btn btn-ghost" onclick="go('login')" data-ur="لاگ ان کریں">Log in</button>
+  </div>
+</div>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="screen" id="login">
+  <div class="topbar"><button class="iconbtn" onclick="go('welcome')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="لاگ ان">Log in</span></div>
+  <div class="body pad">
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="موبائل نمبر">Mobile number</label>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <div class="inp" style="width:70px;text-align:center;color:var(--text-secondary)">+92</div>
+      <input class="inp" value="300 4471902" readonly style="flex:1">
+    </div>
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="پاس ورڈ">Password</label>
+    <input class="inp" type="password" value="••••••••" readonly style="margin-bottom:8px">
+    <div id="loginerr" style="display:none;margin-bottom:8px">
+      <div class="t-bodysm" style="color:var(--error)" data-ur="⚠ نمبر یا پاس ورڈ درست نہیں۔">⚠ That number or password isn't right.</div></div>
+    <div class="t-bodysm" style="color:var(--brand-primary);font-weight:600;margin-bottom:28px;cursor:pointer" onclick="go('otp')" data-ur="پاس ورڈ بھول گئے؟">Forgot password?</div>
+    <button class="btn btn-pri" style="margin-bottom:10px" onclick="tryLogin()" data-ur="لاگ ان کریں">Log in</button>
+    <button class="btn btn-ghost" onclick="go('reg1')" data-ur="اکاؤنٹ بنائیں">Create account</button>
+  </div>
+</div>
+
+<!-- ══════════ REGISTER 1 · PHONE ══════════ -->
+<div class="screen" id="reg1">
+  <div class="topbar"><button class="iconbtn" onclick="go('welcome')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="اکاؤنٹ بنائیں">Create account</span>
+    <span class="t-bodysm sec">1/4</span></div>
+  <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
+  <div class="body pad">
+    <div class="t-h1" style="color:var(--text-primary);margin:20px 0 24px" data-ur="آپ کا موبائل نمبر کیا ہے؟">What's your mobile number?</div>
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <div class="inp" style="width:70px;text-align:center;color:var(--text-secondary)">+92</div>
+      <input class="inp" placeholder="3XX XXXXXXX" value="300 4471902" readonly style="flex:1">
+    </div>
+    <div style="display:flex;gap:11px;background:var(--brand-primary-subtle);border-radius:var(--r-md);padding:14px">
+      <span style="flex:none">🔒</span>
+      <div class="t-bodysm" style="color:var(--brand-primary)" data-ur="آپ کا نمبر کسی دوسرے صارف کو نہیں دکھایا جاتا۔ ہم اسے صرف آپ کو لاگ ان کرنے کے لیے استعمال کرتے ہیں۔">Your number is never shown to other people. We use it only to sign you in.</div>
+    </div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('reg2')" data-ur="جاری رکھیں">Continue</button></div>
+</div>
+
+<!-- ══════════ REGISTER 2 · DOB ══════════ -->
+<div class="screen" id="reg2">
+  <div class="topbar"><button class="iconbtn" onclick="go('reg1')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="اکاؤنٹ بنائیں">Create account</span>
+    <span class="t-bodysm sec">2/4</span></div>
+  <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+  <div class="body pad">
+    <div class="t-h1" style="color:var(--text-primary);margin:20px 0 24px" data-ur="آپ کی تاریخ پیدائش؟">When were you born?</div>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <input class="inp" value="14" readonly style="flex:1;text-align:center">
+      <input class="inp" value="March" readonly style="flex:1.6;text-align:center">
+      <input class="inp" value="2002" readonly style="flex:1.2;text-align:center">
+    </div>
+    <div class="t-bodysm sec" data-ur="ہم یہ صرف اس بات کی تصدیق کے لیے پوچھتے ہیں کہ آپ کی عمر ۱۳ سال یا اس سے زیادہ ہے۔ یہ کسی کو نہیں دکھائی جاتی۔">We ask only to confirm you're 13 or older. This is never shown to anyone.</div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('reg3')" data-ur="جاری رکھیں">Continue</button></div>
+</div>
+
+<!-- ══════════ REGISTER 3 · PASSWORD ══════════ -->
+<div class="screen" id="reg3">
+  <div class="topbar"><button class="iconbtn" onclick="go('reg2')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="اکاؤنٹ بنائیں">Create account</span>
+    <span class="t-bodysm sec">3/4</span></div>
+  <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+  <div class="body pad">
+    <div class="t-h1" style="color:var(--text-primary);margin:20px 0 24px" data-ur="ایک پاس ورڈ منتخب کریں">Choose a password</div>
+    <input class="inp" type="password" value="••••••••••" readonly style="margin-bottom:14px">
+    <div class="t-bodysm" style="color:var(--success);margin-bottom:5px" data-ur="✓ کم از کم ۸ حروف">✓ At least 8 characters</div>
+    <div class="t-bodysm" style="color:var(--success)" data-ur="✓ ایک حرف اور ایک عدد شامل ہے">✓ Includes a letter and a number</div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('reg4')" data-ur="جاری رکھیں">Continue</button></div>
+</div>
+
+<!-- ══════════ REGISTER 4 · TERMS ══════════ -->
+<div class="screen" id="reg4">
+  <div class="topbar"><button class="iconbtn" onclick="go('reg3')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="اکاؤنٹ بنائیں">Create account</span>
+    <span class="t-bodysm sec">4/4</span></div>
+  <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  <div class="body pad">
+    <div class="t-h1" style="color:var(--text-primary);margin:20px 0 20px" data-ur="ہمارے اصول">Our rules</div>
+    <div class="t-bodylg sec" style="margin-bottom:22px" data-ur="یہ ایک عوامی کمیونٹی پلیٹ فارم ہے۔ براہ کرم جاری رکھنے سے پہلے پڑھیں۔">This is a public community platform. Please read these before you continue.</div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--border-default);margin-bottom:10px">
+      <div class="row" style="border:0"><span style="flex:1" class="t-body" data-ur="کمیونٹی رہنما اصول">Community Guidelines</span><span class="sec">›</span></div></div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--border-default);margin-bottom:10px">
+      <div class="row" style="border:0"><span style="flex:1" class="t-body" data-ur="شرائط و ضوابط">Terms of Service</span><span class="sec">›</span></div></div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--border-default);margin-bottom:22px">
+      <div class="row" style="border:0"><span style="flex:1" class="t-body" data-ur="پرائیویسی پالیسی">Privacy Policy</span><span class="sec">›</span></div></div>
+    <label class="tog" style="color:var(--text-primary);align-items:flex-start;gap:12px">
+      <input type="checkbox" id="termsbox" onchange="document.getElementById('termsbtn').className=this.checked?'btn btn-pri':'btn btn-dis'">
+      <span class="t-body" data-ur="میں کمیونٹی رہنما اصول اور شرائط سے اتفاق کرتا ہوں">I agree to the Community Guidelines and Terms</span></label>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-dis" id="termsbtn" onclick="if(document.getElementById('termsbox').checked)go('otp')" data-ur="اکاؤنٹ بنائیں">Create account</button></div>
+</div>
+
+<!-- ══════════ OTP ══════════ -->
+<div class="screen" id="otp">
+  <div class="topbar"><button class="iconbtn" onclick="go('reg4')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="نمبر کی تصدیق">Verify your number</span></div>
+  <div class="body pad">
+    <div class="t-bodylg sec" style="margin:16px 0 24px" data-ur="ہم نے +92 300 4471902 پر ۶ ہندسوں کا کوڈ بھیجا ہے۔">We sent a 6-digit code to +92 300 4471902</div>
+    <div style="display:flex;gap:8px;margin-bottom:18px" dir="ltr">
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0">4</div>
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0">9</div>
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0">2</div>
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0;border-color:var(--brand-primary);box-shadow:0 0 0 3px rgba(20,90,115,.14)">7</div>
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0">1</div>
+      <div class="inp" style="flex:1;text-align:center;font-weight:600;font-size:19px;padding:14px 0">3</div>
+    </div>
+    <div class="t-bodysm sec" data-ur="کوڈ دوبارہ بھیجیں — ۰:۴۲">Resend code in 0:42</div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('uname')" data-ur="تصدیق کریں">Verify</button></div>
+</div>
+
+<!-- ══════════ USERNAME ══════════ -->
+<div class="screen" id="uname">
+  <div class="body pad">
+    <div class="t-h1" style="color:var(--text-primary);margin:24px 0 8px" data-ur="ایک صارف نام منتخب کریں">Choose a username</div>
+    <div style="display:inline-flex;align-items:center;gap:7px;background:var(--warning-subtle);border-radius:var(--r-sm);padding:7px 11px;margin-bottom:16px">
+      <span style="color:var(--warning)">⚠</span>
+      <span class="t-bodysm" style="color:var(--warning);font-weight:600" data-ur="یہ بعد میں تبدیل نہیں ہو سکتا">This can't be changed later</span></div>
+    <div class="t-body sec" style="margin-bottom:22px" data-ur="آپ کا صارف نام آپ کو جعلی اکاؤنٹس سے بچاتا ہے۔ سوچ کر منتخب کریں۔">Your username protects you from being impersonated. Choose carefully.</div>
+    <div style="position:relative;margin-bottom:8px">
+      <input class="inp" value="@sana_bashir" readonly style="border-color:var(--success);padding-inline-end:44px">
+      <span style="position:absolute;inset-inline-end:15px;top:14px;color:var(--success);font-weight:700">✓</span></div>
+    <div class="t-bodysm" style="color:var(--success);margin-bottom:22px" data-ur="✓ دستیاب ہے">✓ Available</div>
+    <div class="t-label sec" style="margin-bottom:9px" data-ur="تجاویز">SUGGESTIONS</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px">
+      <span class="chip" style="background:var(--surface-primary);color:var(--brand-primary);border:1px solid var(--border-strong)">@sanab</span>
+      <span class="chip" style="background:var(--surface-primary);color:var(--brand-primary);border:1px solid var(--border-strong)">@sana_b24</span>
+      <span class="chip" style="background:var(--surface-primary);color:var(--brand-primary);border:1px solid var(--border-strong)">@s_bashir</span>
+    </div>
+    <div class="t-bodysm sec" data-ur="۳ سے ۲۰ حروف · حروف، اعداد اور _ · حرف سے شروع ہو">3–20 characters · letters, numbers and _ · must start with a letter</div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('psetup')" data-ur="تصدیق کریں">Confirm</button></div>
+</div>
+
+<!-- ══════════ PROFILE SETUP ══════════ -->
+<div class="screen" id="psetup">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="اپنی پروفائل بنائیں">Set up your profile</span>
+    <button class="iconbtn" style="width:auto;font-size:15px;color:var(--brand-primary);font-weight:600;padding:0 8px" onclick="go('suggest')" data-ur="چھوڑیں">Skip</button></div>
+  <div class="body pad">
+    <div style="text-align:center;margin:16px 0 26px">
+      <div style="position:relative;display:inline-block">
+        <div class="av av-88" style="background:var(--bg-secondary);color:var(--text-tertiary);font-size:26px">SB</div>
+        <span style="position:absolute;bottom:0;inset-inline-end:0;width:30px;height:30px;border-radius:50%;background:var(--brand-primary);color:#fff;display:grid;place-items:center;font-size:14px;border:3px solid var(--bg-primary)">✎</span></div>
+      <div class="t-bodysm sec" style="margin-top:10px" data-ur="تصویر شامل کریں">Add a photo</div>
+    </div>
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="آپ کا نام *">Your name *</label>
+    <input class="inp" value="Sana Bashir" readonly style="margin-bottom:16px">
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="شہر">City</label>
+    <input class="inp" value="Lahore" readonly style="margin-bottom:16px">
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="مختصر تعارف">Short bio</label>
+    <input class="inp" placeholder="Optional" readonly style="margin-bottom:20px">
+    <div class="t-label sec" style="margin-bottom:9px" data-ur="اکاؤنٹ کی قسم">ACCOUNT TYPE</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-pri btn-sm" style="flex:1" data-ur="فرد">Individual</button>
+      <button class="btn btn-sec btn-sm" style="flex:1" data-ur="ادارہ">Organization</button></div>
+  </div>
+  <div class="pad" style="padding-top:0"><button class="btn btn-pri" onclick="go('suggest')" data-ur="جاری رکھیں">Continue</button></div>
+</div>
+
+<!-- ══════════ SUGGESTIONS ══════════ -->
+<div class="screen" id="suggest">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="فالو کرنے کے لیے لوگ">People to follow</span></div>
+  <div class="body">
+    <div class="pad" style="padding-bottom:8px"><div class="t-body sec" data-ur="کچھ کو فالو کریں تاکہ آپ کی فیڈ میں پوسٹس آنا شروع ہوں۔">Follow a few, and their posts will start appearing in your feed.</div></div>
+    <div class="list" id="sugglist">
+      <div class="row"><div class="av av-44" style="background:#1F3A5F">SH</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Shehersaaz</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="شہری آگاہی · لاہور">Civic awareness · Lahore</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row"><div class="av av-44" style="background:#16697A">AK</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Ayesha Khan</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="پانی اور صفائی · کراچی">Water &amp; sanitation · Karachi</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row"><div class="av av-44" style="background:#2E6B3E">GL</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Green Lahore</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="ماحول · لاہور">Environment · Lahore</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row"><div class="av av-44" style="background:#7D3C6E">WA</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Women's Action Multan</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="خواتین کے حقوق · ملتان">Women's rights · Multan</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row"><div class="av av-44" style="background:#8A5A1B">MI</div>
+        <div style="flex:1;min-width:0"><div class="t-title">Muhammad Iqbal</div>
+          <div class="t-bodysm sec" data-ur="ملتان">Multan</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row" style="border:0"><div class="av av-44" style="background:#9C4A1A">RR</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Rescue Response KP</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="آفات اور ایمرجنسی · پشاور">Disaster &amp; emergency · Peshawar</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+    </div>
+  </div>
+  <div class="pad" style="padding-top:12px"><button class="btn btn-pri" onclick="go('home')" data-ur="فیڈ پر جائیں">Go to my feed</button></div>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="screen" id="home">
+  <div class="topbar">
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="شہر ساز">Shehersaaz</span>
+    <button class="iconbtn" onclick="go('search')" aria-label="Search">🔍</button>
+    <button class="iconbtn" onclick="go('notifs')" aria-label="Notifications">🔔<span class="badge" id="nbadge">3</span></button>
+  </div>
+  <div class="tabs">
+    <button class="on" id="tabFol" onclick="homeTab('fol')" data-ur="فالو کیے گئے">Following</button>
+    <button id="tabDis" onclick="homeTab('dis')" data-ur="دریافت">Discover</button>
+    <button class="filt" onclick="openSheet('shCat')" aria-label="Filter">⚟</button>
+  </div>
+  <div class="body" id="homeBody">
+    <div style="padding:14px 16px 2px">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">
+        <span class="tile" style="width:12px;height:12px;color:var(--brand-primary)"></span>
+        <span class="t-label" style="color:var(--brand-primary)" data-ur="نمایاں">FEATURED</span></div>
+      <div class="card" style="margin-bottom:0"><div class="row" style="border:0;padding:15px">
+        <div style="flex:1;min-width:0"><div class="t-title" data-ur="صاف پانی مہم — لاہور">Clean Water Drive — Lahore</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+            <span class="t-bodysm sec">Shehersaaz</span><span class="vb sm"><span class="tile"></span><i>✓</i></span>
+            <span class="t-bodysm sec">· 2d</span></div></div><span class="sec">›</span></div></div>
+    </div>
+    <div style="padding:12px" id="feedList">
+      <div class="card pcard">
+        <div class="acc" style="background:#16697A"></div>
+        <div class="pin">
+          <div class="arow">
+            <div class="av av-44" style="background:#16697A" onclick="go('other')">AK</div>
+            <div style="flex:1;min-width:0" onclick="go('other')">
+              <div class="aname"><span class="t-title">Ayesha Khan</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+              <div class="t-bodysm sec" data-ur="کراچی · ۳ گھنٹے">Karachi · 3h</div></div>
+            <button class="iconbtn" onclick="openSheet('shPost')" aria-label="More">⋯</button></div>
+          <span class="chip" style="background:#E3EFF2;color:#16697A" data-ur="پانی اور صفائی">Water &amp; Sanitation</span>
+          <div class="t-bodylg" style="margin-top:10px;color:var(--text-primary)" onclick="go('post')" data-ur="ڈسٹرکٹ ایسٹ میں ٹینکر کی قیمتوں پر ہماری نئی رپورٹ اب دستیاب ہے۔ چودہ یونین کونسلز، تین سال کا ڈیٹا۔">Our new report on tanker pricing in District East is now available. Fourteen union councils, three years of data.</div>
+          <div class="media" style="height:150px;background:linear-gradient(135deg,#E3EFF2,#C9DFE8);color:#16697A" onclick="go('post')">TANKER PRICING 2026</div>
+          <div class="eng">
+            <button onclick="like(this)"><span class="ic">♡</span><span>34</span></button>
+            <button onclick="go('post')"><span class="ic">💬</span><span>12</span></button>
+            <button style="margin-inline-start:auto" onclick="toast('Link copied','لنک کاپی ہو گیا')">↗</button></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:15px">
+        <div style="display:flex;gap:13px;margin-bottom:12px" onclick="go('event')">
+          <div style="background:var(--brand-secondary-subtle);border-radius:var(--r-md);padding:9px 12px;text-align:center;flex:none">
+            <div class="t-label" style="color:var(--brand-secondary)" data-ur="ہفتہ">SAT</div>
+            <div class="t-h2" style="color:var(--brand-secondary);margin:1px 0">14</div>
+            <div class="t-label" style="color:var(--brand-secondary)" data-ur="ستمبر">SEP</div></div>
+          <div style="min-width:0">
+            <div class="t-title" data-ur="شجرکاری مہم، ماڈل ٹاؤن پارک">Tree planting drive, Model Town Park</div>
+            <div class="t-bodysm sec" style="margin-top:2px" data-ur="صبح ۹ بجے · بالمشافہ">9:00 AM · In person</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:8px">
+              <div style="display:flex">
+                <span class="av av-24" style="background:#2E6B3E;border:2px solid #fff">A</span>
+                <span class="av av-24" style="background:#16697A;border:2px solid #fff;margin-inline-start:-8px">B</span>
+                <span class="av av-24" style="background:#8A5A1B;border:2px solid #fff;margin-inline-start:-8px">C</span></div>
+              <span class="t-bodysm sec" id="goingCount1" data-ur="۱۸ جا رہے ہیں">18 going</span></div></div></div>
+        <div style="display:flex;gap:9px">
+          <button class="btn btn-ev btn-sm" style="flex:1" onclick="rsvp(this)" data-ur="جا رہا ہوں">Going</button>
+          <button class="btn btn-sec btn-sm" style="flex:1;color:var(--brand-secondary)" data-ur="دلچسپی ہے">Interested</button></div>
+      </div>
+
+      <div class="card pcard">
+        <div class="acc" style="background:#2E6B3E"></div>
+        <div class="pin">
+          <div class="arow">
+            <div class="av av-44" style="background:#2E6B3E">GL</div>
+            <div style="flex:1;min-width:0">
+              <div class="aname"><span class="t-title">Green Lahore</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+              <div class="t-bodysm sec" data-ur="لاہور · ۵ گھنٹے">Lahore · 5h</div></div>
+            <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+          <span class="chip" style="background:#E6F0E7;color:#2E6B3E" data-ur="ماحول اور موسم">Environment &amp; Climate</span>
+          <div class="t-bodylg" style="margin-top:10px;color:var(--text-primary)" data-ur="آج صبح ماڈل ٹاؤن میں فضائی معیار ۱۸۰ اے کیو آئی سے تجاوز کر گیا۔ بچوں کو گھر کے اندر رکھیں۔">Air quality in Model Town crossed 180 AQI this morning. Please keep children indoors where you can.</div>
+          <div class="eng">
+            <button class="liked"><span class="ic">♥</span><span>87</span></button>
+            <button onclick="go('post')"><span class="ic">💬</span><span>31</span></button>
+            <button style="margin-inline-start:auto" onclick="toast('Link copied','لنک کاپی ہو گیا')">↗</button></div>
+        </div>
+      </div>
+
+      <div class="card pcard">
+        <div class="acc" style="background:#1F3A5F"></div>
+        <div class="pin">
+          <div class="arow">
+            <div class="av av-44" style="background:#1F3A5F">SH</div>
+            <div style="flex:1;min-width:0">
+              <div class="aname"><span class="t-title">Shehersaaz</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+              <div class="t-bodysm sec" data-ur="لاہور · ۲ دن">Lahore · 2d</div></div>
+            <button class="iconbtn" onclick="openSheet('shPost')" aria-label="More">⋯</button></div>
+          <span class="chip" style="background:#E6EAF1;color:#1F3A5F" data-ur="حکمرانی اور جوابدہی">Governance &amp; Accountability</span>
+          <div class="t-bodylg" style="margin-top:10px;color:var(--text-primary)" data-ur="میونسپل بجٹ مشاورت میں ہماری تجاویز منسلک ہیں۔ ۲۰ ستمبر سے پہلے تبصرے بھیجیں۔">Our submission to the municipal budget consultation is attached. Comments welcome before 20 September.</div>
+          <div class="doc" onclick="toast('Opening document','دستاویز کھل رہی ہے')">
+            <span style="font-size:22px">📄</span>
+            <div style="min-width:0"><div class="t-title" style="font-size:14px">Budget-Submission-2026.pdf</div>
+              <div class="t-bodysm sec" data-ur="۲.۴ ایم بی · کھولنے کے لیے دبائیں">2.4 MB · Tap to open</div></div></div>
+          <div class="eng">
+            <button onclick="like(this)"><span class="ic">♡</span><span>19</span></button>
+            <button onclick="go('post')"><span class="ic">💬</span><span>7</span></button>
+            <button style="margin-inline-start:auto" onclick="toast('Link copied','لنک کاپی ہو گیا')">↗</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<!-- ══════════ POST DETAIL ══════════ -->
+<div class="screen" id="post">
+  <div class="topbar"><button class="iconbtn" onclick="back()">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="پوسٹ">Post</span>
+    <button class="iconbtn" onclick="openSheet('shPost')">⋯</button></div>
+  <div class="body">
+    <div class="pad">
+      <div class="arow" onclick="go('other')">
+        <div class="av av-44" style="background:#16697A">AK</div>
+        <div style="flex:1"><div class="aname"><span class="t-title">Ayesha Khan</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" data-ur="کراچی · ۳ گھنٹے">Karachi · 3h</div></div></div>
+      <span class="chip" style="background:#E3EFF2;color:#16697A" data-ur="پانی اور صفائی">Water &amp; Sanitation</span>
+      <div class="t-bodylg" style="margin:12px 0;color:var(--text-primary)" data-ur="ڈسٹرکٹ ایسٹ میں ٹینکر کی قیمتوں پر ہماری نئی رپورٹ اب دستیاب ہے۔ اس میں چودہ یونین کونسلز اور تین سال کا ڈیٹا شامل ہے۔ ہم نے پایا کہ گرمیوں کے مہینوں میں قیمتیں تین گنا بڑھ جاتی ہیں، اور سب سے زیادہ اثر کم آمدنی والے علاقوں پر پڑتا ہے۔">Our new report on tanker pricing in District East is now available. It covers fourteen union councils and three years of data. We found that prices triple during the summer months, and the heaviest impact falls on lower-income areas.</div>
+      <div class="media" style="height:170px;background:linear-gradient(135deg,#E3EFF2,#C9DFE8);color:#16697A;margin-bottom:12px">TANKER PRICING 2026</div>
+      <div class="eng" style="margin-top:0">
+        <button onclick="like(this)"><span class="ic">♡</span><span>34</span></button>
+        <button><span class="ic">💬</span><span>12</span></button>
+        <button style="margin-inline-start:auto" onclick="toast('Link copied','لنک کاپی ہو گیا')">↗</button></div>
+    </div>
+    <div class="pad" style="padding-top:0"><div class="divtile"><i></i><span class="tile"></span><i></i></div></div>
+    <div class="pad" style="padding-top:14px">
+      <div class="t-label sec" style="margin-bottom:14px" data-ur="۱۲ تبصرے">12 COMMENTS</div>
+      <div style="display:flex;gap:11px;margin-bottom:18px">
+        <div class="av av-32" style="background:#2E6B3E">SB</div>
+        <div style="flex:1;min-width:0">
+          <div class="t-title" style="font-size:15px">Sana Bashir <span class="t-bodysm sec" style="font-weight:400">· 2h</span></div>
+          <div class="t-body" style="margin:3px 0 6px;color:var(--text-primary)" data-ur="کیا یونین کونسل کا ڈیٹا مہینے کے حساب سے دستیاب ہے؟">Is the union council data broken down by month?</div>
+          <div style="display:flex;gap:16px"><span class="t-bodysm sec">♡ 3</span>
+            <span class="t-bodysm" style="color:var(--brand-primary);font-weight:600" data-ur="جواب دیں">Reply</span></div>
+          <div style="display:flex;gap:11px;margin-top:14px">
+            <div class="av av-32" style="background:#16697A">AK</div>
+            <div style="flex:1"><div class="t-title" style="font-size:15px">Ayesha Khan <span class="vb sm"><span class="tile"></span><i>✓</i></span> <span class="t-bodysm sec" style="font-weight:400">· 1h</span></div>
+              <div class="t-body" style="margin:3px 0 6px;color:var(--text-primary)" data-ur="جی ہاں، ضمیمہ ب میں۔">Yes — appendix B.</div>
+              <div class="t-bodysm sec">♡ 1</div></div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:11px">
+        <div class="av av-32" style="background:#8A5A1B">MI</div>
+        <div style="flex:1"><div class="t-title" style="font-size:15px">Muhammad Iqbal <span class="t-bodysm sec" style="font-weight:400">· 4h</span></div>
+          <div class="t-body" style="margin:3px 0 6px;color:var(--text-primary)" data-ur="ملتان میں بھی یہی مسئلہ ہے۔ کیا آپ یہاں بھی کام کریں گے؟">Same problem in Multan. Will you be looking at it there too?</div>
+          <div style="display:flex;gap:16px"><span class="t-bodysm sec">♡ 5</span>
+            <span class="t-bodysm" style="color:var(--brand-primary);font-weight:600" data-ur="جواب دیں">Reply</span></div></div></div>
+    </div>
+  </div>
+  <div style="background:var(--surface-primary);border-top:1px solid var(--border-default);padding:10px 14px;display:flex;align-items:center;gap:11px;flex:none">
+    <div class="av av-32" style="background:#2E6B3E">SB</div>
+    <div style="flex:1;background:var(--surface-sunken);border-radius:var(--r-full);padding:11px 16px" class="t-body sec" data-ur="تبصرہ لکھیں…">Write a comment…</div>
+    <button class="iconbtn" style="background:var(--brand-primary);color:#fff;width:38px;height:38px;margin:0;font-size:14px" onclick="toast('Comment added','تبصرہ شامل ہو گیا')">➤</button>
+  </div>
+</div>
+
+<!-- ══════════ COMPOSER ══════════ -->
+<div class="screen" id="composer">
+  <div class="topbar" style="background:var(--surface-primary)">
+    <button class="iconbtn" onclick="back()">✕</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1;font-size:17px" data-ur="نئی پوسٹ">New post</span>
+    <button class="btn btn-pri btn-sm" onclick="publish()" data-ur="پوسٹ">Post</button></div>
+  <div class="body pad" style="background:var(--surface-primary)">
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">
+      <div class="av av-40" style="background:#2E6B3E">SB</div>
+      <div><div class="t-title">Sana Bashir</div><div class="t-bodysm sec">@sana_bashir</div></div></div>
+    <div class="t-bodylg" style="min-height:110px;color:var(--text-primary)" id="composeText" data-ur="نشتر روڈ پر نکاسی آب تین ہفتوں سے بند ہے۔ ہم میں سے تین نے یونین کونسل کو اطلاع دی مگر کوئی جواب نہیں آیا۔ تصاویر منسلک ہیں۔">The drainage on Nishtar Road has been blocked for three weeks. Three of us have reported it to the union council with no response. Photos attached.</div>
+    <div class="t-bodysm sec" style="text-align:end;margin-bottom:18px">182 / 3000</div>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <div style="width:80px;height:80px;border-radius:var(--r-md);background:linear-gradient(135deg,#EAEEF1,#D8DFE5);position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:rgba(28,37,48,.5);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:600">87%</div>
+        <div style="position:absolute;bottom:0;inset-inline-start:0;height:3px;width:87%;background:var(--brand-primary)"></div></div>
+      <div style="width:80px;height:80px;border-radius:var(--r-md);background:var(--error-subtle);border:1px solid #F0CBC7;display:grid;place-items:center;text-align:center;cursor:pointer" onclick="toast('Retrying upload','دوبارہ اپ لوڈ ہو رہا ہے')">
+        <div><div style="color:var(--error);font-size:16px">⟳</div><div class="t-caption" style="color:var(--error)" data-ur="دوبارہ">Retry</div></div></div>
+      <div style="width:80px;height:80px;border-radius:var(--r-md);border:1px dashed var(--border-strong);display:grid;place-items:center;color:var(--text-secondary);font-size:22px;cursor:pointer" onclick="openSheet('shAttach')">+</div>
+    </div>
+    <span class="chip" style="background:#EAEEF1;color:#4A5A68;margin-bottom:18px" data-ur="بنیادی ڈھانچہ ✕">Infrastructure &amp; Transport ✕</span>
+    <div style="display:flex;gap:11px;background:var(--warning-subtle);border-radius:var(--r-md);padding:13px;margin-top:18px">
+      <span style="color:var(--warning)">⚠</span>
+      <div class="t-bodysm" style="color:var(--warning)" data-ur="ایک تصویر اپ لوڈ نہیں ہوئی۔ دوبارہ دبائیں — آپ کی دوسری تصویر اور متن محفوظ ہیں۔">One image didn't upload. Tap retry — your other image and text are saved.</div></div>
+  </div>
+  <div style="background:var(--surface-primary);border-top:1px solid var(--border-default);display:flex;align-items:center;padding:10px 16px;gap:22px;flex:none">
+    <button class="iconbtn" onclick="openSheet('shAttach')" style="margin:0;font-size:20px">🖼</button>
+    <button class="iconbtn" onclick="openSheet('shAttach')" style="margin:0;font-size:17px">🔗</button>
+    <button class="iconbtn" onclick="openSheet('shAttach')" style="margin:0;font-size:17px">📄</button>
+    <button class="iconbtn" onclick="openSheet('shCat')" style="margin:0;margin-inline-start:auto;width:auto;font-size:13px;padding:0 8px">Infrastructure ▾</button>
+  </div>
+</div>
+
+<!-- ══════════ EVENTS ══════════ -->
+<div class="screen" id="events">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="تقریبات">Events</span>
+    <button class="iconbtn" onclick="toast('Create event','تقریب بنائیں')" aria-label="Create event">＋</button></div>
+  <div class="tabs">
+    <button class="on" data-ur="آنے والی">Upcoming</button>
+    <button class="" data-ur="میری تقریبات">My events</button></div>
+  <div class="body pad">
+    <div class="card" style="padding:15px" onclick="go('event')">
+      <div style="display:flex;gap:13px;margin-bottom:12px">
+        <div style="background:var(--brand-secondary-subtle);border-radius:var(--r-md);padding:9px 12px;text-align:center;flex:none">
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="ہفتہ">SAT</div>
+          <div class="t-h2" style="color:var(--brand-secondary);margin:1px 0">14</div>
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="ستمبر">SEP</div></div>
+        <div style="min-width:0"><div class="t-title" data-ur="شجرکاری مہم، ماڈل ٹاؤن پارک">Tree planting drive, Model Town Park</div>
+          <div class="t-bodysm sec" style="margin-top:2px" data-ur="صبح ۹ بجے · بالمشافہ · لاہور">9:00 AM · In person · Lahore</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:7px">
+            <span class="t-bodysm sec">Green Lahore</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div></div></div>
+      <span class="t-bodysm sec" data-ur="۱۸ جا رہے ہیں">18 going</span>
+    </div>
+    <div class="card" style="padding:15px">
+      <div style="display:flex;gap:13px">
+        <div style="background:var(--brand-secondary-subtle);border-radius:var(--r-md);padding:9px 12px;text-align:center;flex:none">
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="بدھ">WED</div>
+          <div class="t-h2" style="color:var(--brand-secondary);margin:1px 0">18</div>
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="ستمبر">SEP</div></div>
+        <div style="min-width:0"><div class="t-title" data-ur="بجٹ مشاورت — آن لائن اجلاس">Budget consultation — online session</div>
+          <div class="t-bodysm sec" style="margin-top:2px" data-ur="شام ۶ بجے · آن لائن">6:00 PM · Online</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:7px">
+            <span class="t-bodysm sec">Shehersaaz</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" style="margin-top:7px" data-ur="۴۱ جا رہے ہیں">41 going</div></div></div>
+    </div>
+    <div class="card" style="padding:15px">
+      <div style="display:flex;gap:13px">
+        <div style="background:var(--brand-secondary-subtle);border-radius:var(--r-md);padding:9px 12px;text-align:center;flex:none">
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="ہفتہ">SAT</div>
+          <div class="t-h2" style="color:var(--brand-secondary);margin:1px 0">21</div>
+          <div class="t-label" style="color:var(--brand-secondary)" data-ur="ستمبر">SEP</div></div>
+        <div style="min-width:0"><div class="t-title" data-ur="خواتین کے لیے قانونی آگاہی نشست">Legal awareness session for women</div>
+          <div class="t-bodysm sec" style="margin-top:2px" data-ur="صبح ۱۱ بجے · بالمشافہ · ملتان">11:00 AM · In person · Multan</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:7px">
+            <span class="t-bodysm sec">Women's Action Multan</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" style="margin-top:7px" data-ur="۲۷ جا رہے ہیں">27 going</div></div></div>
+    </div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<!-- ══════════ EVENT DETAIL ══════════ -->
+<div class="screen" id="event">
+  <div class="topbar"><button class="iconbtn" onclick="back()">‹</button>
+    <span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="تقریب">Event</span>
+    <button class="iconbtn" onclick="openSheet('shPost')">⋯</button></div>
+  <div class="body pad">
+    <div style="background:var(--brand-secondary-subtle);border-radius:var(--r-md);padding:13px 16px;display:flex;align-items:center;gap:13px;margin-bottom:18px">
+      <span class="tile" style="width:17px;height:17px;color:var(--brand-secondary);flex:none"></span>
+      <div><div class="t-title" style="color:var(--brand-secondary)" data-ur="ہفتہ ۱۴ ستمبر">Saturday 14 September</div>
+        <div class="t-bodysm" style="color:var(--brand-secondary)" data-ur="صبح ۹ بجے — بالمشافہ">9:00 AM — In person</div></div></div>
+    <div class="t-h2" style="color:var(--text-primary);margin-bottom:16px" data-ur="شجرکاری مہم، ماڈل ٹاؤن پارک">Tree planting drive, Model Town Park</div>
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px">
+      <div class="av av-40" style="background:#2E6B3E">GL</div>
+      <div><div class="aname"><span class="t-title">Green Lahore</span><span class="vb"><span class="tile"></span><i>✓</i></span></div>
+        <div class="t-bodysm sec" data-ur="منتظم">Organiser</div></div></div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--border-default);padding:14px;display:flex;gap:12px;margin-bottom:18px">
+      <span>📍</span><div class="t-body" style="color:var(--text-primary)" data-ur="ماڈل ٹاؤن پارک، بلاک سی<br><span class='sec'>لاہور</span>">Model Town Park, Block C<br><span class="sec">Lahore</span></div></div>
+    <div class="t-bodylg" style="color:var(--text-primary);margin-bottom:16px" data-ur="ہم ۲۰۰ مقامی درخت لگا رہے ہیں۔ اگر دستانے ہوں تو ساتھ لائیں۔ پانی اور پودے فراہم کیے جائیں گے۔">We're planting 200 native trees. Bring gloves if you have them. Water and saplings provided.</div>
+    <span class="chip" style="background:#E6F0E7;color:#2E6B3E" data-ur="ماحول اور موسم">Environment &amp; Climate</span>
+    <div class="divtile" style="margin:20px 0 16px"><i></i><span class="tile"></span><i></i></div>
+    <div style="display:flex;align-items:center;gap:11px">
+      <div style="display:flex">
+        <span class="av" style="width:28px;height:28px;font-size:11px;background:#2E6B3E;border:2px solid var(--bg-primary)">A</span>
+        <span class="av" style="width:28px;height:28px;font-size:11px;background:#16697A;border:2px solid var(--bg-primary);margin-inline-start:-9px">B</span>
+        <span class="av" style="width:28px;height:28px;font-size:11px;background:#8A5A1B;border:2px solid var(--bg-primary);margin-inline-start:-9px">C</span>
+        <span class="av" style="width:28px;height:28px;font-size:10px;background:var(--border-strong);color:var(--text-primary);border:2px solid var(--bg-primary);margin-inline-start:-9px">+15</span></div>
+      <span class="t-body sec" id="goingCount2" data-ur="۱۸ لوگ جا رہے ہیں">18 people going</span></div>
+    <div style="background:var(--surface-sunken);border-radius:var(--r-md);padding:13px;margin-top:18px">
+      <div class="t-bodysm sec" data-ur="یہ بالمشافہ تقریب ہے۔ آن لائن تقریبات کے لیے جوائن لنک آغاز سے ۳۰ منٹ پہلے دستیاب ہوتا ہے۔">This is an in-person event. For online events, the join link becomes available 30 minutes before the start time.</div></div>
+  </div>
+  <div style="background:var(--surface-primary);border-top:1px solid var(--border-default);padding:12px 16px;display:flex;gap:10px;flex:none">
+    <button class="btn btn-ev" style="flex:1.3" onclick="rsvp(this)" data-ur="جا رہا ہوں">Going</button>
+    <button class="btn btn-sec" style="flex:1;color:var(--brand-secondary)" data-ur="دلچسپی ہے">Interested</button></div>
+</div>
+
+<!-- ══════════ MESSAGES ══════════ -->
+<div class="screen" id="msgs">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="پیغامات">Messages</span>
+    <button class="iconbtn" onclick="go('search')">🔍</button></div>
+  <div class="tabs">
+    <button class="on" id="tabInb" onclick="msgTab('inb')" data-ur="ان باکس">Inbox</button>
+    <button id="tabReq" onclick="msgTab('req')" data-ur="درخواستیں ۲">Requests 2</button></div>
+  <div class="body" id="msgInb">
+    <div class="list">
+      <div class="row" onclick="go('convo')">
+        <div class="av av-44" style="background:#16697A">AK</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Ayesha Khan</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="میں آپ کو خام ڈیٹا بھیج سکتی ہوں…">I can send you the raw data if that helps</div></div>
+        <div style="text-align:end;flex:none"><div class="t-bodysm sec">9:31</div>
+          <span style="display:inline-grid;place-items:center;background:var(--brand-primary);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;margin-top:4px">1</span></div></div>
+      <div class="row">
+        <div class="av av-44" style="background:#2E6B3E">GL</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Green Lahore</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="ہفتہ کو ملتے ہیں، شکریہ!">See you Saturday, thank you!</div></div>
+        <div class="t-bodysm sec">Yesterday</div></div>
+      <div class="row" style="border:0">
+        <div class="av av-44" style="background:#8A5A1B">MI</div>
+        <div style="flex:1;min-width:0"><div class="t-title">Muhammad Iqbal</div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="آپ کی رپورٹ کا شکریہ">Thank you for your report</div></div>
+        <div class="t-bodysm sec">3 Sep</div></div>
+    </div>
+  </div>
+  <div class="body" id="msgReq" style="display:none">
+    <div style="background:var(--brand-primary-subtle);padding:14px 16px;display:flex;gap:11px">
+      <span style="color:var(--brand-primary)">ⓘ</span>
+      <div class="t-bodysm" style="color:var(--brand-primary)" data-ur="یہ لوگ آپ کو فالو نہیں کرتے۔ درخواست پڑھنے سے انہیں کچھ معلوم نہیں ہوتا۔">These people don't follow you. Reading a request doesn't tell them anything.</div></div>
+    <div class="list">
+      <div class="row" onclick="openSheet('shReq')">
+        <div class="av av-44" style="background:#5C6670">RA</div>
+        <div style="flex:1;min-width:0"><div class="t-title" data-ur="رضا احمد">Raza Ahmed</div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="سلام، میں نے آپ کی پوسٹ دیکھی…">Salaam, I saw your post about the drainage…</div></div>
+        <div class="t-bodysm sec">Yesterday</div></div>
+      <div class="row" style="border:0" onclick="openSheet('shReq')">
+        <div class="av av-44" style="background:#4A5A68">NK</div>
+        <div style="flex:1;min-width:0"><div class="t-title" data-ur="نادیہ کریم">Nadia Karim</div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="السلام علیکم، کیا آپ…">Assalam o alaikum, would you be able to…</div></div>
+        <div class="t-bodysm sec">3 days ago</div></div>
+    </div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<!-- ══════════ CONVERSATION ══════════ -->
+<div class="screen" id="convo">
+  <div class="topbar" style="gap:11px"><button class="iconbtn" onclick="go('msgs')">‹</button>
+    <div class="av av-32" style="background:#16697A">AK</div>
+    <div style="flex:1"><div class="aname"><span class="t-title" style="font-size:15px">Ayesha Khan</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div></div>
+    <button class="iconbtn" onclick="openSheet('shPost')">⋯</button></div>
+  <div class="body" style="padding:16px;display:flex;flex-direction:column;gap:9px">
+    <div class="t-caption sec" style="text-align:center;margin-bottom:4px" data-ur="آج">Today</div>
+    <div style="align-self:flex-end;max-width:78%;background:var(--brand-primary-subtle);border-radius:16px 16px 4px 16px;padding:11px 14px">
+      <div class="t-body" style="color:var(--text-primary)" data-ur="سلام، میں نے ٹینکر کی قیمتوں پر آپ کی رپورٹ پڑھی۔ بہت مفید ہے۔">Hello, I read your report on tanker pricing. Very useful.</div>
+      <div class="t-caption sec" style="text-align:end;margin-top:3px">9:14 ✓✓</div></div>
+    <div style="align-self:flex-start;max-width:78%;background:var(--surface-primary);border-radius:16px 16px 16px 4px;padding:11px 14px;box-shadow:var(--e1)">
+      <div class="t-body" style="color:var(--text-primary)" data-ur="شکریہ — خاص طور پر کون سا حصہ؟">Thank you — which part in particular?</div>
+      <div class="t-caption sec" style="margin-top:3px">9:22</div></div>
+    <div style="align-self:flex-end;max-width:78%;background:var(--brand-primary-subtle);border-radius:16px 16px 4px 16px;padding:11px 14px">
+      <div class="t-body" style="color:var(--text-primary)" data-ur="زیادہ تر ضمیمہ ب۔ یونین کونسل کے حساب سے تفصیل۔">Appendix B, mainly. The per-union-council breakdown.</div>
+      <div class="t-caption sec" style="text-align:end;margin-top:3px">9:24 ✓</div></div>
+    <div style="align-self:flex-start;max-width:78%;background:var(--surface-primary);border-radius:16px 16px 16px 4px;padding:11px 14px;box-shadow:var(--e1)">
+      <div class="t-body" style="color:var(--text-primary)" data-ur="اگر مفید ہو تو میں آپ کو خام ڈیٹا بھیج سکتی ہوں۔">I can send you the raw data if that helps.</div>
+      <div class="t-caption sec" style="margin-top:3px">9:31</div></div>
+    <div id="failbubble" style="align-self:flex-end;max-width:78%;background:var(--error-subtle);border:1px solid #F0CBC7;border-radius:16px 16px 4px 16px;padding:11px 14px">
+      <div class="t-body" style="color:var(--text-primary)" data-ur="یہ بہت مفید ہوگا، شکریہ۔">That would be very helpful, thank you.</div>
+      <div class="t-caption" style="color:var(--error);text-align:end;margin-top:3px;display:flex;gap:8px;justify-content:flex-end">
+        <span data-ur="⚠ نہیں بھیجا گیا">⚠ Not sent</span>
+        <span style="font-weight:700;cursor:pointer" onclick="retrySend()" data-ur="دوبارہ ⟳">Retry ⟳</span></div></div>
+  </div>
+  <div style="background:var(--surface-primary);border-top:1px solid var(--border-default);padding:10px 14px;display:flex;align-items:center;gap:11px;flex:none">
+    <button class="iconbtn" style="margin:0;font-size:20px">🖼</button>
+    <div style="flex:1;background:var(--surface-sunken);border-radius:var(--r-full);padding:12px 16px" class="t-body sec" data-ur="پیغام…">Message…</div>
+    <button class="iconbtn" style="background:var(--brand-primary);color:#fff;width:38px;height:38px;margin:0;font-size:14px" onclick="toast('Sent','بھیج دیا')">➤</button></div>
+</div>
+
+<!-- ══════════ OWN PROFILE ══════════ -->
+<div class="screen" id="me">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="پروفائل">Profile</span>
+    <button class="iconbtn" onclick="go('settings')" aria-label="Settings">⚙</button></div>
+  <div class="body">
+    <div style="height:88px;background:linear-gradient(160deg,#E6F0E7,#D6E5D8)"></div>
+    <div style="text-align:center;margin-top:-42px;padding:0 16px 14px">
+      <div class="av av-88" style="background:#2E6B3E;border:4px solid var(--bg-primary);margin:0 auto 12px">SB</div>
+      <div class="t-h3" style="color:var(--text-primary)">Sana Bashir</div>
+      <div class="t-bodysm sec" style="margin-bottom:9px">@sana_bashir</div>
+      <span class="chip" style="background:var(--surface-primary);color:var(--text-secondary);border:1px solid var(--border-default)">📍 Lahore</span>
+    </div>
+    <div class="pad" style="padding-top:0">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">3</div><div class="t-caption sec" data-ur="پوسٹس">Posts</div></div>
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">12</div><div class="t-caption sec" data-ur="فالوورز">Followers</div></div>
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">6</div><div class="t-caption sec" data-ur="فالوئنگ">Following</div></div></div>
+      <button class="btn btn-sec" style="margin-bottom:18px" data-ur="پروفائل میں تبدیلی">Edit profile</button>
+      <div class="divtile" style="margin-bottom:14px"><i></i><span class="tile"></span><i></i></div>
+      <div class="t-label sec" style="margin-bottom:12px" data-ur="میری پوسٹس">MY POSTS</div>
+    </div>
+    <div style="padding:0 12px 12px">
+      <div class="card" style="border:1px dashed #C79A4E;box-shadow:none;padding:15px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <span class="chip" style="background:var(--warning-subtle);color:var(--warning)" data-ur="⚠ زیرِ جائزہ">⚠ Under review</span>
+          <span class="t-bodysm sec" data-ur="صرف آپ اسے دیکھ سکتے ہیں">Only you can see this</span></div>
+        <div class="t-bodylg sec" data-ur="نشتر روڈ پر نکاسی آب تین ہفتوں سے بند ہے…">The drainage on Nishtar Road has been blocked for three weeks…</div>
+      </div>
+      <div class="card pcard">
+        <div class="acc" style="background:#4A5A68"></div>
+        <div class="pin">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span class="chip" style="background:#EAEEF1;color:#4A5A68" data-ur="بنیادی ڈھانچہ">Infrastructure</span>
+            <span class="t-bodysm sec">1d</span></div>
+          <div class="t-bodylg" style="color:var(--text-primary)" data-ur="گلبرگ میں فٹ پاتھ کی مرمت شروع ہو گئی ہے۔ اچھی خبر۔">Footpath repairs have started in Gulberg. Good news.</div>
+          <div class="eng"><button onclick="like(this)"><span class="ic">♡</span><span>8</span></button>
+            <button onclick="go('post')"><span class="ic">💬</span><span>2</span></button></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<!-- ══════════ OTHER PROFILE ══════════ -->
+<div class="screen" id="other">
+  <div class="body">
+    <div style="position:relative">
+      <div style="height:96px;background:linear-gradient(160deg,#E3EFF2,#D3E4EA)"></div>
+      <div style="display:flex;justify-content:space-between;position:absolute;top:8px;inset-inline:8px">
+        <button class="iconbtn" style="color:#16697A;margin:0" onclick="back()">‹</button>
+        <button class="iconbtn" style="color:#16697A;margin:0" onclick="openSheet('shProfile')">⋯</button></div>
+      <div style="text-align:center;margin-top:-44px;padding:0 16px 14px">
+        <div class="av av-88" style="background:#16697A;border:4px solid var(--bg-primary);margin:0 auto 12px">AK</div>
+        <div class="aname" style="justify-content:center"><span class="t-h3" style="color:var(--text-primary)">Ayesha Khan</span><span class="vb lg"><span class="tile"></span><i>✓</i></span></div>
+        <div class="t-bodysm sec" style="margin:3px 0 9px">@ayesha_khan</div>
+        <span class="chip" style="background:var(--surface-primary);color:var(--text-secondary);border:1px solid var(--border-default)">📍 Karachi</span>
+        <div class="t-body" style="margin:14px auto 0;max-width:30ch;color:var(--text-primary)" data-ur="پروگرام لیڈ، پانی اور صفائی۔ ٹینکر قیمتوں میں شفافیت پر کام۔">Programme lead, water and sanitation. Working on tanker pricing transparency.</div>
+      </div>
+    </div>
+    <div class="pad" style="padding-top:0">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">128</div><div class="t-caption sec" data-ur="پوسٹس">Posts</div></div>
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">64</div><div class="t-caption sec" data-ur="فالوورز">Followers</div></div>
+        <div style="flex:1;background:var(--surface-primary);border-radius:var(--r-sm);padding:11px;text-align:center"><div class="t-h3">41</div><div class="t-caption sec" data-ur="فالوئنگ">Following</div></div></div>
+      <div style="display:flex;gap:10px;margin-bottom:18px">
+        <button class="btn btn-pri" style="flex:1.3" onclick="tf(this)" data-ur="فالو">Follow</button>
+        <button class="btn btn-sec" style="flex:1" onclick="go('convo')" data-ur="پیغام">Message</button></div>
+      <div class="divtile" style="margin-bottom:14px"><i></i><span class="tile"></span><i></i></div>
+      <div class="t-label sec" style="margin-bottom:12px" data-ur="پوسٹس">POSTS</div>
+    </div>
+    <div style="padding:0 12px 12px">
+      <div class="card pcard" onclick="go('post')">
+        <div class="acc" style="background:#16697A"></div>
+        <div class="pin">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span class="chip" style="background:#E3EFF2;color:#16697A" data-ur="پانی اور صفائی">Water &amp; Sanitation</span>
+            <span class="t-bodysm sec">3h</span></div>
+          <div class="t-bodylg" style="color:var(--text-primary)" data-ur="ٹینکر کی قیمتوں پر ہماری نئی رپورٹ اب دستیاب ہے۔">Our new report on tanker pricing in District East is now available.</div>
+          <div class="media" style="height:118px;background:linear-gradient(135deg,#E3EFF2,#C9DFE8)"></div>
+          <div class="eng"><button><span class="ic">♡</span><span>34</span></button><button><span class="ic">💬</span><span>12</span></button></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ NOTIFICATIONS ══════════ -->
+<div class="screen" id="notifs">
+  <div class="topbar"><button class="iconbtn" onclick="back()">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="اطلاعات">Notifications</span></div>
+  <div class="body">
+    <div class="t-label sec" style="padding:16px 16px 8px" data-ur="آج">TODAY</div>
+    <div class="list">
+      <div class="row" onclick="go('post')">
+        <div class="av av-40" style="background:#2E6B3E">SB</div>
+        <div style="flex:1;min-width:0"><div class="t-body" style="color:var(--text-primary)"><b>Sana Bashir</b> <span data-ur="نے آپ کی پوسٹ پر تبصرہ کیا">commented on your post</span></div>
+          <div class="t-bodysm sec" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ur="کیا یونین کونسل کا ڈیٹا…">"Is the union council data broken down…"</div>
+          <div class="t-bodysm sec" style="margin-top:2px">2h</div></div>
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--brand-primary);flex:none"></span></div>
+      <div class="row" onclick="go('post')">
+        <div class="av av-40" style="background:#8A5A1B">MI</div>
+        <div style="flex:1;min-width:0"><div class="t-body" style="color:var(--text-primary)"><b>Muhammad Iqbal</b> <span data-ur="اور ۴ دیگر نے آپ کی پوسٹ پسند کی">and 4 others liked your post</span></div>
+          <div class="t-bodysm sec" data-ur="ٹینکر پرائسنگ رپورٹ">Tanker pricing report</div>
+          <div class="t-bodysm sec" style="margin-top:2px">4h</div></div>
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--brand-primary);flex:none"></span></div>
+      <div class="row">
+        <div style="width:40px;height:40px;display:grid;place-items:center;flex:none"><span class="tile" style="width:34px;height:34px;color:var(--brand-primary-subtle)"></span></div>
+        <div style="flex:1;min-width:0"><div class="t-body" style="color:var(--text-primary)"><b>Shehersaaz</b> <span data-ur="نے نیا اعلان شیئر کیا">shared a new announcement</span></div>
+          <div class="t-bodysm sec" data-ur="صاف پانی مہم — لاہور">Clean Water Drive — Lahore</div>
+          <div class="t-bodysm sec" style="margin-top:2px">6h</div></div></div>
+      <div class="row" style="border:0" onclick="go('other')">
+        <div class="av av-40" style="background:#2E6B3E">GL</div>
+        <div style="flex:1;min-width:0"><div class="t-body" style="color:var(--text-primary)"><b>Green Lahore</b> <span data-ur="نے آپ کو فالو کرنا شروع کیا">started following you</span></div>
+          <div class="t-bodysm sec" style="margin-top:2px" data-ur="کل">Yesterday</div></div></div>
+    </div>
+    <div class="t-label sec" style="padding:20px 16px 8px" data-ur="پہلے">EARLIER</div>
+    <div class="list">
+      <div class="row" style="border:0" onclick="go('event')">
+        <div style="width:40px;height:40px;display:grid;place-items:center;flex:none"><span class="tile" style="width:34px;height:34px;color:var(--brand-secondary-subtle)"></span></div>
+        <div style="flex:1;min-width:0"><div class="t-body" style="color:var(--text-primary)" data-ur="شجرکاری مہم کل صبح ۹ بجے ہے">Tree planting drive is tomorrow at 9:00 AM</div>
+          <div class="t-bodysm sec" style="margin-top:2px" data-ur="۲ دن پہلے">2 days ago</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SEARCH ══════════ -->
+<div class="screen" id="search">
+  <div class="topbar" style="gap:11px"><button class="iconbtn" onclick="back()">‹</button>
+    <input class="inp" value="pani" readonly style="flex:1;min-height:42px;padding:9px 14px"></div>
+  <div class="tabs">
+    <button class="on" data-ur="لوگ">People</button>
+    <button data-ur="پوسٹس">Posts</button>
+    <button data-ur="تقریبات">Events</button></div>
+  <div class="body">
+    <div style="background:var(--brand-primary-subtle);padding:12px 16px;display:flex;gap:11px">
+      <span style="color:var(--brand-primary)">ⓘ</span>
+      <div class="t-bodysm" style="color:var(--brand-primary)" data-ur="آپ اردو رسم الخط یا رومن اردو میں تلاش کر سکتے ہیں۔">You can search in Urdu script or Roman Urdu.</div></div>
+    <div class="list">
+      <div class="row" onclick="go('other')">
+        <div class="av av-44" style="background:#16697A">AK</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title">Ayesha Khan</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec">@ayesha_khan · Karachi</div></div>
+        <button class="btn btn-pri btn-sm" onclick="event.stopPropagation();tf(this)" data-ur="فالو">Follow</button></div>
+      <div class="row" style="border:0">
+        <div class="av av-44" style="background:#16697A">WP</div>
+        <div style="flex:1;min-width:0"><div class="aname"><span class="t-title" data-ur="پانی پراجیکٹ سندھ">Water Project Sindh</span><span class="vb sm"><span class="tile"></span><i>✓</i></span></div>
+          <div class="t-bodysm sec">@waterproject_sd · Sukkur</div></div>
+        <button class="btn btn-pri btn-sm" onclick="tf(this)" data-ur="فالو">Follow</button></div>
+    </div>
+    <div class="pad" style="padding-top:24px">
+      <div class="t-label sec" style="margin-bottom:10px" data-ur="حالیہ تلاش">RECENT SEARCHES</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip" style="background:var(--surface-primary);color:var(--text-secondary);border:1px solid var(--border-default)">drainage</span>
+        <span class="chip" style="background:var(--surface-primary);color:var(--text-secondary);border:1px solid var(--border-default)">صفائی</span>
+        <span class="chip" style="background:var(--surface-primary);color:var(--text-secondary);border:1px solid var(--border-default)">Model Town</span></div>
+      <div class="t-bodysm sec" style="margin-top:14px" data-ur="حالیہ تلاش صرف آپ کے فون پر محفوظ ہوتی ہے۔">Recent searches are saved only on your phone.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SETTINGS ══════════ -->
+<div class="screen" id="settings">
+  <div class="topbar"><button class="iconbtn" onclick="go('me')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="سیٹنگز">Settings</span></div>
+  <div class="body">
+    <div class="t-label sec" style="padding:16px 16px 8px" data-ur="اکاؤنٹ">ACCOUNT</div>
+    <div class="list">
+      <div class="row" onclick="toggleLangFromSettings()"><span style="flex:1" class="t-body" data-ur="زبان">Language</span>
+        <span class="t-body sec" id="langval">English</span><span class="sec">›</span></div>
+      <div class="row"><span style="flex:1" class="t-body" data-ur="اطلاعات">Notifications</span><span class="sec">›</span></div>
+      <div class="row"><span style="flex:1" class="t-body" data-ur="پاس ورڈ تبدیل کریں">Change password</span><span class="sec">›</span></div>
+      <div class="row" style="border:0"><span style="flex:1" class="t-body" data-ur="بلاک کیے گئے صارفین">Blocked users</span>
+        <span class="t-body sec">1</span><span class="sec">›</span></div>
+    </div>
+    <div class="t-label sec" style="padding:20px 16px 8px" data-ur="معلومات">INFORMATION</div>
+    <div class="list">
+      <div class="row"><span style="flex:1" class="t-body" data-ur="کمیونٹی رہنما اصول">Community Guidelines</span><span class="sec">›</span></div>
+      <div class="row"><span style="flex:1" class="t-body" data-ur="شرائط و ضوابط">Terms of Service</span><span class="sec">›</span></div>
+      <div class="row"><span style="flex:1" class="t-body" data-ur="پرائیویسی پالیسی">Privacy Policy</span><span class="sec">›</span></div>
+      <div class="row"><span style="flex:1" class="t-body" data-ur="مدد اور رابطہ">Help &amp; support</span><span class="sec">›</span></div>
+      <div class="row" style="border:0"><span style="flex:1" class="t-body" data-ur="ایپ کے بارے میں">About</span>
+        <span class="t-bodysm sec">1.0.0</span></div>
+    </div>
+    <div style="padding:26px 16px 12px"><button class="btn btn-sec" onclick="go('welcome')" data-ur="لاگ آؤٹ">Log out</button></div>
+    <div class="divtile" style="margin:8px 16px 20px"><i></i><span class="tile"></span><i></i></div>
+    <div style="padding:0 16px 32px">
+      <div class="row" style="border:0;background:transparent;padding:13px 0" onclick="go('del')">
+        <span class="t-body" style="flex:1;color:var(--error)" data-ur="اکاؤنٹ ڈیلیٹ کریں">Delete account</span>
+        <span style="color:var(--error)">›</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DELETE ACCOUNT · T3 ══════════ -->
+<div class="screen" id="del">
+  <div class="topbar"><button class="iconbtn" onclick="go('settings')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="اکاؤنٹ ڈیلیٹ کریں">Delete account</span></div>
+  <div class="body pad">
+    <div style="display:flex;gap:11px;background:var(--warning-subtle);border-radius:var(--r-md);padding:14px;margin-bottom:22px">
+      <span style="color:var(--warning);flex:none">⚠</span>
+      <div class="t-body" style="color:var(--warning);font-weight:600" data-ur="۳۰ دن کے بعد یہ مستقل ہو جائے گا">This is permanent after 30 days</div></div>
+    <div class="t-h3" style="color:var(--text-primary);margin-bottom:16px" data-ur="بالکل کیا ہوگا:">Here's exactly what happens:</div>
+    <div style="display:flex;gap:11px;margin-bottom:14px"><span style="color:var(--error);flex:none">✕</span>
+      <div class="t-body" style="color:var(--text-primary)" data-ur="آپ کی پروفائل فوراً ہٹا دی جائے گی">Your profile is removed immediately</div></div>
+    <div style="display:flex;gap:11px;margin-bottom:14px"><span style="color:var(--error);flex:none">✕</span>
+      <div class="t-body" style="color:var(--text-primary)" data-ur="آپ تمام ڈیوائسز سے سائن آؤٹ ہو جائیں گے">You're signed out of all your devices</div></div>
+    <div style="display:flex;gap:11px;margin-bottom:14px"><span style="color:var(--brand-primary);flex:none">ⓘ</span>
+      <div class="t-body" style="color:var(--text-primary)" data-ur="آپ کی پوسٹس اور تبصرے ایپ پر رہیں گے، ”ڈیلیٹ شدہ صارف“ کے نام سے">Your posts and comments stay on the app, shown as "Deleted User"</div></div>
+    <div style="display:flex;gap:11px;margin-bottom:14px"><span style="color:var(--brand-primary);flex:none">ⓘ</span>
+      <div class="t-body" style="color:var(--text-primary)" data-ur="جن لوگوں کو آپ نے پیغام بھیجا ان کے پاس گفتگو کی نقل رہے گی">People you messaged keep their copy of the conversation</div></div>
+    <div style="display:flex;gap:11px;margin-bottom:24px"><span style="color:var(--success);flex:none">↩</span>
+      <div class="t-body" style="color:var(--text-primary)" data-ur="۳۰ دن کے اندر لاگ ان کریں تو سب کچھ بحال ہو جائے گا">Log in within 30 days to restore everything</div></div>
+    <div class="divtile" style="margin-bottom:20px"><i></i><span class="tile"></span><i></i></div>
+    <label class="t-bodysm sec" style="display:block;margin-bottom:6px" data-ur="تصدیق کے لیے اپنا پاس ورڈ درج کریں">Enter your password to confirm</label>
+    <input class="inp" type="password" placeholder="••••••••" readonly style="margin-bottom:26px">
+    <button class="btn btn-pri" style="margin-bottom:11px" onclick="go('settings')" data-ur="منسوخ کریں">Cancel</button>
+    <button class="btn btn-desto" onclick="toast('Password required','پاس ورڈ درکار ہے')" data-ur="میرا اکاؤنٹ ڈیلیٹ کریں">Delete my account</button>
+  </div>
+</div>
+
+<!-- ══════════ STATE SCREENS ══════════ -->
+<div class="screen" id="s-empty">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="شہر ساز">Shehersaaz</span>
+    <button class="iconbtn" onclick="go('search')">🔍</button><button class="iconbtn" onclick="go('notifs')">🔔</button></div>
+  <div class="tabs"><button class="on" data-ur="فالو کیے گئے">Following</button><button data-ur="دریافت">Discover</button><button class="filt">⚟</button></div>
+  <div class="body">
+    <div style="padding:14px 16px 2px">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">
+        <span class="tile" style="width:12px;height:12px;color:var(--brand-primary)"></span>
+        <span class="t-label" style="color:var(--brand-primary)" data-ur="نمایاں">FEATURED</span></div>
+      <div class="card" style="margin-bottom:0"><div class="row" style="border:0;padding:15px">
+        <div style="flex:1"><div class="t-title" data-ur="صاف پانی مہم — لاہور">Clean Water Drive — Lahore</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px"><span class="t-bodysm sec">Shehersaaz</span>
+            <span class="vb sm"><span class="tile"></span><i>✓</i></span></div></div><span class="sec">›</span></div></div>
+    </div>
+    <div class="empty">
+      <div class="tw"><span class="tile"></span><em>▤</em></div>
+      <div class="t-h3" style="color:var(--text-primary);margin-bottom:8px" data-ur="آپ کی فیڈ خالی ہے">Your feed is quiet</div>
+      <div class="t-body sec" style="margin:0 auto 20px;max-width:30ch" data-ur="کچھ لوگوں اور اداروں کو فالو کریں، ان کی پوسٹس یہاں آئیں گی۔">Follow a few people and organizations, and their posts will appear here.</div>
+      <button class="btn btn-pri" style="max-width:230px;margin:0 auto" onclick="go('suggest')" data-ur="فالو کرنے کے لیے لوگ ڈھونڈیں">Find people to follow</button>
+    </div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<div class="screen" id="s-loading">
+  <div class="topbar"><span class="t-h3" style="color:var(--text-primary);flex:1" data-ur="شہر ساز">Shehersaaz</span>
+    <button class="iconbtn">🔍</button><button class="iconbtn">🔔</button></div>
+  <div class="tabs"><button class="on" data-ur="فالو کیے گئے">Following</button><button data-ur="دریافت">Discover</button><button class="filt">⚟</button></div>
+  <div class="body" style="padding:14px 12px">
+    <div class="card" style="padding:15px;box-shadow:none">
+      <div class="skel" style="height:13px;width:40%;margin-bottom:12px"></div>
+      <div class="skel" style="height:56px"></div></div>
+    <div class="card" style="padding:15px">
+      <div style="display:flex;gap:11px;margin-bottom:13px">
+        <div class="skel" style="width:44px;height:44px;border-radius:50%"></div>
+        <div style="flex:1"><div class="skel" style="height:14px;width:44%;margin-bottom:8px"></div>
+          <div class="skel" style="height:11px;width:26%"></div></div></div>
+      <div class="skel" style="height:24px;width:38%;border-radius:8px;margin-bottom:12px"></div>
+      <div class="skel" style="height:11px;margin-bottom:7px"></div>
+      <div class="skel" style="height:11px;width:84%;margin-bottom:13px"></div>
+      <div class="skel" style="height:140px;border-radius:12px"></div></div>
+    <div class="card" style="padding:15px">
+      <div style="display:flex;gap:11px;margin-bottom:13px">
+        <div class="skel" style="width:44px;height:44px;border-radius:50%"></div>
+        <div style="flex:1"><div class="skel" style="height:14px;width:52%;margin-bottom:8px"></div>
+          <div class="skel" style="height:11px;width:30%"></div></div></div>
+      <div class="skel" style="height:11px;margin-bottom:7px"></div>
+      <div class="skel" style="height:11px;width:72%"></div></div>
+  </div>
+  <div class="navslot"></div>
+</div>
+
+<div class="screen" id="s-unavail">
+  <div class="topbar"><button class="iconbtn" onclick="go('home')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="پوسٹ">Post</span></div>
+  <div class="body">
+    <div class="empty">
+      <div class="tw"><span class="tile"></span><em>⊘</em></div>
+      <div class="t-h3" style="color:var(--text-primary);margin-bottom:8px" data-ur="یہ مواد اب دستیاب نہیں ہے">This content is no longer available</div>
+      <div class="t-body sec" style="margin:0 auto 20px;max-width:30ch" data-ur="یہ ہٹا دیا گیا ہو سکتا ہے یا اب دکھایا نہیں جا رہا۔">It may have been removed, or it is no longer being shown.</div>
+      <button class="btn btn-sec" style="max-width:200px;margin:0 auto" onclick="go('home')" data-ur="واپس جائیں">Go back</button>
+      <div class="t-bodysm sec" style="margin-top:32px;max-width:34ch;margin-inline:auto;padding-top:18px;border-top:1px solid var(--border-default)" data-ur="ڈیزائن نوٹ: یہی ایک اسکرین ڈیلیٹ شدہ، زیرِ جائزہ، بلاک شدہ اور پابندی شدہ — چاروں صورتوں میں دکھائی جاتی ہے۔"><b>Design note:</b> this one screen serves deleted, under-review, blocked and banned — identically. Any difference would leak the existence of a block.</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-review">
+  <div class="topbar"><button class="iconbtn" onclick="go('me')">‹</button>
+    <span class="t-h3" style="color:var(--text-primary)" data-ur="زیرِ جائزہ مواد">Content under review</span></div>
+  <div class="body pad">
+    <div class="card" style="border:1px dashed #C79A4E;box-shadow:none;padding:15px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap">
+        <span class="chip" style="background:var(--warning-subtle);color:var(--warning)" data-ur="⚠ زیرِ جائزہ">⚠ Under review</span>
+        <span class="t-bodysm sec" data-ur="صرف آپ اسے دیکھ سکتے ہیں">Only you can see this</span></div>
+      <div class="arow"><div class="av av-44" style="background:#2E6B3E">SB</div>
+        <div><div class="t-title">Sana Bashir</div><div class="t-bodysm sec">Lahore · 1d</div></div></div>
+      <div class="t-bodylg sec" data-ur="نشتر روڈ پر نکاسی آب تین ہفتوں سے بند ہے۔ ہم میں سے تین نے یونین کونسل کو اطلاع دی مگر کوئی جواب نہیں آیا۔">The drainage on Nishtar Road has been blocked for three weeks. Three of us have reported it to the union council with no response.</div>
+    </div>
+    <div style="background:var(--warning-subtle);border-radius:var(--r-md);padding:14px;display:flex;gap:11px">
+      <span style="color:var(--warning);flex:none">ⓘ</span>
+      <div class="t-bodysm" style="color:var(--warning)" data-ur="کچھ لوگوں نے اس پوسٹ کی اطلاع دی ہے، اس لیے یہ عارضی طور پر چھپا دی گئی ہے۔ ہماری ٹیم اسے دیکھے گی۔ اسے خود بخود ڈیلیٹ نہیں کیا جائے گا۔">A few people reported this post, so it's temporarily hidden while our team reviews it. It will not be deleted automatically — a person makes that decision.</div></div>
+    <div class="t-bodysm sec" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border-default)"><b>Design note:</b> the engagement row is removed entirely on this variant. There is nothing to like or comment on while a post is hidden from everyone else.</div>
+  </div>
+</div>
+
+        <!-- ══════════ SHEETS ══════════ -->
+        <div class="scrim" id="shPost" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="list">
+              <div class="row" onclick="closeSheet();toast('Saved','محفوظ ہو گیا')"><span style="flex:1" class="t-body" data-ur="پوسٹ محفوظ کریں">Save post</span></div>
+              <div class="row" onclick="closeSheet();toast('Link copied','لنک کاپی ہو گیا')"><span style="flex:1" class="t-body" data-ur="لنک کاپی کریں">Copy link</span></div>
+              <div class="row" onclick="openSheet('shReport')"><span style="flex:1" class="t-body" style="color:var(--error)"><span style="color:var(--error)" data-ur="اس پوسٹ کی اطلاع دیں">Report this post</span></span></div>
+              <div class="row" style="border:0" onclick="openSheet('shBlock')"><span style="flex:1"><span style="color:var(--error)" class="t-body" data-ur="یہ صارف بلاک کریں">Block this person</span></span></div>
+            </div>
+            <div class="pad" style="padding-bottom:0"><button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shProfile" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="list">
+              <div class="row" onclick="closeSheet();toast('Link copied','لنک کاپی ہو گیا')"><span style="flex:1" class="t-body" data-ur="پروفائل لنک کاپی کریں">Copy profile link</span></div>
+              <div class="row" onclick="openSheet('shReport')"><span style="flex:1"><span style="color:var(--error)" class="t-body" data-ur="اس صارف کی اطلاع دیں">Report this person</span></span></div>
+              <div class="row" style="border:0" onclick="openSheet('shBlock')"><span style="flex:1"><span style="color:var(--error)" class="t-body" data-ur="بلاک کریں">Block</span></span></div>
+            </div>
+            <div class="pad" style="padding-bottom:0"><button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shReport" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad" style="padding-bottom:12px">
+              <div class="t-h2" style="color:var(--text-primary);margin-bottom:5px" data-ur="اس پوسٹ کی اطلاع دیں">Report this post</div>
+              <div class="t-body sec" data-ur="آپ اس کی اطلاع کیوں دے رہے ہیں؟">Why are you reporting it?</div></div>
+            <div class="list">
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="اسپیم یا گمراہ کن">Spam or misleading</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="ہراسانی یا بدسلوکی">Harassment or bullying</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="نفرت انگیز تقریر">Hate speech</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="تشدد یا دھمکی">Violence or threats</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="جنسی یا نامناسب مواد">Sexual or inappropriate content</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="جھوٹی معلومات">False information</span><span class="sec">›</span></div>
+              <div class="row" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="جعلی شناخت">Impersonation</span><span class="sec">›</span></div>
+              <div class="row" style="border:0" onclick="submitReport()"><span style="flex:1" class="t-body" data-ur="کوئی اور بات">Something else</span><span class="sec">›</span></div>
+            </div>
+            <div class="pad" style="padding-bottom:0"><button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shThanks" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad">
+              <div style="text-align:center;margin-bottom:20px">
+                <div style="position:relative;display:inline-grid;place-items:center;width:52px;height:52px;margin-bottom:14px">
+                  <span class="tile" style="position:absolute;inset:0;color:var(--success-subtle)"></span>
+                  <span style="position:relative;color:var(--success);font-size:20px;font-weight:700">✓</span></div>
+                <div class="t-h3" style="color:var(--text-primary);margin-bottom:7px" data-ur="شکریہ">Thank you</div>
+                <div class="t-body sec" data-ur="ہماری ٹیم اس کا جائزہ لے گی۔">Our team will review this.</div></div>
+              <div class="divtile" style="margin-bottom:18px"><i></i><span class="tile"></span><i></i></div>
+              <div class="t-body" style="color:var(--text-primary);text-align:center;margin-bottom:16px" data-ur="کیا آپ اس صارف کو بلاک بھی کرنا چاہتے ہیں؟">Would you also like to block this person?</div>
+              <button class="btn btn-desto" style="margin-bottom:10px" onclick="openSheet('shBlock')" data-ur="بلاک کریں">Block</button>
+              <button class="btn btn-ghost" onclick="closeSheet()" data-ur="نہیں، شکریہ">No thanks</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shBlock">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad">
+              <div class="t-h2" style="color:var(--text-primary);margin-bottom:6px" data-ur="کیا آپ محمد اقبال کو بلاک کرنا چاہتے ہیں؟">Block Muhammad Iqbal?</div>
+              <div class="t-body sec" style="margin-bottom:16px" data-ur="یہ تبدیل ہوگا:">Here's what changes:</div>
+              <div class="t-body" style="color:var(--text-primary);margin-bottom:9px" data-ur="• وہ آپ کی پروفائل، پوسٹس یا تبصرے نہیں دیکھ سکیں گے، اور آپ کو پیغام نہیں بھیج سکیں گے۔">• They won't be able to see your profile, posts or comments, or message you.</div>
+              <div class="t-body" style="color:var(--text-primary);margin-bottom:9px" data-ur="• آپ بھی ان کے نہیں دیکھ سکیں گے۔">• You won't see theirs either.</div>
+              <div class="t-body" style="color:var(--text-primary);margin-bottom:14px" data-ur="• اگر آپ میں سے کوئی دوسرے کو فالو کرتا ہے تو وہ بند ہو جائے گا۔">• If either of you follows the other, that will stop.</div>
+              <div class="t-body sec" style="margin-bottom:22px" data-ur="انہیں نہیں بتایا جائے گا کہ آپ نے بلاک کیا۔ آپ سیٹنگز سے کسی بھی وقت ان بلاک کر سکتے ہیں۔">They won't be told you blocked them. You can unblock at any time in Settings.</div>
+              <button class="btn btn-desto" style="margin-bottom:10px" onclick="doBlock()" data-ur="بلاک کریں">Block</button>
+              <button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shCat" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad" style="padding-bottom:8px"><div class="t-h2" style="color:var(--text-primary)" data-ur="زمرہ منتخب کریں">Choose a category</div></div>
+            <div class="pad" style="padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+              <span class="chip" style="background:#E6F0E7;color:#2E6B3E" onclick="closeSheet()" data-ur="ماحول اور موسم">Environment &amp; Climate</span>
+              <span class="chip" style="background:#E7ECF7;color:#2E4E8C" onclick="closeSheet()" data-ur="تعلیم">Education</span>
+              <span class="chip" style="background:#FAE8EC;color:#A3374F" onclick="closeSheet()" data-ur="صحت">Health</span>
+              <span class="chip" style="background:#EAEEF1;color:#4A5A68" onclick="closeSheet()" data-ur="بنیادی ڈھانچہ اور ٹرانسپورٹ">Infrastructure &amp; Transport</span>
+              <span class="chip" style="background:#E3EFF2;color:#16697A" onclick="closeSheet()" data-ur="پانی اور صفائی">Water &amp; Sanitation</span>
+              <span class="chip" style="background:#F6E9F3;color:#7D3C6E" onclick="closeSheet()" data-ur="خواتین کے حقوق">Women's Rights</span>
+              <span class="chip" style="background:#F8EEDF;color:#8A5A1B" onclick="closeSheet()" data-ur="نوجوان">Youth</span>
+              <span class="chip" style="background:#E6EAF1;color:#1F3A5F" onclick="closeSheet()" data-ur="حکمرانی اور جوابدہی">Governance &amp; Accountability</span>
+              <span class="chip" style="background:#F9EAE0;color:#9C4A1A" onclick="closeSheet()" data-ur="آفات اور ایمرجنسی">Disaster &amp; Emergency</span>
+              <span class="chip" style="background:#EFEAF7;color:#6B4E9E" onclick="closeSheet()" data-ur="کمیونٹی تقریبات">Community Events</span>
+              <span class="chip" style="background:#ECEEF0;color:#5C6670" onclick="closeSheet()" data-ur="عام">General</span>
+            </div>
+            <div class="pad"><button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shAttach" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="list">
+              <div class="row" onclick="closeSheet()"><span style="font-size:19px;width:28px">🖼</span><span style="flex:1" class="t-body" data-ur="تصویریں شامل کریں — زیادہ سے زیادہ ۴">Add images — up to 4</span></div>
+              <div class="row" onclick="closeSheet()"><span style="font-size:17px;width:28px">🔗</span><span style="flex:1" class="t-body" data-ur="لنک شامل کریں">Add a link</span></div>
+              <div class="row" style="border:0" onclick="closeSheet()"><span style="font-size:17px;width:28px">📄</span>
+                <div style="flex:1"><div class="t-body" data-ur="دستاویز شامل کریں">Add a document</div>
+                  <div class="t-bodysm sec" data-ur="صرف پی ڈی ایف · ۱۰ ایم بی تک">PDF only · up to 10 MB</div></div></div>
+            </div>
+            <div class="pad" style="padding-bottom:0"><button class="btn btn-ghost" onclick="closeSheet()" data-ur="منسوخ">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shReq" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div class="av av-44" style="background:#5C6670">RA</div>
+                <div><div class="t-title" data-ur="رضا احمد">Raza Ahmed</div>
+                  <div class="t-bodysm sec" data-ur="آپ کو فالو نہیں کرتا">Doesn't follow you</div></div></div>
+              <div style="background:var(--surface-sunken);border-radius:var(--r-md);padding:14px;margin-bottom:16px">
+                <div class="t-body" style="color:var(--text-primary)" data-ur="سلام، میں نے نکاسی آب کے بارے میں آپ کی پوسٹ دیکھی۔ میں اسی گلی میں رہتا ہوں اور میں نے بھی شکایت کی تھی۔ کیا ہم مل کر کچھ کر سکتے ہیں؟">Salaam, I saw your post about the drainage. I live on the same street and I complained too. Could we do something together?</div></div>
+              <div class="t-bodysm sec" style="margin-bottom:20px" data-ur="یہ پیغام پڑھنے سے رضا کو کچھ معلوم نہیں ہوا۔">Reading this hasn't told Raza anything.</div>
+              <button class="btn btn-pri" style="margin-bottom:10px" onclick="closeSheet();go('convo')" data-ur="قبول کریں">Accept</button>
+              <button class="btn btn-sec" style="margin-bottom:10px" onclick="closeSheet();toast('Request declined','درخواست مسترد')" data-ur="مسترد کریں">Decline</button>
+              <button class="btn btn-ghost" style="color:var(--error)" onclick="openSheet('shBlock')" data-ur="بلاک کریں">Block</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="scrim" id="shSusp" onclick="if(event.target===this)closeSheet()">
+          <div class="sheet"><div class="handle"></div>
+            <div class="pad">
+              <div class="t-h2" style="color:var(--text-primary);margin-bottom:14px" data-ur="آپ کا اکاؤنٹ محدود ہے">Your account is limited</div>
+              <div style="display:flex;gap:11px;background:var(--warning-subtle);border-radius:var(--r-md);padding:14px;margin-bottom:18px">
+                <span style="color:var(--warning);flex:none">⚠</span>
+                <div class="t-body" style="color:var(--warning)" data-ur="۱۴ ستمبر تک — کمیونٹی رہنما اصول ۳ کی خلاف ورزی">Until 14 September — Community Guideline 3</div></div>
+              <div class="t-body" style="color:var(--text-primary);margin-bottom:10px" data-ur="آپ ابھی بھی سب کچھ پڑھ سکتے ہیں۔">You can still read everything.</div>
+              <div class="t-body sec" style="margin-bottom:22px" data-ur="آپ اس وقت پوسٹ، تبصرہ، پیغام یا فالو نہیں کر سکتے۔ پابندی خود بخود ختم ہو جائے گی — کسی کارروائی کی ضرورت نہیں۔">You can't post, comment, message or follow for now. The limit lifts automatically — you don't need to do anything.</div>
+              <button class="btn btn-sec" style="margin-bottom:10px" onclick="closeSheet()" data-ur="رہنما اصول پڑھیں">Read the Guidelines</button>
+              <button class="btn btn-ghost" onclick="closeSheet()" data-ur="مدد سے رابطہ کریں">Contact support</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast"><span id="toastico" style="color:#7DD3AE;font-weight:700">✓</span>
+          <span class="t-body" id="toasttxt" style="flex:1">Posted</span>
+          <button id="toastact" onclick="closeToast()">View</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ══════════ STATE ══════════ */
+var cur='splash', hist=[], lang='en', sus=false, off=false;
+
+var NAV=[
+  ['home','▤','Home','گھر'],
+  ['events','▦','Events','تقریبات'],
+  ['composer','+','Create','لکھیں'],
+  ['msgs','◗','Messages','پیغامات'],
+  ['me','','Profile','پروفائل']
+];
+
+function buildNav(active){
+  var h='<div class="nav">';
+  NAV.forEach(function(n){
+    var on=(n[0]===active)||(active==='s-empty'&&n[0]==='home')||(active==='s-loading'&&n[0]==='home');
+    if(n[0]==='composer'){
+      h+='<button onclick="navGo(\''+n[0]+'\')"><span class="ico"><span class="create">+</span></span>'
+       + '<span class="lab create-lab" data-lab>'+(lang==='ur'?n[3]:n[2])+'</span></button>';
+    } else if(n[0]==='me'){
+      h+='<button class="'+(on?'on':'')+'" onclick="navGo(\''+n[0]+'\')"><span class="ico">'
+       + '<span class="av av-24" style="background:#2E6B3E;'+(on?'box-shadow:0 0 0 2px var(--brand-primary)':'')+'">'
+       + (lang==='ur'?'ث':'SB')+'</span></span><span class="lab" data-lab>'+(lang==='ur'?n[3]:n[2])+'</span></button>';
+    } else {
+      var badge=(n[0]==='msgs')?'<span class="badge">'+(lang==='ur'?'۳':'3')+'</span>':'';
+      h+='<button class="'+(on?'on':'')+'" onclick="navGo(\''+n[0]+'\')"><span class="ico">'
+       + '<span class="tile"></span><em>'+n[1]+'</em>'+badge+'</span>'
+       + '<span class="lab" data-lab>'+(lang==='ur'?n[3]:n[2])+'</span></button>';
+    }
+  });
+  return h+'</div>';
+}
+
+function paintNavs(){
+  var slots=document.querySelectorAll('.navslot');
+  for(var i=0;i<slots.length;i++){
+    var sc=slots[i].closest('.screen');
+    var id=sc?sc.id:'';
+    slots[i].innerHTML=buildNav(id);
+  }
+}
+
+/* ══════════ NAVIGATION ══════════ */
+function go(id,noHist){
+  var el=document.getElementById(id);
+  if(!el) return;
+  if(!noHist && cur!==id) hist.push(cur);
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  el.classList.add('active');
+  var b=el.querySelector('.body'); if(b) b.scrollTop=0;
+  cur=id;
+  closeSheet(); closeToast();
+  paintNavs();
+}
+function navGo(id){
+  if(sus && id==='composer'){ openSheet('shSusp'); return; }
+  if(off && id==='composer'){ toast("You're offline","آپ آف لائن ہیں"); return; }
+  go(id);
+}
+function back(){ var p=hist.pop(); go(p||'home',true); }
+
+/* ══════════ LANGUAGE ══════════ */
+function setLang(l){
+  lang=l;
+  var f=document.getElementById('frame');
+  f.setAttribute('dir', l==='ur'?'rtl':'ltr');
+  var seg=document.getElementById('langseg').children;
+  seg[0].className=(l==='en')?'on':''; seg[1].className=(l==='ur')?'on':'';
+  var els=document.querySelectorAll('[data-ur]');
+  for(var i=0;i<els.length;i++){
+    var e=els[i];
+    if(!e.hasAttribute('data-en')) e.setAttribute('data-en', e.innerHTML);
+    e.innerHTML = (l==='ur') ? e.getAttribute('data-ur') : e.getAttribute('data-en');
+  }
+  var lv=document.getElementById('langval'); if(lv) lv.textContent=(l==='ur')?'اردو':'English';
+  paintNavs(); paintBanners();
+}
+function toggleLangFromSettings(){ setLang(lang==='ur'?'en':'ur'); }
+
+/* ══════════ BANNERS ══════════ */
+function paintBanners(){
+  var h='';
+  if(off){
+    h+='<div class="inbanner" style="background:var(--bg-secondary);color:var(--text-secondary)">'
+     + '<span>⚠</span><span>'+(lang==='ur'?'آپ آف لائن ہیں۔ محفوظ شدہ مواد دکھایا جا رہا ہے۔':"You're offline. Showing what we saved earlier.")+'</span></div>';
+  }
+  if(sus){
+    h+='<div class="inbanner" style="background:var(--warning-subtle);color:var(--warning);cursor:pointer" onclick="openSheet(\'shSusp\')">'
+     + '<span>⚠</span><span style="flex:1">'+(lang==='ur'?'آپ کا اکاؤنٹ ۱۴ ستمبر تک محدود ہے':'Your account is limited until 14 September')+'</span>'
+     + '<span style="font-weight:600;text-decoration:underline">'+(lang==='ur'?'مزید':'Learn more')+'</span></div>';
+  }
+  document.getElementById('banners').innerHTML=h;
+}
+function setSus(v){ sus=v; document.getElementById('tsus').className=v?'tog on':'tog'; paintBanners(); }
+function setOff(v){ off=v; document.getElementById('toff').className=v?'tog on':'tog'; paintBanners(); }
+
+/* ══════════ SHEETS & TOAST ══════════ */
+function openSheet(id){
+  var all=document.querySelectorAll('.scrim');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('open');
+  document.getElementById(id).classList.add('open');
+}
+function closeSheet(){
+  var all=document.querySelectorAll('.scrim');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('open');
+}
+var tTimer=null;
+function toast(en,ur,action){
+  var t=document.getElementById('toast');
+  document.getElementById('toasttxt').textContent=(lang==='ur'&&ur)?ur:en;
+  var a=document.getElementById('toastact');
+  if(action){ a.style.display=''; a.textContent=action; } else { a.style.display='none'; }
+  t.classList.add('show');
+  if(tTimer) clearTimeout(tTimer);
+  tTimer=setTimeout(closeToast,3600);
+}
+function closeToast(){ document.getElementById('toast').classList.remove('show'); }
+
+/* ══════════ INTERACTIONS ══════════ */
+function guard(){
+  if(sus){ openSheet('shSusp'); return false; }
+  if(off){ toast("You're offline","آپ آف لائن ہیں"); return false; }
+  return true;
+}
+function like(btn){
+  if(!guard()) return;
+  var ic=btn.querySelector('.ic'), n=btn.querySelector('span:last-child');
+  var v=parseInt(n.textContent.replace(/\D/g,''),10)||0;
+  if(btn.classList.contains('liked')){
+    btn.classList.remove('liked'); ic.textContent='♡'; n.textContent=v-1;
+  } else {
+    btn.classList.add('liked'); ic.textContent='♥'; n.textContent=v+1;
+    btn.style.transform='scale(1.15)';
+    setTimeout(function(){btn.style.transform='scale(1)';},120);
+  }
+}
+function tf(btn){
+  if(!guard()) return;
+  if(btn.classList.contains('btn-sec')){
+    btn.className=btn.className.replace('btn-sec','btn-pri');
+    btn.textContent=(lang==='ur')?'فالو':'Follow';
+  } else {
+    btn.className=btn.className.replace('btn-pri','btn-sec');
+    btn.textContent=(lang==='ur')?'فالو کیا':'Following';
+  }
+}
+function rsvp(btn){
+  if(!guard()) return;
+  var going=btn.getAttribute('data-going')==='1';
+  ['goingCount1','goingCount2'].forEach(function(id){
+    var e=document.getElementById(id); if(!e) return;
+    var n=going?18:19;
+    if(lang==='ur'){ e.textContent=(id==='goingCount1')?(n===19?'۱۹ جا رہے ہیں':'۱۸ جا رہے ہیں'):(n===19?'۱۹ لوگ جا رہے ہیں':'۱۸ لوگ جا رہے ہیں'); }
+    else { e.textContent=(id==='goingCount1')?(n+' going'):(n+' people going'); }
+  });
+  if(going){ btn.setAttribute('data-going','0'); btn.className='btn btn-ev'+(btn.className.indexOf('btn-sm')>-1?' btn-sm':''); btn.textContent=(lang==='ur')?'جا رہا ہوں':'Going'; }
+  else { btn.setAttribute('data-going','1'); btn.className='btn btn-sec'+(btn.className.indexOf('btn-sm')>-1?' btn-sm':''); btn.style.color='var(--brand-secondary)'; btn.textContent=(lang==='ur')?'✓ جا رہا ہوں':'✓ Going'; toast('You’re going. We’ll remind you.','آپ جا رہے ہیں۔ ہم یاد دلائیں گے۔'); }
+}
+function publish(){
+  if(!guard()) return;
+  go('home');
+  toast('Posted','پوسٹ ہو گیا',(lang==='ur')?'دیکھیں':'View');
+}
+function tryLogin(){
+  var e=document.getElementById('loginerr');
+  if(e.style.display==='none'){ e.style.display='block'; }
+  else { e.style.display='none'; go('home'); }
+}
+function retrySend(){
+  var b=document.getElementById('failbubble');
+  b.style.background='var(--brand-primary-subtle)';
+  b.style.border='0';
+  b.querySelector('.t-caption').innerHTML='<span>9:36 ✓</span>';
+  b.querySelector('.t-caption').style.color='var(--text-secondary)';
+  toast('Sent','بھیج دیا');
+}
+function submitReport(){ openSheet('shThanks'); }
+function doBlock(){
+  closeSheet();
+  go('home');
+  toast('Muhammad Iqbal blocked','محمد اقبال بلاک ہو گئے',(lang==='ur')?'واپس':'Undo');
+}
+function homeTab(w){
+  document.getElementById('tabFol').className=(w==='fol')?'on':'';
+  document.getElementById('tabDis').className=(w==='dis')?'on':'';
+}
+function msgTab(w){
+  document.getElementById('tabInb').className=(w==='inb')?'on':'';
+  document.getElementById('tabReq').className=(w==='req')?'on':'';
+  document.getElementById('msgInb').style.display=(w==='inb')?'':'none';
+  document.getElementById('msgReq').style.display=(w==='req')?'':'none';
+}
+
+/* ══════════ FLOWS ══════════ */
+var FLOWS={
+  p1:'lang', p2:'login', p3:'home', p4:'composer', p5:'post', p6:'other',
+  p7:'search', p8:'msgs', p9:'events', p10:'notifs', p11:'home', p12:'del'
+};
+function flow(id){
+  hist=[];
+  if(id==='p1'){ go('splash',true); setTimeout(function(){go('lang',true);},700); return; }
+  if(id==='p11'){ go('home',true); setTimeout(function(){openSheet('shPost');},420); return; }
+  if(id==='p12'){ go('settings',true); setTimeout(function(){go('del');},380); return; }
+  go(FLOWS[id]||'home',true);
+}
+
+/* ══════════ BOOT ══════════ */
+paintNavs();
+paintBanners();
+setTimeout(function(){ if(cur==='splash') go('lang',true); }, 1400);
+</script>

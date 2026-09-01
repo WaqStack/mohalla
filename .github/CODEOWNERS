@@ -1,0 +1,25 @@
+# Code owners.
+#
+# OD-020 - the named technical owner - is STILL OPEN. Until Shehersaaz names
+# that person, the placeholder below is intentionally NOT a real GitHub handle,
+# so that nobody is silently assigned accountability they have not accepted and
+# so a required-review rule cannot be satisfied by an unowned team.
+#
+# ACTION REQUIRED before branch protection is enabled with "require review from
+# code owners": replace @SHEHERSAAZ-TECHNICAL-OWNER with the real handle.
+
+*                               @SHEHERSAAZ-TECHNICAL-OWNER
+
+# Approved and frozen. Stage 1-4 artefacts are historical records and must not
+# be edited; corrections are recorded in Stage 5 documents instead.
+/docs/product-scope-v1.html     @SHEHERSAAZ-TECHNICAL-OWNER
+/docs/srs-mvp-v1.html           @SHEHERSAAZ-TECHNICAL-OWNER
+/docs/uiux-spec-v1.html         @SHEHERSAAZ-TECHNICAL-OWNER
+/docs/prototype.html            @SHEHERSAAZ-TECHNICAL-OWNER
+/docs/architecture/             @SHEHERSAAZ-TECHNICAL-OWNER
+
+# Security-sensitive surfaces.
+/packages/db/roles/             @SHEHERSAAZ-TECHNICAL-OWNER
+/packages/db/migrations/        @SHEHERSAAZ-TECHNICAL-OWNER
+/.github/workflows/             @SHEHERSAAZ-TECHNICAL-OWNER
+/scripts/                       @SHEHERSAAZ-TECHNICAL-OWNER

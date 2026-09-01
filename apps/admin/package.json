@@ -1,0 +1,25 @@
+{
+  "name": "@mohalla/admin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mohalla admin console - foundation only. Layout, locale and RTL shell; no admin features.",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "@types/node": "24.7.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.1",
+    "vitest": "4.1.11"
+  }
+}

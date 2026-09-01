@@ -1,0 +1,128 @@
+name: CI
+
+# Every gate that can run without a device runs here, on every push and PR.
+#
+# The guards are jobs, not optional steps. An architecture rule that only fails
+# in review is a rule that gets broken under delivery pressure - and OD-011
+# commits 68 working days, which is exactly the pressure that erodes them.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24.20.0'
+
+jobs:
+  # ---------------------------------------------------------------- guards
+  guards:
+    name: Architecture and safety guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the secret scan sees what is actually tracked.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Module dependency direction (admin -> product -> platform)
+        run: node scripts/posix/check-module-dependencies.mjs
+
+      - name: Localization parity (every en key has an ur key)
+        run: node scripts/posix/check-locale-parity.mjs
+
+      - name: Secret scan (tracked files)
+        run: node scripts/posix/check-secrets.mjs
+
+  # ------------------------------------------------------------ node build
+  node:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint (includes the RTL gate)
+        run: npm run lint
+
+      - name: Build all workspaces
+        run: npm run build
+
+  # -------------------------------------------------------------- database
+  database:
+    name: Migrations, roles, audit immutability
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: mohalla
+          POSTGRES_USER: mohalla_owner
+          POSTGRES_PASSWORD: ci_local_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mohalla_owner -d mohalla"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      ADMIN_DATABASE_URL: postgres://mohalla_owner:ci_local_only@127.0.0.1:5432/mohalla
+      DATABASE_NAME: mohalla
+      # CI-only role passwords. These never leave the runner and are not used
+      # by any deployed environment.
+      ROLE_MIGRATION_OWNER_PASSWORD: ci_migration_owner
+      ROLE_RUNTIME_APP_PASSWORD: ci_runtime_app
+      ROLE_RUNTIME_WORKER_PASSWORD: ci_runtime_worker
+      ROLE_READ_ONLY_SUPPORT_PASSWORD: ci_read_only_support
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Create the four database roles
+        run: npm run db:roles
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
+        run: npm run db:migrate
+
+      - name: Migration status must be clean
+        env:
+          MIGRATION_DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
+        run: npm run db:migrate:status
+
+      - name: Audit log must refuse mutation as runtime_app
+        env:
+          RUNTIME_APP_DATABASE_URL: postgres://runtime_app:ci_runtime_app@127.0.0.1:5432/mohalla
+        run: npm run test --workspace @mohalla/db

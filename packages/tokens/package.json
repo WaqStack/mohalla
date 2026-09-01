@@ -1,0 +1,15 @@
+{
+  "name": "@mohalla/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mohalla design tokens, generated from the approved Stage 3 prototype.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "generate": "node scripts/generate.mjs"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,61 @@
+# =====================================================================
+# Mohalla - local development infrastructure
+# =====================================================================
+# Stage 5 foundation. PostgreSQL only. No application container: the API,
+# worker and admin run on the host so that a developer keeps a normal debugger
+# and a normal file watcher.
+#
+# The image tag is pinned to a major version. `postgres:latest` is never used -
+# a silent major upgrade would change collation and break indexes.
+#
+# STATUS ON THE CURRENT WORKSTATION: this file is authored and committed but has
+# NOT been executed. Docker Desktop cannot be installed here - see
+# docs/foundation/09-local-development.md for the verified reason.
+# =====================================================================
+
+name: mohalla-dev
+
+services:
+  postgres:
+    # PostgreSQL 18 for native uuidv7() (ADR-021). The application-generated
+    # fallback strategy exists so a provider offering only 17 still works.
+    image: postgres:18
+    container_name: mohalla-postgres
+    restart: unless-stopped
+
+    environment:
+      # Local development only. These are not secrets and are not reused in any
+      # deployed environment; staging and production credentials come from the
+      # provider's secret store (docs/foundation/12-secret-management.md).
+      POSTGRES_DB: mohalla
+      POSTGRES_USER: mohalla_owner
+      POSTGRES_PASSWORD: mohalla_local_dev_only
+      # Deterministic collation, so index behaviour matches across machines.
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C'
+
+    ports:
+      # Bound to loopback only. Without the 127.0.0.1 prefix Docker would
+      # publish the database to every interface on the machine.
+      - '127.0.0.1:5432:5432'
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Runs once, on an empty data directory only.
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U mohalla_owner -d mohalla']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+    # A local database does not need to be able to exhaust the machine.
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+volumes:
+  postgres-data:
+    name: mohalla-postgres-data

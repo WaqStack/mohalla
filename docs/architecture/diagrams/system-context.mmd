@@ -1,0 +1,51 @@
+%% System Context - Shehersaaz Community Platform (Mohalla)
+%% Stage 4 Technical Architecture
+flowchart TB
+    citizen["Civic-Minded Citizen<br/>ROLE-001 / ROLE-002<br/>Android - Urdu or English"]
+    admin["Administrator<br/>ROLE-003<br/>Desktop browser - English only"]
+    owner["Technical Owner<br/>Named person - OD-020<br/>Server access, no portal role"]
+
+    subgraph platform["Shehersaaz Platform"]
+        app["Android App<br/>Kotlin + Compose"]
+        api["API + Realtime<br/>NestJS modular monolith"]
+        worker["Background Worker<br/>pg-boss"]
+        adminweb["Admin Portal + Public Pages<br/>Next.js"]
+        db[("PostgreSQL 18<br/>data - search - queue<br/>sessions - audit")]
+        store[("Object Storage<br/>S3-compatible")]
+    end
+
+    sms["SMS / OTP Provider<br/>DEP-002 - UNVERIFIED"]
+    fcm["Firebase Cloud Messaging<br/>DEP-003"]
+    cdn["CDN<br/>ADR-012"]
+    mail["Email Provider<br/>DEP-001 - only if OD-021 retains AUTH-FR-004"]
+    play["Google Play<br/>DEP-006"]
+    obs["Error Tracking + Uptime<br/>DEP-015"]
+
+    citizen -->|"REST + WebSocket over TLS"| app
+    app --> api
+    admin -->|"HTTPS"| adminweb
+    adminweb --> api
+    owner -.->|"CLI over out-of-band channel<br/>S2-CR-005 - never an HTTP endpoint"| db
+
+    api --> db
+    api --> store
+    worker --> db
+    worker --> store
+    api -.->|"enqueue in same transaction"| worker
+
+    api --> sms
+    worker --> fcm
+    worker -.-> mail
+    app -->|"media reads"| cdn
+    cdn --> store
+
+    api --> obs
+    app --> obs
+    citizen -.->|"installs"| play
+
+    classDef ext fill:#FBF0DE,stroke:#9A6510,color:#1C2530
+    classDef core fill:#E4EFF4,stroke:#145A73,color:#1C2530
+    classDef actor fill:#EFEAF7,stroke:#6B4E9E,color:#1C2530
+    class sms,fcm,cdn,mail,play,obs ext
+    class app,api,worker,adminweb,db,store core
+    class citizen,admin,owner actor

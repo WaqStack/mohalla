@@ -1,0 +1,89 @@
+%% Backend Module Architecture - modular monolith, 15 product modules
+%% Arrows show ALLOWED dependency direction. No cycles permitted.
+flowchart TB
+    subgraph edge["Transport Layer - controllers, gateway, guards"]
+        ctl["REST Controllers"]
+        gw["Socket.IO Gateway"]
+    end
+
+    subgraph platformmods["Platform Modules - no product dependencies"]
+        identity["identity<br/>AUTH-FR-001 to 012"]
+        locale["localization<br/>LOCALE-FR-001 to 006"]
+        mediam["media<br/>MEDIA-FR-001 to 005"]
+        audit["audit<br/>ADMIN-FR-012 - BR-039"]
+        notify["notifications<br/>NOTIF-FR-001 to 007"]
+    end
+
+    subgraph productmods["Product Modules"]
+        profile["profile<br/>PROFILE-FR-001 to 011"]
+        social["social-graph<br/>SOCIAL-FR-001 to 005"]
+        safety["safety<br/>SAFETY-FR-001 to 009"]
+        posts["posts<br/>POST-FR-001 to 010"]
+        engage["engagement<br/>ENGAGE-FR-001 to 008"]
+        feed["feed<br/>FEED-FR-001 to 007"]
+        events["events<br/>EVENT-FR-001 to 008"]
+        msg["messaging<br/>MSG-FR-001 to 009"]
+        search["search<br/>SEARCH-FR-001 to 005"]
+        settings["settings<br/>SET-FR-001 to 010"]
+    end
+
+    subgraph adminmods["Admin Modules"]
+        moderation["moderation<br/>ADMIN-FR-002 to 004"]
+        adminops["admin-ops<br/>ADMIN-FR-005 to 011"]
+    end
+
+    ctl --> productmods
+    ctl --> adminmods
+    ctl --> platformmods
+    gw --> msg
+
+    profile --> identity
+    profile --> mediam
+    social --> profile
+    safety --> profile
+    safety --> social
+
+    posts --> profile
+    posts --> mediam
+    posts --> safety
+    engage --> posts
+    engage --> safety
+    feed --> posts
+    feed --> social
+    feed --> safety
+    events --> profile
+    events --> safety
+    msg --> profile
+    msg --> social
+    msg --> safety
+    search --> posts
+    search --> profile
+    search --> events
+    search --> safety
+    settings --> identity
+    settings --> profile
+
+    moderation --> safety
+    moderation --> posts
+    moderation --> engage
+    moderation --> events
+    moderation --> audit
+    adminops --> identity
+    adminops --> profile
+    adminops --> audit
+
+    posts -.->|"domain event"| notify
+    engage -.->|"domain event"| notify
+    social -.->|"domain event"| notify
+    msg -.->|"domain event"| notify
+    events -.->|"domain event"| notify
+    moderation -.->|"domain event"| notify
+    moderation -.->|"always"| audit
+    adminops -.->|"always"| audit
+
+    classDef plat fill:#E6EAF1,stroke:#1F3A5F,color:#1C2530
+    classDef prod fill:#E4EFF4,stroke:#145A73,color:#1C2530
+    classDef adm fill:#EFEAF7,stroke:#6B4E9E,color:#1C2530
+    class identity,locale,mediam,audit,notify plat
+    class profile,social,safety,posts,engage,feed,events,msg,search,settings prod
+    class moderation,adminops adm

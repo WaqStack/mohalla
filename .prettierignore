@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+.next/
+coverage/
+docs/
+apps/android/
+package-lock.json
+*.md

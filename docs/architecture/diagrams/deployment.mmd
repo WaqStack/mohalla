@@ -1,0 +1,40 @@
+%% Deployment Architecture - launch topology and growth triggers
+flowchart TB
+    subgraph launch["LAUNCH - 1,000 registered / 100 concurrent - NFR-SCAL-001"]
+        lb["Managed TLS + DNS<br/>DEP-007"]
+        api1["API instance x1<br/>REST + Socket.IO"]
+        w1["Worker instance x1<br/>pg-boss"]
+        pg1[("Managed PostgreSQL<br/>daily automated backup SEC-026<br/>PITR - separate location")]
+        s3[("Object Storage<br/>quarantine/ + media/")]
+        cdn1["CDN"]
+    end
+
+    subgraph growth["GROWTH TRIGGERS - 10,000 / 500 - NFR-SCAL-002"]
+        t1["API CPU sustained high<br/>-- scale up vertically --<br/>no architecture change"]
+        t2["More than one API instance<br/>-- add Redis for Socket.IO adapter --<br/>FIRST introduction of Redis"]
+        t3["DB CPU or connections saturated<br/>-- scale up, then read replica --<br/>feed reads move to replica"]
+        t4["Queue depth sustained<br/>-- second worker instance --<br/>pg-boss supports it"]
+        t5["Storage growth<br/>-- lifecycle policies --<br/>RSK-013 cost control"]
+    end
+
+    subgraph envs["ENVIRONMENTS"]
+        dev["Development<br/>SMS sandbox<br/>seeded data<br/>no production data"]
+        stg["Staging<br/>full Urdu + RTL testing<br/>prototype-flow validation<br/>restore rehearsal"]
+        prd["Production<br/>owner-provisioned admins<br/>real secrets"]
+    end
+
+    lb --> api1
+    api1 --> pg1
+    api1 --> s3
+    w1 --> pg1
+    w1 --> s3
+    cdn1 --> s3
+    launch -.->|"on measured trigger only"| growth
+    dev --> stg --> prd
+
+    classDef now fill:#E6F0E7,stroke:#2E6B3E,color:#1C2530
+    classDef later fill:#FBF0DE,stroke:#9A6510,color:#1C2530
+    classDef env fill:#E4EFF4,stroke:#145A73,color:#1C2530
+    class lb,api1,w1,pg1,s3,cdn1 now
+    class t1,t2,t3,t4,t5 later
+    class dev,stg,prd env

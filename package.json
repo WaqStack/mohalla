@@ -1,0 +1,47 @@
+{
+  "name": "mohalla",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shehersaaz Community Platform (Mohalla) - foundation. No product features implemented.",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/api",
+    "apps/worker",
+    "apps/admin",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "24.20.0",
+    "npm": ">=11.19.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspaces --if-present",
+    "test:foundation": "npm run test --workspace @mohalla/db --if-present && npm run test --workspace apps/api --if-present",
+    "guard:deps": "node scripts/posix/check-module-dependencies.mjs",
+    "guard:rtl": "eslint apps/admin packages/tokens --rule-dir packages/eslint-plugin-mohalla",
+    "guard:locale": "node scripts/posix/check-locale-parity.mjs",
+    "guard:secrets": "node scripts/posix/check-secrets.mjs",
+    "guard:all": "npm run guard:deps && npm run guard:locale && npm run guard:secrets",
+    "db:migrate": "npm run migrate --workspace @mohalla/db",
+    "db:migrate:status": "npm run migrate:status --workspace @mohalla/db",
+    "db:roles": "npm run roles --workspace @mohalla/db",
+    "infra:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
+    "infra:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f",
+    "smoke": "node scripts/posix/foundation-smoke-test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.7.0",
+    "eslint": "10.9.1",
+    "prettier": "3.9.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.69.0",
+    "vitest": "4.1.11"
+  }
+}

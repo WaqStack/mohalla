@@ -1,0 +1,14 @@
+{
+  "name": "@mohalla/localization",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mohalla string catalogues. English keys ship; a missing Urdu key fails CI.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}

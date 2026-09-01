@@ -1,0 +1,768 @@
+<title>Mohalla Technical Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root{
+  --paper:#EFF2F5; --surface:#FFFFFF; --surface-2:#F6F9FB; --surface-3:#EDF2F6;
+  --ink:#0F1D28; --ink-2:#394957; --muted:#6B7D8C;
+  --line:#D5DEE5; --line-soft:#E7ECF1;
+  --blue:#15597F; --blue-deep:#0E3C57; --blue-soft:#E2EEF6;
+  --orange:#A8480A; --orange-soft:#FAE9DC;
+  --teal:#1C6A5E; --teal-soft:#DFEFEB;
+  --violet:#5A3E8E; --violet-soft:#EBE6F5;
+  --grey-soft:#E9EDF0;
+  --grid:rgba(21,89,127,.09);
+  --shadow:0 1px 2px rgba(15,29,40,.05), 0 8px 24px -12px rgba(15,29,40,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B131A; --surface:#121D26; --surface-2:#17232E; --surface-3:#1B2833;
+    --ink:#E1E9EF; --ink-2:#AFBECA; --muted:#7C8E9C;
+    --line:#26343F; --line-soft:#1D2A34;
+    --blue:#74B6DD; --blue-deep:#A6D2EC; --blue-soft:#15303F;
+    --orange:#E4894B; --orange-soft:#38220F;
+    --teal:#57BFAD; --teal-soft:#0F302B;
+    --violet:#AE95E0; --violet-soft:#241C38;
+    --grey-soft:#212E38;
+    --grid:rgba(116,182,221,.10);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B131A; --surface:#121D26; --surface-2:#17232E; --surface-3:#1B2833;
+  --ink:#E1E9EF; --ink-2:#AFBECA; --muted:#7C8E9C;
+  --line:#26343F; --line-soft:#1D2A34;
+  --blue:#74B6DD; --blue-deep:#A6D2EC; --blue-soft:#15303F;
+  --orange:#E4894B; --orange-soft:#38220F;
+  --teal:#57BFAD; --teal-soft:#0F302B;
+  --violet:#AE95E0; --violet-soft:#241C38;
+  --grey-soft:#212E38;
+  --grid:rgba(116,182,221,.10);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1260px;margin:0 auto;padding:0 24px 96px}
+.layout{display:grid;grid-template-columns:1fr;gap:40px;align-items:start}
+@media(min-width:1040px){.layout{grid-template-columns:228px minmax(0,1fr);gap:52px}}
+
+.masthead{position:relative;margin:0 -24px 40px;padding:52px 24px 36px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(to bottom,transparent 0%,var(--paper) 92%),
+    repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 28px)}
+.mast-inner{max-width:1260px;margin:0 auto}
+.eyebrow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.org{font-family:Archivo,system-ui,sans-serif;font-weight:600;font-size:11.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+.org-ur{font-family:"Noto Nastaliq Urdu",serif;font-size:18px;line-height:2.1;color:var(--ink-2);direction:rtl}
+.stage{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:3px}
+h1{font-family:Archivo,system-ui,sans-serif;font-weight:700;font-size:clamp(30px,4.8vw,52px);
+  line-height:1.04;letter-spacing:-.025em;margin:0 0 16px;text-wrap:balance}
+h1 .v{display:block;color:var(--muted);font-weight:500;font-size:.4em;letter-spacing:.01em;margin-top:13px}
+.deck{font-size:18px;line-height:1.55;color:var(--ink-2);max-width:66ch;margin:0 0 28px}
+.meta{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.03em;text-transform:uppercase;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:15px}
+.meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line-soft)}
+.meta div:last-child{border-right:0;margin-right:0;padding-right:0}
+.meta b{display:block;color:var(--ink);font-weight:500;margin-top:3px;text-transform:none;font-size:12.5px;letter-spacing:0}
+
+.banner{background:var(--teal-soft);border:1px solid color-mix(in srgb,var(--teal) 32%,transparent);
+  border-radius:4px;padding:20px 24px;margin:0 0 40px;display:grid;gap:9px}
+.banner .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--teal);font-weight:500}
+.banner h2{font-family:Archivo,sans-serif;font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em;color:var(--ink)}
+.banner p{margin:0;color:var(--ink-2);font-size:15.5px;max-width:78ch}
+
+.toc{font-family:Archivo,system-ui,sans-serif}
+@media(min-width:1040px){.toc{position:sticky;top:22px;max-height:calc(100vh - 44px);overflow-y:auto}}
+.toc-label{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:5px}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:grid;grid-template-columns:24px 1fr;gap:7px;align-items:baseline;padding:4px 0;
+  font-size:12.5px;line-height:1.32;color:var(--ink-2);text-decoration:none}
+.toc a::before{content:counter(t,decimal-leading-zero);font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted)}
+.toc a:hover,.toc a:hover::before{color:var(--blue)}
+.toc a:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:2px}
+details.toc-m{margin-bottom:30px}
+details.toc-m summary{font-family:Archivo,sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--blue);cursor:pointer;padding:11px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@media(min-width:1040px){details.toc-m{display:none}}
+@media(max-width:1039px){.toc-desk{display:none}}
+
+section{margin:0 0 56px;scroll-margin-top:18px}
+.sec-head{display:flex;align-items:baseline;gap:13px;margin-bottom:7px;flex-wrap:wrap}
+.sec-num{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--blue);font-weight:500;letter-spacing:.06em}
+h2.sec{font-family:Archivo,sans-serif;font-weight:600;font-size:clamp(22px,2.9vw,29px);letter-spacing:-.018em;margin:0;text-wrap:balance}
+.rule{height:2px;background:var(--ink);opacity:.85;margin:0 0 22px;width:36px;border-radius:2px}
+h3{font-family:Archivo,sans-serif;font-weight:600;font-size:16.5px;letter-spacing:-.005em;margin:30px 0 10px}
+p{margin:0 0 15px;max-width:78ch}
+ul,ol{margin:0 0 15px;padding-left:21px;max-width:78ch}
+li{margin-bottom:5px}
+strong{font-weight:600;color:var(--ink)}
+em{font-style:italic;color:var(--ink-2)}
+a{color:var(--blue)}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.85em}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:5px;background:var(--surface);
+  margin:0 0 18px;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+thead th{font-family:Archivo,sans-serif;font-weight:600;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 13px;
+  background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:9px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.45}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+td.id{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--blue);white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.ctr{text-align:center}
+.yes{color:var(--teal);font-weight:600}
+.no{color:var(--muted)}
+
+.p{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:500;
+  letter-spacing:.05em;padding:2px 6px;border-radius:3px;white-space:nowrap;line-height:1.5;
+  text-transform:uppercase;border:1px solid transparent}
+.p-req{background:var(--blue-soft);color:var(--blue);border-color:color-mix(in srgb,var(--blue) 26%,transparent)}
+.p-arch{background:var(--teal-soft);color:var(--teal);border-color:color-mix(in srgb,var(--teal) 26%,transparent)}
+.p-prop{background:var(--violet-soft);color:var(--violet);border-color:color-mix(in srgb,var(--violet) 30%,transparent)}
+.p-chg{background:var(--orange-soft);color:var(--orange);border-color:color-mix(in srgb,var(--orange) 30%,transparent)}
+.p-ok{background:var(--teal-soft);color:var(--teal);border-color:color-mix(in srgb,var(--teal) 26%,transparent)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:20px 22px;
+  margin:0 0 17px;box-shadow:var(--shadow)}
+.card > :last-child{margin-bottom:0}
+.card-t{font-family:Archivo,sans-serif;font-weight:600;font-size:15.5px;margin:0 0 8px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.grid2{display:grid;gap:15px;grid-template-columns:1fr}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.note{font-size:14.5px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line-soft);
+  border-radius:4px;padding:13px 17px;margin:0 0 17px;max-width:82ch}
+.note b{color:var(--ink)}
+.note.warn{background:var(--orange-soft);border-color:color-mix(in srgb,var(--orange) 28%,transparent)}
+.note.ok{background:var(--teal-soft);border-color:color-mix(in srgb,var(--teal) 26%,transparent)}
+
+.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  padding:18px;margin:0 0 18px;box-shadow:var(--shadow);overflow-x:auto}
+.dgcap{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+
+.check{list-style:none;padding:0;margin:0 0 18px;max-width:none}
+.check li{display:grid;grid-template-columns:22px 1fr;gap:9px;align-items:baseline;padding:8px 0;
+  border-bottom:1px solid var(--line-soft);font-size:15px;margin:0}
+.check li::before{content:"✓";font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--teal);font-weight:600}
+.check li.open::before{content:"○";color:var(--orange)}
+.check li.open{color:var(--ink-2)}
+
+.mgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:15px 17px}
+.metric .v{font-family:Archivo,sans-serif;font-weight:700;font-size:26px;line-height:1;
+  color:var(--blue-deep);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric .l{font-family:Archivo,sans-serif;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);margin-top:7px;font-weight:500;line-height:1.35}
+
+.ask{background:var(--surface);border:2px solid var(--ink);border-radius:5px;padding:30px 30px;margin-top:38px}
+.ask h2{font-family:Archivo,sans-serif;font-weight:700;font-size:clamp(21px,3.2vw,28px);margin:0 0 13px;
+  letter-spacing:-.02em;text-wrap:balance}
+.ask ul{list-style:none;padding:0;margin:16px 0 0}
+.ask li{padding:11px 0;border-top:1px solid var(--line-soft);font-size:15px;color:var(--ink-2)}
+.ask li b{font-family:Archivo,sans-serif;font-weight:600;color:var(--ink)}
+footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.05em;color:var(--muted);
+  text-transform:uppercase;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="masthead">
+  <div class="mast-inner">
+    <div class="eyebrow">
+      <span class="org">Shehersaaz</span>
+      <span class="org-ur">شہر ساز</span>
+      <span class="stage">Stage 4 · Architecture</span>
+    </div>
+    <h1>Technical Architecture<span class="v">Community Platform · MVP · Version 1.1</span></h1>
+    <p class="deck">The approved scope, requirements and design converted into an implementable architecture — one a two-person team can actually build and operate. Summary only; every section links to its supporting document.</p>
+    <div class="meta">
+      <div>Style<b>Modular monolith</b></div>
+      <div>Documents<b>19 + 20 ADRs</b></div>
+      <div>Tables<b>33</b></div>
+      <div>Endpoints<b>87 + 5 events</b></div>
+      <div>Coverage<b>100% addressed</b></div>
+      <div>Status<b>Ready for approval</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<div class="banner">
+  <span class="tag">Architecture status · 26 of 26 checks complete</span>
+  <h2>No architecture-blocking decision remains.</h2>
+  <p>Nine conflicts were found across the four approved documents and all nine are resolved or recorded. Two need product-owner ratification and two are Stage 3 design corrections — <strong>the architecture is correct under either outcome of both</strong>. Five of eight release criteria are gated on Shehersaaz-owned content and legal dependencies, not on engineering.</p>
+</div>
+
+<div class="layout">
+
+  <nav class="toc toc-desk" aria-label="Contents">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><a href="#s1">Status</a></li>
+      <li><a href="#s2">Selected stack</a></li>
+      <li><a href="#s3">System context</a></li>
+      <li><a href="#s4">Containers</a></li>
+      <li><a href="#s5">Backend modules</a></li>
+      <li><a href="#s6">Trust boundaries</a></li>
+      <li><a href="#s7">Hard rules &amp; mechanisms</a></li>
+      <li><a href="#s8">Data architecture</a></li>
+      <li><a href="#s9">API surface</a></li>
+      <li><a href="#s10">Conflicts</a></li>
+      <li><a href="#s11">Decisions (ADRs)</a></li>
+      <li><a href="#s12">Implementation path</a></li>
+      <li><a href="#s13">Risks</a></li>
+      <li><a href="#s14">Open decisions</a></li>
+      <li><a href="#s15">Coverage</a></li>
+      <li><a href="#s16">Document index</a></li>
+      <li><a href="#s17">Approval</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <details class="toc-m">
+    <summary>Contents · 17 sections</summary>
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        <li><a href="#s1">Status</a></li>
+        <li><a href="#s2">Selected stack</a></li>
+        <li><a href="#s3">System context</a></li>
+        <li><a href="#s4">Containers</a></li>
+        <li><a href="#s5">Backend modules</a></li>
+        <li><a href="#s6">Trust boundaries</a></li>
+        <li><a href="#s7">Hard rules &amp; mechanisms</a></li>
+        <li><a href="#s8">Data architecture</a></li>
+        <li><a href="#s9">API surface</a></li>
+        <li><a href="#s10">Conflicts</a></li>
+        <li><a href="#s11">Decisions (ADRs)</a></li>
+        <li><a href="#s12">Implementation path</a></li>
+        <li><a href="#s13">Risks</a></li>
+        <li><a href="#s14">Open decisions</a></li>
+        <li><a href="#s15">Coverage</a></li>
+        <li><a href="#s16">Document index</a></li>
+        <li><a href="#s17">Approval</a></li>
+      </ol>
+    </nav>
+  </details>
+
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec">Status</h2></div>
+    <div class="rule"></div>
+    <div class="mgrid">
+      <div class="metric"><div class="v">124</div><div class="l">Functional requirements</div></div>
+      <div class="metric"><div class="v">15</div><div class="l">Backend modules</div></div>
+      <div class="metric"><div class="v">33</div><div class="l">Database tables</div></div>
+      <div class="metric"><div class="v">87</div><div class="l">API endpoints</div></div>
+      <div class="metric"><div class="v">5</div><div class="l">Realtime events</div></div>
+      <div class="metric"><div class="v">20</div><div class="l">ADRs</div></div>
+      <div class="metric"><div class="v">13</div><div class="l">Diagrams</div></div>
+      <div class="metric"><div class="v">70</div><div class="l">Screens mapped</div></div>
+      <div class="metric"><div class="v">9</div><div class="l">Conflicts resolved</div></div>
+      <div class="metric"><div class="v">0</div><div class="l">Blocking decisions</div></div>
+    </div>
+    <div class="note">
+      <b>Classification used throughout.</b>
+      <span class="p p-req">Requirement</span> approved and not negotiable ·
+      <span class="p p-arch">Architecture</span> a Stage-4 decision, reversible on evidence ·
+      <span class="p p-prop">Proposed default</span> a value the documents left open ·
+      <span class="p p-chg">Proposed change</span> <b>not approved</b> — needs product-owner sign-off.
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec">Selected stack</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th style="width:130px">Layer</th><th style="width:210px">Selected</th><th>Why, in one line</th></tr></thead>
+      <tbody>
+        <tr><td>Mobile</td><td><strong>Kotlin + Jetpack Compose</strong></td><td>Android-only V1, API 26 on 2 GB, and RTL is the top risk. <em>Recommended after comparison</em> — React Native is viable, not eliminated</td></tr>
+        <tr><td>Admin + public</td><td><strong>Next.js</strong></td><td>One deployment also serves the App-Links interstitial and the policy pages that ARCH-CONFLICT-008 requires</td></tr>
+        <tr><td>Backend</td><td><strong>NestJS · TypeScript</strong></td><td>Its module system <em>is</em> the boundary enforcement — a module that has not imported another cannot inject it</td></tr>
+        <tr><td>Database</td><td><strong>PostgreSQL</strong></td><td>Search, queue, sessions and audit in one engine. Version set at EPIC-00; no version-18-only feature required</td></tr>
+        <tr><td>Realtime</td><td><strong>Socket.IO, in-process</strong></td><td>Reconnection, acks and rooms are exactly what MSG-FR-004 needs. Single instance at V1</td></tr>
+        <tr><td>Jobs</td><td><strong>pg-boss</strong> · <strong>no Redis</strong></td><td>The outbox must commit with the business change — one transaction, not a distributed commit</td></tr>
+        <tr><td>Search</td><td><strong>PG FTS + pg_trgm</strong></td><td>BR-042 sets a best-effort bar. A search cluster at 1,000 users is unjustified</td></tr>
+        <tr><td>Media</td><td><strong>S3 + CDN</strong></td><td>Immutable objects are the ideal cache profile. <strong>Evaluated, not assumed</strong> — direct-from-storage is an accepted fallback</td></tr>
+        <tr><td>Identifiers</td><td><strong>UUIDv7</strong></td><td>Index locality, non-enumerable, client-generatable. Two generation strategies so hosting stays unconstrained</td></tr>
+        <tr><td>Sessions</td><td><strong>Opaque, server-backed</strong></td><td>Revocation within one request cycle is a requirement; JWT cannot deliver it</td></tr>
+        <tr><td>Hosting</td><td><strong>Managed PaaS</strong> · provider deferred</td><td>Region needs measured latency from Pakistan, and OD-019 has not answered residency</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Deliberately excluded:</b> Kubernetes · Kafka · Elasticsearch · Redis · event sourcing · CQRS · service mesh · GraphQL · microservices · video infrastructure · profiling analytics. Each carries a named revisit trigger in <code>02</code> §6. None is excluded on taste.</div>
+  </section>
+
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec">System context</h2></div>
+    <div class="rule"></div>
+    <div class="dgcap">diagrams/system-context.mmd</div>
+<pre class="mermaid">
+flowchart TB
+    citizen["Civic-Minded Citizen<br/>ROLE-001 / ROLE-002<br/>Android · Urdu or English"]
+    admin["Administrator<br/>ROLE-003<br/>Desktop · English only"]
+    owner["Technical Owner<br/>OD-020 · server access<br/>no portal role"]
+
+    subgraph platform["Shehersaaz Platform"]
+        app["Android App<br/>Kotlin + Compose"]
+        api["API + Realtime<br/>NestJS modular monolith"]
+        worker["Worker<br/>pg-boss"]
+        adminweb["Admin Portal + Public Pages<br/>Next.js"]
+        db[("PostgreSQL<br/>data · search · queue<br/>sessions · audit")]
+        store[("Object Storage")]
+    end
+
+    sms["SMS / OTP<br/>DEP-002 · UNVERIFIED"]
+    fcm["FCM · DEP-003"]
+    cdn["CDN · ADR-012"]
+    play["Google Play · DEP-006"]
+
+    citizen --> app --> api
+    admin --> adminweb --> api
+    owner -.->|"CLI · never an HTTP endpoint"| db
+    api --> db
+    api --> store
+    worker --> db
+    api -.->|"enqueue in same transaction"| worker
+    api --> sms
+    worker --> fcm
+    app -->|"media"| cdn --> store
+    citizen -.->|"installs"| play
+</pre>
+  </section>
+
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec">Containers</h2></div>
+    <div class="rule"></div>
+    <div class="dgcap">diagrams/container-architecture.mmd</div>
+<pre class="mermaid">
+flowchart TB
+    android["Android · 61 screens<br/>Kotlin/Compose"]
+    portal["Admin Portal · 9 screens<br/>authenticated"]
+    public["Public surface<br/>App-Links + policy pages<br/>ARCH-CONFLICT-008"]
+    rest["REST API<br/>/api/v1/m · /api/v1/a"]
+    ws["Socket.IO Gateway"]
+    jobs["Worker · 10 job types"]
+    pg[("PostgreSQL<br/>15 module schemas<br/>FTS + pg_trgm<br/>pg-boss · audit")]
+    obj[("Object Storage<br/>quarantine/ private<br/>media/ served")]
+    edge["CDN · immutable media only<br/>NO API response cached"]
+
+    android -->|"Bearer opaque session"| rest
+    android -->|"auth at handshake AND per event"| ws
+    android --> edge
+    portal -->|"separate admin session"| rest
+    rest --> pg
+    ws --> pg
+    jobs --> pg
+    rest --> obj
+    jobs --> obj
+    edge --> obj
+    rest -.->|"enqueue"| pg -.->|"dequeue"| jobs
+</pre>
+  </section>
+
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec">Backend modules</h2></div>
+    <div class="rule"></div>
+    <p>Fifteen modules in three tiers. <strong>Dependencies point downward only</strong>, checked in CI along with a cycle check. All 124 requirements have exactly one primary owner — but each is <em>implemented by</em> several components, which is what §15 traces.</p>
+    <div class="dgcap">diagrams/backend-modules.mmd — simplified</div>
+<pre class="mermaid">
+flowchart TB
+    subgraph plat["Platform · no product dependencies"]
+        identity["identity"]
+        locale["localization"]
+        mediam["media"]
+        audit["audit"]
+        notify["notifications"]
+    end
+    subgraph prod["Product"]
+        profile["profile"]
+        social["social-graph"]
+        safety["safety ★ VisibilityPolicy"]
+        posts["posts"]
+        engage["engagement"]
+        feed["feed"]
+        events["events"]
+        msg["messaging"]
+        search["search"]
+        settings["settings"]
+    end
+    subgraph adm["Admin"]
+        moderation["moderation"]
+        adminops["admin-ops"]
+    end
+
+    profile --> identity
+    social --> profile
+    safety --> profile
+    safety --> social
+    posts --> safety
+    engage --> posts
+    feed --> posts
+    feed --> social
+    events --> safety
+    msg --> safety
+    search --> safety
+    settings --> identity
+    moderation --> safety
+    moderation --> audit
+    adminops --> identity
+    adminops --> audit
+    posts -.->|"domain event"| notify
+    msg -.->|"domain event"| notify
+    moderation -.->|"always"| audit
+</pre>
+    <div class="note ok"><b>★ <code>safety</code> owns <code>VisibilityPolicy</code></b> — one bidirectional block predicate composed by <em>every</em> read path in every module. Six epics inherit its correctness, which is why it is the true bottleneck in the critical path and why EPIC-05 carries a mandatory human review.</div>
+  </section>
+
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec">Trust boundaries</h2></div>
+    <div class="rule"></div>
+    <div class="dgcap">diagrams/trust-boundaries.mmd</div>
+<pre class="mermaid">
+flowchart TB
+    subgraph pub["PUBLIC · unauthenticated"]
+        authep["Auth endpoints only<br/>rate limited · uniform responses"]
+        policy["Policy documents"]
+    end
+    subgraph usr["AUTHENTICATED USER"]
+        mobileapi["/api/v1/m<br/>object-level authz every request<br/>block enforced on every path"]
+    end
+    subgraph admb["ADMINISTRATOR"]
+        adminapi["/api/v1/a · separate store<br/>8h timeout · every action audited"]
+        note1["CANNOT act on another admin<br/>no schema path · no route"]
+    end
+    subgraph own["INFRASTRUCTURE OWNER"]
+        cli["Admin provisioning CLI<br/>no HTTP endpoint · no bootstrap route"]
+        dbown["migration_owner role<br/>runtime never connects as this"]
+    end
+    authep -->|"issues opaque session"| mobileapi
+    adminapi --> note1
+    cli --> dbown
+</pre>
+  </section>
+
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2 class="sec">The hard rules, and their mechanisms</h2></div>
+    <div class="rule"></div>
+    <p>Ten requirements where a plausible implementation would be wrong. Each is met by a mechanism, not by discipline.</p>
+    <div class="tw"><table>
+      <thead><tr><th style="width:230px">Requirement</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Block never disclosed</strong><br><span class="p p-req">BR-025</span></td><td>One <code>VisibilityPolicy</code>, composed by every read path. Deleted, hidden, blocked, banned and nonexistent all return an <strong>identical 404 with identical timing</strong></td></tr>
+        <tr><td><strong>Revocation in one request cycle</strong><br><span class="p p-req">EDGE-010</span></td><td>Opaque server-backed sessions. Revocation is a row update — <strong>this is what rules out JWT</strong></td></tr>
+        <tr><td><strong>Auto-hide, never auto-delete</strong><br><span class="p p-req">SAFETY-FR-004</span></td><td>Report insert + distinct count + visibility change in <strong>one transaction</strong> with <code>FOR UPDATE</code>. Posts 3, comments 3, <strong>events 2</strong>, profiles and DMs never</td></tr>
+        <tr><td><strong>Audit cannot be mutated</strong><br><span class="p p-req">SEC-023</span></td><td>Table owned by <code>migration_owner</code>; runtime holds <code>SELECT</code>+<code>INSERT</code> only; CI asserts the grants. <strong>Described as append-only, not as cryptographic immutability</strong></td></tr>
+        <tr><td><strong>Exactly-once message render</strong><br><span class="p p-req">EDGE-021</span></td><td><code>UNIQUE (conversation_id, client_message_id)</code> — <strong>in PostgreSQL, never in the transport</strong>, so it survives realtime scaling</td></tr>
+        <tr><td><strong>Phone never visible</strong><br><span class="p p-req">PRIV-003</span></td><td><code>PublicProfileProjection</code> has no such field to populate. Structural, not filtered</td></tr>
+        <tr><td><strong>Uploads verified by content</strong><br><span class="p p-req">SEC-013</span></td><td>Presigned → <strong>private</strong> quarantine → magic-byte inspection → promotion under a server-chosen random key</td></tr>
+        <tr><td><strong>Instant language switch, full mirroring</strong><br><span class="p p-req">LOCALE-FR-002/003</span></td><td>Activity recreation; logical properties only, enforced by a <strong>lint rule that fails the build</strong>; dual line-heights per type token</td></tr>
+        <tr><td><strong>Feed is never empty</strong><br><span class="p p-req">FEED-FR-002</span></td><td>Featured is an <strong>independent endpoint</strong> with its own cache — a slow Following query cannot delay it</td></tr>
+        <tr><td><strong>No admin-on-admin action</strong><br><span class="p p-req">BR-ADM-001</span></td><td><strong>Two independent enforcement points</strong>: no FK from <code>enforcement_actions</code> to <code>admins</code>, plus unconditional server-side rejection</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2 class="sec">Data architecture</h2></div>
+    <div class="rule"></div>
+    <p><strong>33 tables</strong> in eight groups · 8 state machines · 13 named race conditions, each with its mechanism · full ERD in <code>diagrams/database-erd.mmd</code>.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-t">Rules carried by the database</div>
+        <ul>
+          <li><code>UNIQUE citext username</code> — concurrent claims (EDGE-007/008)</li>
+          <li><code>CHECK date_of_birth</code> — age 13 (BR-002)</li>
+          <li><code>(user_id, post_id)</code> PK — one like (BR-031)</li>
+          <li><code>UNIQUE (reporter, target)</code> — one report (BR-030)</li>
+          <li><code>UNIQUE (conversation_id, client_message_id)</code> — idempotency</li>
+          <li>Ordered pair + <code>UNIQUE</code> — one conversation per pair</li>
+          <li><code>CHECK</code> on resolution reason — mandatory reason (BR-038)</li>
+          <li>Privilege revocation — append-only audit (BR-039)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-t">Four database roles</div>
+        <ul>
+          <li><code>migration_owner</code> — owns schema; <strong>pipeline only</strong></li>
+          <li><code>runtime_app</code> — DML on data; <code>SELECT</code>+<code>INSERT</code> on audit</li>
+          <li><code>runtime_worker</code> — same restriction</li>
+          <li><code>read_only_support</code> — diagnosis only</li>
+        </ul>
+        <p style="margin:10px 0 0"><strong>Production runtime never connects as the owner</strong>, so the application can neither alter its schema nor mutate the audit trail.</p>
+      </div>
+    </div>
+    <div class="dgcap">Account lifecycle — diagrams/account-deletion-flow.mmd</div>
+<pre class="mermaid">
+stateDiagram-v2
+    [*] --> UNVERIFIED: register
+    UNVERIFIED --> ACTIVE: OTP verified
+    UNVERIFIED --> [*]: 24h expiry
+    ACTIVE --> SUSPENDED: admin
+    SUSPENDED --> ACTIVE: expiry auto / reinstate
+    ACTIVE --> BANNED: admin
+    BANNED --> ACTIVE: reinstate
+    ACTIVE --> PENDING_DELETION: user deletes
+    SUSPENDED --> PENDING_DELETION: allowed BR-008
+    PENDING_DELETION --> ACTIVE: login + restore within 30d
+    PENDING_DELETION --> DELETED: day 30 erasure
+    DELETED --> [*]
+</pre>
+  </section>
+
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2 class="sec">API surface</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th>Namespace</th><th class="num">Endpoints</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>/api/v1/auth</code></td><td class="num">12</td><td>Public. Uniform responses and timing</td></tr>
+        <tr><td><code>/api/v1/m</code></td><td class="num">58</td><td>User session. No response contains phone, email or DOB</td></tr>
+        <tr><td><code>/api/v1/a</code></td><td class="num">17</td><td>Separate credential store. Every sensitive view audited</td></tr>
+        <tr><td>Socket.IO</td><td class="num">5</td><td>Delivery, ack, read, unread, connection state</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Two endpoints that deliberately do not exist.</b> <code>GET /events/{id}/attendees</code> — EVENT-FR-004 permits a count but not the list (ARCH-CONFLICT-006). Any admin-management route — provisioning is a CLI, and <strong>no bootstrap endpoint exists in any environment</strong>.</div>
+  </section>
+
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2 class="sec">Conflicts found</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th class="id" style="width:70px">ID</th><th>Conflict</th><th style="width:150px">Resolution</th></tr></thead>
+      <tbody>
+        <tr><td class="id">001</td><td>24 h token vs revocation within one request cycle</td><td>Opaque sessions <span class="p p-ok">Resolved</span></td></tr>
+        <tr><td class="id">002</td><td>NOTIF-FR-004 (Must) depends on MSG-FR-005 (Should)</td><td><span class="p p-chg">OD-022</span></td></tr>
+        <tr><td class="id">003</td><td>Per-viewer counts vs 800 ms p95</td><td>Counter + bounded correction <span class="p p-ok">Resolved</span></td></tr>
+        <tr><td class="id">004</td><td>Erasure vs counterpart's retained conversation</td><td>Legal — OD-019</td></tr>
+        <tr><td class="id">005</td><td>Permanent ban list vs data minimisation</td><td>Peppered hash <span class="p p-ok">Resolved</span></td></tr>
+        <tr><td class="id">006</td><td>Attendee avatars contradict EVENT-FR-004</td><td>SRS wins · no endpoint</td></tr>
+        <tr><td class="id">007</td><td>Email registration vs ban and geography rules</td><td><span class="p p-chg">OD-021</span></td></tr>
+        <tr><td class="id">008</td><td>"No public web" vs share links and policy URLs</td><td>Interstitial only <span class="p p-ok">Resolved</span></td></tr>
+        <tr><td class="id">009</td><td><strong>Prototype P-12 is "Delete account", not "Admin moderation" — and the prototype has no admin screens at all</strong></td><td>UI/UX authoritative</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note warn"><b>ARCH-CONFLICT-009 was missed in the first response and is corrected here.</b> The claim that all twelve prototype flows were walked was wrong and is withdrawn. Admin moderation is built and tested from UI/UX §27 and SRS §10.14 only — <strong>never from prototype behaviour, which does not exist for that surface</strong>.</div>
+  </section>
+
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2 class="sec">Decisions</h2></div>
+    <div class="rule"></div>
+    <p>Twenty ADRs, each with context, options, decision, benefits, disadvantages, security, privacy, operational and cost impact, and a <strong>revisit trigger</strong>.</p>
+    <div class="tw"><table>
+      <thead><tr><th class="id" style="width:64px">ADR</th><th style="width:200px">Decision</th><th>Revisit trigger</th></tr></thead>
+      <tbody>
+        <tr><td class="id">001</td><td>Kotlin + Compose</td><td>iOS or web enters approved scope</td></tr>
+        <tr><td class="id">002</td><td>Next.js admin</td><td>Admin needs an independent lifecycle</td></tr>
+        <tr><td class="id">003</td><td>NestJS</td><td>A module needs a runtime Node cannot serve</td></tr>
+        <tr><td class="id">004</td><td>PostgreSQL</td><td>A measured workload needs another engine</td></tr>
+        <tr><td class="id">005</td><td>Modular monolith</td><td><strong>Team boundaries, not load</strong></td></tr>
+        <tr><td class="id">006</td><td>REST</td><td>Multiple divergent clients</td></tr>
+        <tr><td class="id">007</td><td>UUIDv7</td><td>None — generation strategy set at EPIC-00</td></tr>
+        <tr><td class="id">008</td><td>Opaque sessions</td><td>Session lookup measured as a bottleneck</td></tr>
+        <tr><td class="id">009</td><td>Socket.IO in-process</td><td><strong>Four measured thresholds</strong></td></tr>
+        <tr><td class="id">010</td><td>pg-boss · no Redis</td><td>Three measured triggers</td></tr>
+        <tr><td class="id">011</td><td>PG FTS + trigram</td><td>Measured dissatisfaction, or ~10⁶ posts</td></tr>
+        <tr><td class="id">012</td><td>Storage + CDN</td><td>Latency acceptable without it</td></tr>
+        <tr><td class="id">013</td><td>Quarantine upload</td><td>Validation latency user-visible</td></tr>
+        <tr><td class="id">014</td><td>Durable notifications</td><td>Push volume outgrows one worker</td></tr>
+        <tr><td class="id">015</td><td>Monorepo</td><td>Beyond ~6 developers</td></tr>
+        <tr><td class="id">016</td><td>Managed PaaS</td><td>Cost ceiling or OD-019 residency</td></tr>
+        <tr><td class="id">017</td><td>No shared cache</td><td>Horizontal scaling, or a measured hotspot</td></tr>
+        <tr><td class="id">018</td><td>Append-only audit</td><td>Volume needing partitioning. <strong>Immutability is not revisitable</strong></td></tr>
+        <tr><td class="id">019</td><td>Deletion lifecycle</td><td>Legal guidance under OD-019</td></tr>
+        <tr><td class="id">020</td><td>Fan-out on read</td><td>Measured p95 breach on real data</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2 class="sec">Implementation path</h2></div>
+    <div class="rule"></div>
+    <h3>Critical path — 17 epics</h3>
+<pre class="mermaid">
+flowchart LR
+    E00["00 Foundation<br/>6d"] --> E01["01 Contracts<br/>4d"] --> E02["02 Auth<br/>10d"]
+    E02 --> E03["03 RTL<br/>6d"] --> E04["04 Profiles<br/>7d"]
+    E04 --> E05["05 Social + Block<br/>6d ★"]
+    E05 --> E06["06 Posts + Media<br/>12d"] --> E07["07 Feed<br/>9d"]
+    E07 --> E12["12 Moderation<br/>10d"] --> E13["13 Admin<br/>12d"] --> E16["16 Release<br/>8d"]
+</pre>
+    <div class="tw"><table>
+      <thead><tr><th>Measure</th><th class="num">Days</th></tr></thead>
+      <tbody>
+        <tr><td>Total scope</td><td class="num">~95</td></tr>
+        <tr><td>Two developers with realistic parallelism</td><td class="num"><strong>62–68</strong></td></tr>
+        <tr><td>Requested <span class="p p-req">OD-011</span></td><td class="num">50</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note warn"><b>Safe cut order if 50 days is enforced:</b> Saved posts → @mentions → interests → event search → read receipts and DM images → post search → PDF attachments → edit post. That recovers ~16.5 days and lands near 50. <b>Private messaging stays below the line</b> — it is objective O2 and the no-phone-number-exposure proposition.</div>
+  </section>
+
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2 class="sec">Top implementation risks</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th class="num" style="width:40px">#</th><th style="width:190px">Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>RTL across 70 screens <span class="p p-req">RSK-004</span></td><td>EPIC-03 early; lint rule fails the build; RTL screenshot pass per PR; <strong>test G</strong> gates release</td></tr>
+        <tr><td class="num">2</td><td>Block-privacy leakage</td><td><code>VisibilityPolicy</code> built once in EPIC-05; <strong>test A</strong> sweeps ten surfaces including timing</td></tr>
+        <tr><td class="num">3</td><td>Messaging correctness <span class="p p-req">RSK-008</span></td><td>DB-level idempotency; persist-then-ack; <strong>test E</strong> concurrent + fallback</td></tr>
+        <tr><td class="num">4</td><td>Moderation races</td><td>Threshold in one transaction; version lock; <strong>tests C and D</strong></td></tr>
+        <tr><td class="num">5</td><td>SMS provider unverified <span class="p p-req">RSK-007</span></td><td>Provider port + sandbox; <strong>coverage tested on all major Pakistani networks before launch</strong></td></tr>
+        <tr><td class="num">6</td><td>Cold start <span class="p p-req">RSK-001</span></td><td>Featured is an independent endpoint; seed tooling is an architecture deliverable — but <strong>no requirement substitutes for real content</strong></td></tr>
+        <tr><td class="num">7</td><td>Media cost <span class="p p-req">RSK-013</span></td><td>500 KB cap, no video, sweeps, storage alerting</td></tr>
+        <tr><td class="num">8</td><td>Deletion irreversibility</td><td>State machine; dry-run in staging; <strong>test F</strong> including day-29 and day-31</td></tr>
+        <tr><td class="num">9</td><td>Coordinated reporting <span class="p p-req">RSK-010</span></td><td>Auto-hide never deletes; restore resets the count; Restore and Delete are peers in API and UI</td></tr>
+        <tr><td class="num">10</td><td>Timeline overrun <span class="p p-req">RSK-002</span></td><td>OD-011 with a documented cut order that protects messaging</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2 class="sec">Open decisions</h2></div>
+    <div class="rule"></div>
+    <h3>Product owner <span class="p p-ok">All four closed</span></h3>
+    <div class="tw"><table>
+      <thead><tr><th class="id" style="width:70px">ID</th><th>Decision</th><th style="width:230px">Outcome · 1 September 2026</th></tr></thead>
+      <tbody>
+        <tr><td class="id">OD-021</td><td>What identity must every V1 account possess for a permanent ban to be enforceable?</td><td><strong>Option C</strong> — verified Pakistani mobile mandatory; <strong>AUTH-FR-004 removed</strong> <span class="p p-ok">Approved</span></td></tr>
+        <tr><td class="id">OD-022</td><td>MSG-FR-005 Should → Must, since NOTIF-FR-004 (Must) depends on it</td><td><strong>Promoted to Must</strong>; removed from the cut order <span class="p p-ok">Approved</span></td></tr>
+        <tr><td class="id">OD-011</td><td>Timeline relief valve, open since Stage 1</td><td><strong>68 working days committed · ~65 stretch</strong> <span class="p p-ok">Approved</span></td></tr>
+        <tr><td class="id">OD-023</td><td>PDF risk posture</td><td><strong>Conditional + Technical Lead gate.</strong> Magic-byte-only <strong>rejected</strong>; cut PDF rather than weaken SEC-013 <span class="p p-ok">Revised</span></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Release dependencies — owner: Shehersaaz</h3>
+    <div class="tw"><table>
+      <thead><tr><th class="id" style="width:70px">ID</th><th>Dependency</th><th style="width:120px">Blocks</th></tr></thead>
+      <tbody>
+        <tr><td class="id">OD-015</td><td>Terms · Privacy Policy · Community Guidelines, both languages, publicly reachable</td><td><strong>Release</strong> — Play rejects without it</td></tr>
+        <tr><td class="id">OD-016</td><td>~400 Urdu interface strings</td><td><strong>Release</strong> — REL-002</td></tr>
+        <tr><td class="id">OD-017</td><td>Category list, both languages</td><td>Development</td></tr>
+        <tr><td class="id">OD-018</td><td>Seed content and accounts</td><td><strong>Launch</strong> — RSK-001</td></tr>
+        <tr><td class="id">OD-019</td><td>Regulatory position — residency, retention, PECA/PTA</td><td>Region selection</td></tr>
+        <tr><td class="id">OD-020</td><td><strong>Named technical owner</strong></td><td><strong>Release</strong> — no route to the first admin without one</td></tr>
+        <tr><td class="id">OD-014</td><td>Final product name</td><td>Play submission</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s15">
+    <div class="sec-head"><span class="sec-num">15</span><h2 class="sec">Requirement coverage</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th>Family</th><th class="num">Total</th><th class="num">Covered</th><th class="num">Partial</th><th class="num">N/A</th></tr></thead>
+      <tbody>
+        <tr><td>Functional</td><td class="num">124</td><td class="num">119</td><td class="num">4</td><td class="num">1</td></tr>
+        <tr><td>Business rules</td><td class="num">49</td><td class="num">49</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>Security</td><td class="num">28</td><td class="num">28</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>Privacy</td><td class="num">19</td><td class="num">13</td><td class="num">6</td><td class="num">0</td></tr>
+        <tr><td>Non-functional</td><td class="num">34</td><td class="num">32</td><td class="num">2</td><td class="num">0</td></tr>
+        <tr><td>Edge cases</td><td class="num">32</td><td class="num">32</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>Release</td><td class="num">8</td><td class="num">3</td><td class="num">5</td><td class="num">0</td></tr>
+        <tr><td><strong>Total</strong></td><td class="num"><strong>294</strong></td><td class="num"><strong>276</strong></td><td class="num"><strong>17</strong></td><td class="num"><strong>1</strong></td></tr>
+      </tbody>
+    </table></div>
+    <div class="note ok"><b>100% addressed · 276 fully covered · 17 partial · 1 removed by approved decision · 0 missing.</b> The single N/A is AUTH-FR-004, removed by OD-021 Option C. Three partials — POST-FR-005, MEDIA-FR-003, MEDIA-FR-004 — are conditional on the OD-023 PDF gate. Every other partial is blocked by a named external dependency: legal review, content delivery or physical devices. <b>None is a design gap.</b></div>
+  </section>
+
+  <section id="s16">
+    <div class="sec-head"><span class="sec-num">16</span><h2 class="sec">Document index</h2></div>
+    <div class="rule"></div>
+    <div class="tw"><table>
+      <thead><tr><th style="width:280px">Document</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td><code>00-source-baseline.md</code></td><td>Sources read, 9 conflicts, 18 drivers, prototype execution record</td></tr>
+        <tr><td><code>01-technical-architecture.md</code></td><td>Overview and entry point</td></tr>
+        <tr><td><code>02-technology-stack.md</code></td><td>Every layer with alternatives and revisit triggers</td></tr>
+        <tr><td><code>03-system-architecture.md</code></td><td>Containers, trust boundaries, request path, failure behaviour</td></tr>
+        <tr><td><code>04-mobile-architecture.md</code></td><td>Android structure, RTL, degraded network, optimistic updates</td></tr>
+        <tr><td><code>05-admin-architecture.md</code></td><td>Portal, separation, provisioning, responsive fallback</td></tr>
+        <tr><td><code>06-backend-modules.md</code></td><td>15 modules, dependency rules, three shared contracts</td></tr>
+        <tr><td><code>07-database-design.md</code></td><td>33 tables, constraints, 8 state machines, 13 races, retention</td></tr>
+        <tr><td><code>08-api-architecture.md</code></td><td>87 endpoints, conventions, three privacy rules, rate limits</td></tr>
+        <tr><td><code>09-authentication-authorization.md</code></td><td>Sessions, capability matrix, object-level rules</td></tr>
+        <tr><td><code>10-security-privacy.md</code></td><td>Threat model, SEC-001…028, PRIV-001…019</td></tr>
+        <tr><td><code>11-media-feed-search.md</code></td><td>Upload pipeline, feed queries, Roman Urdu search</td></tr>
+        <tr><td><code>12-messaging-notifications.md</code></td><td>Realtime, idempotency, requests, outbox</td></tr>
+        <tr><td><code>13-moderation-audit.md</code></td><td>Report → decision → audit</td></tr>
+        <tr><td><code>14-infrastructure-environments.md</code></td><td>Environments, deployment, CI/CD, agent limits</td></tr>
+        <tr><td><code>15-testing-observability-recovery.md</code></td><td>Test architecture, 7 mandatory tests, monitoring, RPO/RTO</td></tr>
+        <tr><td><code>16-implementation-epics.md</code></td><td>17 epics, dependency graph, critical path, cut order</td></tr>
+        <tr><td><code>17-open-decisions.md</code></td><td>Open decisions with owners and dates</td></tr>
+        <tr><td><code>18-requirements-architecture-traceability.md</code></td><td>One-to-many requirement → component mapping</td></tr>
+        <tr><td><code>adr/ADR-001…022</code></td><td>22 decision records, including ADR-021 identity and ADR-022 PDF safety</td></tr>
+        <tr><td><code>STAGE-4-APPROVAL.md</code></td><td><strong>Frozen approval record</strong> — status, stack, approved decisions, remaining dependencies</td></tr>
+        <tr><td><code>diagrams/*.mmd</code></td><td>13 Mermaid diagrams including the ERD</td></tr>
+        <tr><td><code>contracts/</code></td><td>OpenAPI · error catalogue · event catalogue</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="s17">
+    <div class="sec-head"><span class="sec-num">17</span><h2 class="sec">Approval checklist</h2></div>
+    <div class="rule"></div>
+    <ul class="check">
+      <li>Source files fully reviewed — all four, complete text</li>
+      <li>Conflicts recorded — 9, including the missed ARCH-CONFLICT-009</li>
+      <li>Technology stack selected</li>
+      <li>Architecture style selected</li>
+      <li>System diagrams completed — 13</li>
+      <li>Mobile architecture completed</li>
+      <li>Admin architecture completed</li>
+      <li>Backend boundaries completed — 15 modules</li>
+      <li>Database and ERD completed — 33 tables</li>
+      <li>API inventory completed — 87 + 5</li>
+      <li>Authentication completed</li>
+      <li>Authorization completed</li>
+      <li>Media architecture completed</li>
+      <li>Feed architecture completed</li>
+      <li>Search architecture completed</li>
+      <li>Messaging architecture completed</li>
+      <li>Notification architecture completed</li>
+      <li>Moderation architecture completed</li>
+      <li>Security and privacy mapped — SEC-001…028, PRIV-001…019</li>
+      <li>Environments and deployment completed</li>
+      <li>CI/CD completed, with AI-agent limits</li>
+      <li>Testing and observability completed — 7 mandatory tests</li>
+      <li>Backup and recovery completed — restore rehearsal defined</li>
+      <li>ADRs completed — 20</li>
+      <li>Requirements traceability completed — 100% addressed</li>
+      <li>Implementation epics created — 17, with critical path</li>
+      <li>No architecture-blocking decision remains</li>
+    </ul>
+    <p><strong>27 of 27 complete.</strong></p>
+    <div class="note ok"><b>✅ Stage 4 approved and frozen, 1 September 2026.</b> All four product decisions are closed. What remains are Shehersaaz-owned release dependencies — OD-015 legal documents, OD-016 Urdu strings, OD-017 categories, OD-018 seed content, OD-019 regulatory position, OD-020 named technical owner — and two Stage 3 design corrections. <b>None blocks Stage 5.</b></div>
+  </section>
+
+  <div class="ask">
+    <h2>✅ Stage 4 approved and frozen — 1 September 2026</h2>
+    <p>This architecture is the implementation baseline for the Shehersaaz Community Platform, subject to the four approved product decisions recorded above.</p>
+    <ul>
+      <li><b>Approval covers</b> — stack, architecture style, module boundaries, data model, API contract, authentication and authorization, security and privacy controls, media, feed, search, messaging, notifications, moderation, audit, infrastructure, CI/CD, testing, recovery, and the epic order</li>
+      <li><b>Approval does NOT authorise feature implementation</b> — Authentication, Posts, Feed, Messaging, Events and every other product feature remain unstarted</li>
+      <li><b>Next stage</b> — Stage 5, Project Foundation / Development Environment Setup, which requires separate approval</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>Shehersaaz · Mohalla · Technical Architecture v1.2 · frozen</span>
+    <span>Stage 4 approved · 1 September 2026</span>
+  </footer>
+
+  </main>
+</div>
+</div>

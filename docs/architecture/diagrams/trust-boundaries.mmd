@@ -1,0 +1,54 @@
+%% Trust Boundaries
+flowchart TB
+    subgraph public["PUBLIC - unauthenticated"]
+        anon["Anonymous visitor"]
+        policy["Policy documents - PRIV-017"]
+        interstitial["App-Links interstitial - ENGAGE-FR-007"]
+        authep["Auth endpoints only<br/>register - OTP - login - reset<br/>rate limited SEC-005<br/>uniform responses SEC-006"]
+    end
+
+    subgraph userb["AUTHENTICATED USER - ROLE-001 / ROLE-002"]
+        mobileapi["Mobile API /api/v1/m<br/>object-level authz on every request SEC-011<br/>block enforcement on every path SEC-019"]
+        socket["Socket.IO<br/>authenticated at handshake AND per event"]
+    end
+
+    subgraph adminb["ADMINISTRATOR - ROLE-003"]
+        adminapi["Admin API /api/v1/a<br/>separate credential store SEC-020<br/>8h timeout SEC-024<br/>every action audited SEC-022"]
+        note1["CANNOT act on another admin<br/>BR-ADM-001 - SEC-021<br/>enforced server-side"]
+    end
+
+    subgraph ownerb["INFRASTRUCTURE OWNER - OD-020"]
+        cli["Admin provisioning CLI<br/>S2-CR-005 - no HTTP endpoint<br/>no bootstrap route"]
+        secrets["Secret management<br/>SEC-025"]
+        dbadmin["Database migration role<br/>owns schema - app role cannot"]
+    end
+
+    subgraph thirdp["THIRD PARTY"]
+        smsp["SMS provider - receives phone number only"]
+        fcmp["FCM - receives device token + payload"]
+        cdnp["CDN - receives media object requests only"]
+        objp["Object storage"]
+    end
+
+    anon --> policy
+    anon --> interstitial
+    anon --> authep
+    authep -->|"issues opaque session"| mobileapi
+    mobileapi --> socket
+    adminapi --> note1
+    cli --> dbadmin
+    mobileapi -.-> smsp
+    mobileapi -.-> objp
+    adminapi -.-> objp
+    cdnp --> objp
+
+    classDef pub fill:#FAE7E5,stroke:#A32C2C,color:#1C2530
+    classDef usr fill:#E4EFF4,stroke:#145A73,color:#1C2530
+    classDef adm fill:#EFEAF7,stroke:#6B4E9E,color:#1C2530
+    classDef own fill:#FBF0DE,stroke:#9A6510,color:#1C2530
+    classDef ext fill:#ECEEF0,stroke:#5C6670,color:#1C2530
+    class anon,policy,interstitial,authep pub
+    class mobileapi,socket usr
+    class adminapi,note1 adm
+    class cli,secrets,dbadmin own
+    class smsp,fcmp,cdnp,objp ext

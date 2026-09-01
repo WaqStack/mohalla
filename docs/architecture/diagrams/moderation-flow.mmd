@@ -1,0 +1,51 @@
+%% Moderation lifecycle - threshold auto-hide to human decision - SAFETY-FR-004, ADMIN-FR-002
+flowchart TB
+    rep["User submits report<br/>SAFETY-FR-001 - 8 reasons"]
+    uniq{"Already reported<br/>by this user?"}
+    rep --> uniq
+    uniq -->|"yes"| ack["Show same acknowledgement<br/>count NOT revealed - EDGE-023"]
+    uniq -->|"no"| ins["INSERT report<br/>UNIQUE (reporter_id, target_type, target_id)<br/>BR-030"]
+
+    ins --> thr["Count DISTINCT reporters<br/>INSIDE THE SAME TRANSACTION"]
+    thr --> chk{"Threshold for type?"}
+    chk -->|"post: 3"| hide
+    chk -->|"comment: 3"| hide
+    chk -->|"event: 2"| hide
+    chk -->|"profile: never"| queue
+    chk -->|"direct message: never"| queue
+    chk -->|"below"| queue
+
+    hide["visibility_state = AUTO_HIDDEN<br/>removed from feeds, profiles, search<br/>author still sees it marked Under Review<br/>BR-032, PROFILE-FR-004"]
+    hide --> notifyauthor["Notify author - under review"]
+    hide --> queue
+
+    queue["Moderation case created or updated<br/>ordered severity -> count -> age<br/>ADMIN-FR-002"]
+
+    queue --> admin["Administrator opens item<br/>UX-ADM-004<br/>full content + all reports + author history"]
+
+    admin --> lock{"Already resolved<br/>by another admin?"}
+    lock -->|"yes"| told["Told WHO resolved it and HOW<br/>not a generic error - EDGE-024"]
+    lock -->|"no"| decide
+
+    decide{"Decision - Restore and Delete<br/>are PEERS, not primary/secondary"}
+    decide -->|"RESTORE"| rest["visibility_state = VISIBLE<br/>report count RESET to zero<br/>protects civic criticism - ADMIN-FR-003, RSK-010"]
+    decide -->|"DELETE"| del["Permanent removal<br/>author notified with reason<br/>ADMIN-FR-004"]
+    decide -->|"NO ACTION"| close["Case closed"]
+
+    rest --> reason
+    del --> reason
+    close --> reason
+    reason["MANDATORY reason - min 5 chars<br/>CHECK constraint - BR-038"]
+    reason --> audit["APPEND-ONLY audit entry<br/>REVOKE UPDATE, DELETE at DB role<br/>BR-039, SEC-023, ADR-018"]
+
+    del --> count3{"3 admin deletions<br/>of this author in 30 days?"}
+    count3 -->|"yes"| flag["FLAG account in queue<br/>for a suspension DECISION<br/>NOT auto-suspended - BR-037"]
+
+    never["NOTHING is ever deleted automatically.<br/>A human makes every permanent decision.<br/>BR-032"]
+
+    classDef human fill:#E6F0E7,stroke:#2E6B3E,color:#1C2530
+    classDef auto fill:#FBF0DE,stroke:#9A6510,color:#1C2530
+    classDef hard fill:#FAE7E5,stroke:#A32C2C,color:#1C2530
+    class admin,decide,rest,del,close human
+    class hide,thr,flag auto
+    class audit,reason,never hard

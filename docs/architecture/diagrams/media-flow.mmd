@@ -1,0 +1,39 @@
+%% Media upload - presigned to quarantine, validate, promote - ADR-013, SEC-013
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant A as Android App
+    participant API as API - media module
+    participant OS as Object Storage
+    participant W as Worker
+    participant DB as PostgreSQL
+
+    U->>A: select image
+    A->>A: compress on device - longest edge 1600px, under 500KB (MEDIA-FR-001, NFR-PERF-005)
+    Note right of A: compression failure means upload is refused,<br/>never send the original
+
+    A->>API: POST /media/upload-slot (declared type, size)
+    API->>DB: validate against SS12 limits, count per post (BR-013)
+    API->>DB: INSERT media state=PENDING
+    API-->>A: presigned PUT to quarantine/ + media id
+
+    A->>OS: PUT bytes directly to quarantine/
+    A->>API: POST /media/{id}/complete
+    API->>DB: enqueue validation (same transaction)
+
+    W->>OS: read object from quarantine/
+    W->>W: inspect MAGIC BYTES - never extension or client MIME (SEC-013)
+    alt valid JPEG / PNG / WebP / PDF
+        W->>OS: move to media/ under RANDOM name (SEC-015)
+        W->>OS: derive thumbnail variant (MEDIA-FR-002)
+        W->>DB: state=READY
+    else invalid or executable
+        W->>OS: DELETE object
+        W->>DB: state=REJECTED
+        Note right of W: only this file fails;<br/>siblings untouched (EDGE-013)
+    end
+
+    U->>A: publish post
+    A->>API: POST /posts with media ids
+    API->>DB: REJECT unless every media row is READY
+    Note over W,DB: daily sweep removes PENDING/REJECTED older than 24h,<br/>orphans, and media of erased accounts (PRIV-007)

@@ -1,0 +1,26 @@
+{
+  "name": "@mohalla/worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mohalla background worker - foundation only. One health job, no product jobs.",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/main.js",
+    "enqueue:health": "node dist/enqueue-health.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "pg": "8.23.0",
+    "pg-boss": "12.29.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.7.0",
+    "@types/pg": "8.15.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

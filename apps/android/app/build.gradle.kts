@@ -1,0 +1,115 @@
+plugins {
+    // AGP 9.0+ has built-in Kotlin support. The separate
+    // `org.jetbrains.kotlin.android` plugin is no longer required and AGP now
+    // fails the build if it is applied alongside.
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+}
+
+android {
+    namespace = "org.shehersaaz.mohalla"
+
+    // Pinned in docs/foundation/04-toolchain-versions.md.
+    //
+    // Compose BOM 2026.08.00 resolves Compose 1.12.0, whose AAR metadata
+    // REQUIRES consumers to compile against API 37 or later. compileSdk 36
+    // fails `checkDebugAarMetadata` with 11 issues. This is a hard dependency
+    // constraint, not a preference.
+    //
+    // 37.2 and 37.1 are also published; 37.0 is chosen as the lowest release
+    // that satisfies the constraint, and 37.2-beta* are excluded as pre-release.
+    compileSdk = 37
+
+    defaultConfig {
+        applicationId = "org.shehersaaz.mohalla"
+
+        // API 26+ is an approved Stage 4 constraint, not a preference.
+        minSdk = 26
+        // targetSdk tracks compileSdk. Raising it opts into new runtime
+        // behaviour, which is reviewed per release rather than assumed safe -
+        // but leaving it behind compileSdk on a foundation with no runtime
+        // behaviour to break has no benefit.
+        targetSdk = 37
+
+        versionCode = 1
+        versionName = "0.0.1-foundation"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+        }
+        release {
+            // Signing config is deliberately absent. Release signing keys are
+            // never committed and are not part of the Stage 5 foundation.
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    androidResources {
+        // Urdu and English are peers. Declaring both keeps Play's language list
+        // honest and stops resource shrinking from dropping Urdu.
+        localeFilters += setOf("en", "ur")
+    }
+
+    buildFeatures {
+        compose = true
+    }
+}
+
+// The localization / RTL gate reads resource files and the manifest at RUNTIME,
+// through relative File paths. Gradle cannot infer that, so without this block
+// it treats `testDebugUnitTest` as UP-TO-DATE when only those files change -
+// and the gate is silently skipped at exactly the moment it matters: when a
+// string or the manifest was edited.
+//
+// This was found by negative test, not by review: deleting an Urdu string and
+// setting supportsRtl="false" produced a PASSING build until the inputs were
+// declared here.
+tasks.withType<Test>().configureEach {
+    inputs
+        .files(
+            fileTree("src/main/res") { include("values*/strings.xml") },
+            file("src/main/AndroidManifest.xml"),
+        )
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+        .withPropertyName("localizationGateInputs")
+}
+
+java {
+    // Declare the JDK the build needs rather than inheriting whatever is on
+    // PATH, so the build is reproducible across machines and CI.
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+}

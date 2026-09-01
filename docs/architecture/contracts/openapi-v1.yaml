@@ -1,0 +1,992 @@
+openapi: 3.1.0
+
+# =============================================================================
+# Shehersaaz Community Platform (Mohalla) — API v1
+# Stage 4 ARCHITECTURE-LEVEL CONTRACT. Not an implementation.
+#
+# Representative endpoints and the complete shared schema set. The full
+# inventory of 86 endpoints is in docs/architecture/08-api-architecture.md;
+# every one follows the conventions and schemas defined here.
+#
+# THREE INVARIANTS THAT GOVERN EVERY SCHEMA BELOW
+#   1. No mobile response schema contains phone, email or dateOfBirth (PRIV-003).
+#   2. Deleted, hidden, blocked, banned and never-existed all return the same
+#      404 RESOURCE_UNAVAILABLE, with identical body and timing (BR-025).
+#   3. Auth responses never disclose whether an identifier exists (SEC-006).
+# =============================================================================
+
+info:
+  title: Shehersaaz Community Platform API
+  version: "1.0.0-draft"
+  description: |
+    Android client and Admin Portal API.
+
+    Namespaces are separated because the credential stores are separate (SEC-020):
+      /api/v1/auth  unauthenticated
+      /api/v1/m     user session   — an admin token is rejected here
+      /api/v1/a     admin session  — a user token is rejected here
+
+    Traceability: every path carries `x-requirements`.
+
+    OD-021 Option C, approved 1 September 2026: every normal V1 account must
+    hold a verified Pakistani mobile number. AUTH-FR-004 (email-primary
+    registration) is REMOVED from V1 - there is no /auth/register/email path.
+    Email may exist only as optional secondary recovery/contact information.
+
+    OD-023 revised, approved 1 September 2026: PDF attachment is CONDITIONAL.
+    Structural validation and active-content rejection are required, and the
+    Technical Lead must approve the capability before production enablement.
+    If no practical safe mechanism fits V1, PDF is cut - SEC-013 is not
+    weakened to preserve a Should feature.
+  x-source-documents:
+    - srs-mvp-v1.html
+    - product-scope-v1.html
+    - uiux-spec-v1.html
+
+servers:
+  - url: https://{host}/api/v1
+    variables:
+      host:
+        default: api.example.invalid
+        description: Region and provider deferred — ADR-016, OD-019
+
+tags:
+  - name: auth
+  - name: profile
+  - name: social
+  - name: posts
+  - name: feed
+  - name: events
+  - name: messaging
+  - name: search
+  - name: notifications
+  - name: safety
+  - name: settings
+  - name: admin
+
+security:
+  - userSession: []
+
+# =============================================================================
+paths:
+
+  /auth/register:
+    post:
+      tags: [auth]
+      operationId: register
+      summary: Register with a Pakistani mobile number
+      x-requirements: [AUTH-FR-001, BR-001, BR-002, BR-036, EDGE-001]
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/AcceptLanguage'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '202':
+          description: |
+            Accepted. Deliberately uniform — the response does not disclose
+            whether the number was already registered, pending deletion or
+            banned (SEC-006, EDGE-003, EDGE-004).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpDispatched' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /auth/otp/verify:
+    post:
+      tags: [auth]
+      operationId: verifyOtp
+      x-requirements: [AUTH-FR-002, SEC-003, EDGE-005, EDGE-006]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, code]
+              properties:
+                identifier: { type: string, example: "+923004471902" }
+                code: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '200':
+          description: Verified. Session issued; next step is username selection.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessionCreated' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429':
+          description: Attempt limit reached — 15-minute lockout (AUTH-FR-002 E2).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      x-requirements: [AUTH-FR-005, BR-006, BR-034, SEC-006, SEC-007, EDGE-009]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, password]
+              properties:
+                identifier: { type: string }
+                password: { type: string, format: password, writeOnly: true }
+      responses:
+        '200':
+          description: |
+            Authenticated. `accountState` tells the client whether to render
+            read-only (SUSPENDED) or offer restoration (PENDING_DELETION).
+            A sixth device evicts the oldest session (EDGE-009).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessionCreated' }
+        '401':
+          description: |
+            INVALID_CREDENTIALS. Returned identically — and in the same time —
+            for a wrong password, an unknown number and a banned account (SEC-006).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /auth/password/forgot:
+    post:
+      tags: [auth]
+      operationId: forgotPassword
+      x-requirements: [AUTH-FR-007, SEC-006, SEC-008]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier: { type: string }
+      responses:
+        '202':
+          description: |
+            Always 202, whether or not the identifier exists. This is the
+            enumeration defence, not an implementation shortcut (SEC-006).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpDispatched' }
+
+  /auth/admin/login:
+    post:
+      tags: [auth, admin]
+      operationId: adminLogin
+      summary: Administrator login — separate credential store
+      x-requirements: [AUTH-FR-011, SEC-020, SEC-024]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password, writeOnly: true }
+      responses:
+        '200':
+          description: Admin session, 8-hour absolute timeout (SEC-024).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessionCreated' }
+        '401':
+          description: Uniform failure.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  # ---------------------------------------------------------------------------
+  /m/me/username:
+    post:
+      tags: [profile]
+      operationId: claimUsername
+      summary: Claim the permanent username
+      x-requirements: [PROFILE-FR-002, BR-005, EDGE-007, EDGE-008]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username]
+              properties:
+                username: { type: string, pattern: '^[a-z][a-z0-9_]{2,19}$' }
+      responses:
+        '200':
+          description: Claimed. Immutable from this point (BR-005).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicProfile' }
+        '409':
+          description: USERNAME_TAKEN — including a concurrent claim (EDGE-007).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /m/users/{userId}:
+    get:
+      tags: [profile]
+      operationId: getUser
+      x-requirements: [PROFILE-FR-005, PRIV-003, BR-025, SEC-019]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: |
+            Public projection only. Phone, email and date of birth are
+            structurally absent from this schema (PRIV-003).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicProfile' }
+        '404': { $ref: '#/components/responses/ResourceUnavailable' }
+
+  /m/posts:
+    post:
+      tags: [posts]
+      operationId: createPost
+      x-requirements: [POST-FR-001, BR-012, BR-013, BR-016, BR-034]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePostRequest' }
+      responses:
+        '201':
+          description: Published immediately — there is no approval step (BR-016).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '403':
+          description: ACCOUNT_SUSPENDED — refused server-side regardless of the client (BR-034).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: |
+            VALIDATION_FAILED or MEDIA_NOT_READY — a post may only reference
+            media that passed content inspection (ADR-013).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /m/feed/following:
+    get:
+      tags: [feed]
+      operationId: getFollowingFeed
+      x-requirements: [FEED-FR-001, FEED-FR-004, FEED-FR-005, BR-026, BR-027, BR-028, EDGE-017]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - name: since
+          in: query
+          schema: { type: string }
+          description: Pull-to-refresh — returns posts newer than this cursor (FEED-FR-005).
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: |
+            Strictly reverse-chronological (BR-026). Keyset pagination is stable
+            under insertion — no duplicates, no skips (EDGE-017).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostPage' }
+
+  /m/feed/featured:
+    get:
+      tags: [feed]
+      operationId: getFeatured
+      summary: Featured strip — resolves independently of follow data
+      x-requirements: [FEED-FR-002, RSK-001]
+      responses:
+        '200':
+          description: |
+            A separate endpoint by requirement, not convenience. FEED-FR-002 is
+            the cold-start guarantee, so it must render before any
+            follow-dependent query resolves.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    maxItems: 5
+                    items: { $ref: '#/components/schemas/Announcement' }
+
+  /m/events/{eventId}:
+    get:
+      tags: [events]
+      operationId: getEvent
+      x-requirements: [EVENT-FR-006, EVENT-FR-004]
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: |
+            Returns aggregate RSVP counts only. There is deliberately NO
+            attendee list and no /attendees endpoint in V1 — EVENT-FR-004
+            states the attendee list is not shown (ARCH-CONFLICT-006).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Event' }
+        '404': { $ref: '#/components/responses/ResourceUnavailable' }
+
+  /m/conversations/{conversationId}/messages:
+    post:
+      tags: [messaging]
+      operationId: sendMessage
+      x-requirements: [MSG-FR-002, MSG-FR-004, MSG-FR-006, EDGE-019, EDGE-020, EDGE-021]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clientMessageId]
+              properties:
+                clientMessageId:
+                  type: string
+                  format: uuid
+                  description: |
+                    Generated ON THE DEVICE before sending. UNIQUE per
+                    conversation — a retry, a transport switch or a duplicate
+                    delivery all resolve to the same message (EDGE-020/021).
+                body: { type: string, maxLength: 2000 }
+                mediaId: { type: string, format: uuid, nullable: true }
+      responses:
+        '201':
+          description: Persisted, then acknowledged. Ordered by server timestamp.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '200':
+          description: Idempotent replay — returns the original message.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '404':
+          description: |
+            RESOURCE_UNAVAILABLE. Also returned when the recipient has blocked
+            the sender — the block is never disclosed (BR-025, MSG-FR-006).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /m/search/posts:
+    get:
+      tags: [search]
+      operationId: searchPosts
+      x-requirements: [SEARCH-FR-002, SEARCH-FR-003, BR-042]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 2 }
+          description: Urdu script, English or Roman Urdu (BR-042, best-effort).
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostPage' }
+        '503':
+          description: |
+            SEARCH_UNAVAILABLE. Never an empty result set — that would falsely
+            tell the user the content does not exist (SEARCH-FR-003 E3).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /m/reports:
+    post:
+      tags: [safety]
+      operationId: submitReport
+      x-requirements: [SAFETY-FR-001, SAFETY-FR-003, SAFETY-FR-004, BR-030, EDGE-023]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateReportRequest' }
+      responses:
+        '202':
+          description: |
+            Acknowledged. A repeat report from the same user returns this
+            identical response WITHOUT incrementing the count, so the reporter
+            cannot infer the tally (EDGE-023).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Thank you. Our team will review this." }
+
+  /m/me/delete:
+    post:
+      tags: [settings]
+      operationId: deleteAccount
+      x-requirements: [SET-FR-004, BR-008, BR-009, BR-035, PRIV-006, PRIV-007]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, format: password, writeOnly: true }
+      responses:
+        '200':
+          description: |
+            State becomes PENDING_DELETION. All sessions invalidated immediately
+            (BR-035). Posts and comments remain, attributed to "Deleted User"
+            (BR-009). Restorable by logging in within 30 days (SET-FR-005).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduledErasureAt: { type: string, format: date-time }
+
+  # ---------------------------------------------------------------------------
+  /a/moderation/queue:
+    get:
+      tags: [admin]
+      operationId: getModerationQueue
+      x-requirements: [ADMIN-FR-002]
+      security:
+        - adminSession: []
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Ordered severity → report count → age (ADMIN-FR-002).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ModerationCasePage' }
+
+  /a/moderation/cases/{caseId}/restore:
+    post:
+      tags: [admin]
+      operationId: restoreContent
+      summary: Restore — a peer of delete, not a secondary action
+      x-requirements: [ADMIN-FR-003, BR-038, BR-039, EDGE-024, RSK-010]
+      security:
+        - adminSession: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ModerationDecisionRequest' }
+      responses:
+        '200':
+          description: |
+            Content returns to full visibility and the report count RESETS to
+            zero, so the same reporters cannot immediately re-hide it. This is
+            the control that protects legitimate civic criticism (RSK-010).
+        '409':
+          description: |
+            CASE_ALREADY_RESOLVED — names WHO resolved it and HOW, not a
+            generic conflict (EDGE-024).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /a/users/{userId}:
+    get:
+      tags: [admin]
+      operationId: adminGetUser
+      summary: Full account view — the ONLY route exposing phone, email and DOB
+      x-requirements: [ADMIN-FR-005, PRIV-008, SEC-022]
+      security:
+        - adminSession: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: |
+            Exposes phone, email and date of birth. EVERY call writes an audit
+            entry before returning — viewing is an auditable event, not only
+            acting (PRIV-008, SEC-022).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminUserDetail' }
+
+  /a/users/{userId}/suspend:
+    post:
+      tags: [admin]
+      operationId: suspendUser
+      x-requirements: [ADMIN-FR-006, BR-034, BR-035, BR-ADM-001, SEC-021, EDGE-027]
+      security:
+        - adminSession: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [duration, reason]
+              properties:
+                duration: { type: string, enum: ['24h', '7d', '30d'] }
+                reason: { type: string, minLength: 5, maxLength: 500 }
+      responses:
+        '200':
+          description: |
+            All sessions invalidated immediately (BR-035, EDGE-010).
+            Re-suspending REPLACES the duration rather than accumulating (EDGE-027).
+        '403':
+          description: |
+            PERMISSION_DENIED — returned unconditionally if the target resolves
+            to an administrator. No administrator may act on another
+            administrator through the product (BR-ADM-001, SEC-021).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /a/audit:
+    get:
+      tags: [admin]
+      operationId: getAuditLog
+      summary: Append-only audit log — read-only for everyone
+      x-requirements: [ADMIN-FR-012, BR-039, SEC-022, SEC-023]
+      security:
+        - adminSession: []
+      parameters:
+        - name: adminId
+          in: query
+          schema: { type: string, format: uuid }
+        - name: actionType
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: |
+            There is deliberately no PATCH or DELETE on this path. Immutability
+            is additionally enforced by database privilege — the application
+            role has UPDATE and DELETE revoked (ADR-018, SEC-023).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuditPage' }
+
+# =============================================================================
+components:
+
+  securitySchemes:
+    userSession:
+      type: http
+      scheme: bearer
+      description: Opaque, server-backed session token (ADR-008). An admin token is rejected on /m.
+    adminSession:
+      type: http
+      scheme: bearer
+      description: Separate admin credential store (SEC-020). A user token is rejected on /a.
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 20, default: 20 }
+      description: Capped at 20 — NFR-PERF-006.
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+      description: Opaque keyset cursor encoding (created_at, id) — ADR-020.
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      schema: { type: string, format: uuid }
+      description: Required where a retry must not duplicate — EDGE-001.
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      schema: { type: string, enum: [en, ur], default: en }
+
+  responses:
+    ResourceUnavailable:
+      description: |
+        RESOURCE_UNAVAILABLE. One neutral state covers deleted, auto-hidden,
+        blocked, banned and never-existed — identical body and timing, so no
+        block is ever leaked (BR-025, UX-STATE-001).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationFailed:
+      description: VALIDATION_FAILED with field-level messages from SRS §12.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: RATE_LIMITED — names the limit and the concrete reset time.
+      headers:
+        Retry-After: { schema: { type: integer } }
+        X-RateLimit-Limit: { schema: { type: integer } }
+        X-RateLimit-Remaining: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlationId]
+          properties:
+            code: { type: string, example: RESOURCE_UNAVAILABLE }
+            message:
+              type: string
+              description: Already localised to Accept-Language. Display directly.
+              example: This content is no longer available.
+            fieldErrors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+              description: Field NAMES only — submitted values are never echoed or logged.
+            correlationId: { type: string, format: uuid }
+
+    PageInfo:
+      type: object
+      properties:
+        nextCursor: { type: string, nullable: true }
+        hasMore: { type: boolean }
+
+    PublicProfile:
+      type: object
+      description: |
+        THE public projection. Used everywhere a user appears. Phone, email and
+        date of birth are structurally absent — they are not optional fields,
+        they do not exist in this type (PRIV-003).
+      required: [id, username, displayName, accountType]
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string, description: Immutable — BR-005 }
+        displayName: { type: string }
+        accountType: { type: string, enum: [INDIVIDUAL, ORGANIZATION] }
+        verified: { type: boolean, description: Admin-granted only — ADMIN-FR-010 }
+        city: { type: string, nullable: true, description: Self-declared free text — PRIV-012 }
+        bio: { type: string, nullable: true }
+        photoUrl: { type: string, nullable: true }
+        followerCount: { type: integer, description: Excludes blocked relationships — ARCH-CONFLICT-003 }
+        followingCount: { type: integer }
+        postCount: { type: integer }
+        isFollowedByMe: { type: boolean }
+
+    SessionCreated:
+      type: object
+      properties:
+        token: { type: string, description: Opaque. Store in EncryptedSharedPreferences — SEC-004. }
+        expiresAt: { type: string, format: date-time }
+        accountState:
+          type: string
+          enum: [ACTIVE, SUSPENDED, PENDING_DELETION]
+        suspension:
+          type: object
+          nullable: true
+          properties:
+            reason: { type: string }
+            until: { type: string, format: date-time }
+          description: Present only when SUSPENDED — drives the read-only banner (BR-034).
+        restorable:
+          type: boolean
+          description: True when PENDING_DELETION and inside the 30-day grace (SET-FR-005).
+
+    OtpDispatched:
+      type: object
+      properties:
+        expiresInSeconds: { type: integer, example: 600 }
+        resendAvailableInSeconds: { type: integer, example: 60 }
+
+    RegisterRequest:
+      type: object
+      required: [identifier, dateOfBirth, password, termsAccepted]
+      properties:
+        identifier:
+          type: string
+          pattern: '^\+92[0-9]{10}$'
+          description: Pakistani mobile number. Never shown to another user — PRIV-003.
+        dateOfBirth:
+          type: string
+          format: date
+          description: Age 13+ calculated server-side. Never displayed — PRIV-002, BR-002.
+        password: { type: string, minLength: 8, maxLength: 64, writeOnly: true }
+        termsAccepted:
+          type: boolean
+          description: Must be explicitly true — never pre-checked (BR-004, PRIV-014).
+        accountType: { type: string, enum: [INDIVIDUAL, ORGANIZATION] }
+
+    CreatePostRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          maxLength: 3000
+          description: Counted as grapheme clusters so Urdu is not penalised — BR-012.
+        mediaIds:
+          type: array
+          maxItems: 4
+          items: { type: string, format: uuid }
+          description: Must all be in state READY — BR-013, ADR-013.
+        documentId: { type: string, format: uuid, nullable: true }
+        categoryId: { type: integer, nullable: true, description: Zero or one — BR-017. }
+
+    Post:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        author: { $ref: '#/components/schemas/PublicProfile' }
+        body: { type: string }
+        media:
+          type: array
+          items: { $ref: '#/components/schemas/Media' }
+        document: { $ref: '#/components/schemas/Media' }
+        linkPreview: { $ref: '#/components/schemas/LinkPreview' }
+        category: { $ref: '#/components/schemas/Category' }
+        likeCount: { type: integer }
+        commentCount: { type: integer }
+        likedByMe: { type: boolean }
+        editedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        underReview:
+          type: boolean
+          description: |
+            True only in the AUTHOR'S OWN view of auto-hidden content. Never
+            true for any other viewer, who receives 404 instead (PROFILE-FR-004).
+
+    PostPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Post' }
+        pageInfo: { $ref: '#/components/schemas/PageInfo' }
+
+    Media:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [IMAGE, DOCUMENT] }
+        url: { type: string, description: Signed and short-lived for conversation media — ADR-012. }
+        thumbUrl: { type: string, nullable: true }
+        width: { type: integer, nullable: true }
+        height: { type: integer, nullable: true }
+        byteSize: { type: integer }
+        filename:
+          type: string
+          nullable: true
+          description: Display label for documents. The stored object name is random and unrelated — SEC-015.
+
+    LinkPreview:
+      type: object
+      properties:
+        url: { type: string }
+        title: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        imageUrl: { type: string, nullable: true }
+      description: Fetched server-side so the user's IP is never disclosed to the host — SEC-014.
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string, description: Already localised — DEP-012, OD-017. }
+
+    Event:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        creator: { $ref: '#/components/schemas/PublicProfile' }
+        title: { type: string, maxLength: 120 }
+        description: { type: string, maxLength: 2000 }
+        eventType: { type: string, enum: [ONLINE, PHYSICAL] }
+        startsAt: { type: string, format: date-time }
+        timezone: { type: string, example: Asia/Karachi }
+        locationText: { type: string, nullable: true }
+        joinLinkAvailable:
+          type: boolean
+          description: True only from 30 minutes before start, and only if the viewer responded Going (EVENT-FR-003).
+        status: { type: string, enum: [SCHEDULED, CANCELLED] }
+        goingCount: { type: integer }
+        interestedCount: { type: integer }
+        myResponse: { type: string, enum: [GOING, INTERESTED], nullable: true }
+        category: { $ref: '#/components/schemas/Category' }
+      description: |
+        Counts only. There is deliberately no attendee array and no
+        /attendees endpoint — EVENT-FR-004 states the attendee list is not
+        shown in V1 (ARCH-CONFLICT-006).
+
+    Message:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        clientMessageId: { type: string, format: uuid }
+        conversationId: { type: string, format: uuid }
+        senderId: { type: string, format: uuid }
+        body: { type: string, nullable: true }
+        media: { $ref: '#/components/schemas/Media' }
+        createdAt:
+          type: string
+          format: date-time
+          description: Server clock — orders both participants identically (MSG-FR-004).
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Never set for a Message Request — reading a stranger's message signals nothing (MSG-FR-009).
+
+    Announcement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        body: { type: string }
+        publishedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+      description: Authored in both languages; served in the reader's language (ADMIN-FR-009).
+
+    CreateReportRequest:
+      type: object
+      required: [targetType, targetId, reasonCode]
+      properties:
+        targetType: { type: string, enum: [POST, COMMENT, EVENT, PROFILE, CONVERSATION] }
+        targetId: { type: string, format: uuid }
+        reasonCode:
+          type: string
+          enum: [SPAM, HARASSMENT, HATE_SPEECH, VIOLENCE, SEXUAL, FALSE_INFO, IMPERSONATION, OTHER]
+          description: Severity is derived server-side and orders the queue (SAFETY-FR-003).
+        note: { type: string, maxLength: 500, nullable: true }
+
+    ModerationDecisionRequest:
+      type: object
+      required: [reason, version]
+      properties:
+        reason:
+          type: string
+          minLength: 5
+          maxLength: 500
+          description: Mandatory on every enforcement action — BR-038, enforced by a database CHECK.
+        version:
+          type: integer
+          description: Optimistic lock. A stale value returns 409 naming who resolved it (EDGE-024).
+        alsoSuspend:
+          type: object
+          nullable: true
+          properties:
+            duration: { type: string, enum: ['24h', '7d', '30d'] }
+            reason: { type: string, minLength: 5 }
+
+    ModerationCasePage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              targetType: { type: string, enum: [POST, COMMENT, EVENT, PROFILE, CONVERSATION] }
+              targetId: { type: string, format: uuid }
+              excerpt: { type: string }
+              author: { $ref: '#/components/schemas/PublicProfile' }
+              distinctReportCount: { type: integer }
+              maxSeverity: { type: string, enum: [CRITICAL, HIGH, MEDIUM, LOW] }
+              autoHidden: { type: boolean }
+              version: { type: integer }
+              openedAt: { type: string, format: date-time }
+        pageInfo: { $ref: '#/components/schemas/PageInfo' }
+
+    AdminUserDetail:
+      type: object
+      description: |
+        ADMIN-ONLY. The single schema in the contract that exposes phone, email
+        and date of birth. Every read of it writes an audit entry (PRIV-008).
+      allOf:
+        - $ref: '#/components/schemas/PublicProfile'
+        - type: object
+          properties:
+            phone: { type: string }
+            email: { type: string, nullable: true }
+            dateOfBirth: { type: string, format: date }
+            state: { type: string, enum: [UNVERIFIED, ACTIVE, SUSPENDED, BANNED, PENDING_DELETION, DELETED] }
+            suspendedUntil: { type: string, format: date-time, nullable: true }
+            registeredAt: { type: string, format: date-time }
+            reportsMade: { type: integer }
+            reportsReceived: { type: integer }
+            confirmedDeletionsLast30Days:
+              type: integer
+              description: At 3, the account is FLAGGED for a suspension decision — never auto-suspended (BR-037).
+
+    AuditPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              actorAdminId: { type: string, format: uuid }
+              actionType: { type: string }
+              targetType: { type: string }
+              targetId: { type: string, format: uuid }
+              reason: { type: string, nullable: true }
+              correlationId: { type: string, format: uuid }
+              createdAt: { type: string, format: date-time }
+        pageInfo: { $ref: '#/components/schemas/PageInfo' }
