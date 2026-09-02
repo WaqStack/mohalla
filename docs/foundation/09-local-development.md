@@ -1,7 +1,14 @@
 # 09 — Local Development Environment
 
 **Stage 5 · Project Foundation · Shehersaaz Community Platform (Mohalla — محلہ)**
-Status: 🔴 **PARTIALLY BLOCKED** · Escalation, not a workaround · 1 September 2026
+Status: 🟢 **RESOLVED** · 2 September 2026 (was PARTIALLY BLOCKED on 1 September)
+
+> **UPDATE — 2 September 2026.** Docker Desktop was installed and WSL2 enabled via the
+> administrator steps in [`WINDOWS-ADMIN-SETUP.md`](WINDOWS-ADMIN-SETUP.md). All three
+> gates pass (`docker --version` 29.7.2, `docker compose version` v5.5.0,
+> `docker run --rm hello-world`). PostgreSQL 18.6 runs via Compose; migrations, roles,
+> the audit-privilege tests, the queue round-trip and the backup/restore rehearsal have
+> all executed. The section below is the original escalation record, kept for history.
 
 ---
 

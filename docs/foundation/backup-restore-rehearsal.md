@@ -1,19 +1,33 @@
 # Backup / Restore Rehearsal
 
 **Stage 5 · Project Foundation · Shehersaaz Community Platform (Mohalla — محلہ)**
-Status: 🛑 **NOT EXECUTED — BLOCKED (no database)** · Scripts ready · 2 September 2026
+Status: ✅ **EXECUTED AND PASSED** · 2 September 2026
 
 ---
 
-## 1. Honest status
+## 1. Status — executed
 
-**No backup has been taken and no restore has been rehearsed.** Both require a running
-PostgreSQL, which this workstation cannot provide until Docker is unblocked
-([`WINDOWS-ADMIN-SETUP.md`](WINDOWS-ADMIN-SETUP.md)).
+Docker was enabled and the rehearsal was **run against PostgreSQL 18.6**. Real results:
 
-What exists now: the scripts, the guard rails, and the exact procedure below. A restore
-that has never been rehearsed is a hope, not a plan — so this document does **not** claim
-the rehearsal is done.
+| Step | Result |
+|---|---|
+| Seed a marker row into `audit_log` | ✅ 1 row |
+| `pg_dump` custom-format backup | ✅ 56,576-byte dump |
+| Restore into an **isolated** database (`mohalla_restore_check`, not the primary) | ✅ exit 0 |
+| Marker row present after restore | ✅ 1 |
+| `platform_meta.uuid_strategy` restored | ✅ `native_pg_uuidv7` |
+| Audit mutation-denial **triggers** present after restore | ✅ 3 |
+| Append-only **survived**: trigger refuses UPDATE on restored DB (defence in depth) | ✅ `audit_log is append-only: UPDATE is not permitted` |
+| Append-only **survived**: `runtime_app` refused UPDATE by privilege on restored DB | ✅ `permission denied for table audit_log` |
+| Marker intact after both refused tamper attempts | ✅ |
+| API `/health/ready` against the restored DB | ✅ `{"ok":true,...}` |
+| Isolated restore DB dropped | ✅ cleaned up |
+
+**Every pass-criterion in §4 was met.** The single most important result is that the
+append-only guarantee is not just data-preserved but **still enforced** on the restored
+database — both by the trigger and by the `runtime_app` privilege boundary. A restore that
+brought the rows back but lost the protection would be a silent security regression; it did
+not.
 
 ---
 
