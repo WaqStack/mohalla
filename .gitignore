@@ -55,3 +55,7 @@ pgdata/
 
 # ---- Toolchain (installed outside the repo; guard anyway) ----
 .toolchain/
+
+# Local database dumps — never commit real data
+.backups/
+*.dump
