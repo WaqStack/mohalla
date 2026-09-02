@@ -1,0 +1,11 @@
+{
+  "name": "@mohalla/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared build configuration presets consumed by the workspaces.",
+  "type": "module",
+  "files": [
+    "tsconfig.node.json",
+    "tsconfig.lib.json"
+  ]
+}

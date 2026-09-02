@@ -11,7 +11,11 @@
     "migrate:status": "node scripts/migration-status.mjs",
     "roles": "node scripts/apply-roles.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "backup": "node scripts/backup.mjs",
+    "restore": "node scripts/restore.mjs",
+    "reset": "node scripts/reset.mjs",
+    "provision-admin": "node scripts/provision-admin.mjs"
   },
   "dependencies": {
     "node-pg-migrate": "9.0.0",

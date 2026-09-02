@@ -11,18 +11,20 @@
  * The RTL lint rule fails the build on the physical forms. This is not a style
  * preference - LOCALE-FR-003, BR-041 and REL-002 require full mirroring, and
  * physical properties silently break it for Urdu.
+ *
+ * Colour, spacing and radius values are the approved Mohalla tokens carried
+ * from the Stage 3 prototype via packages/design-tokens. They are not invented
+ * here.
  */
 
 :root {
   color-scheme: light dark;
 
-  /* Foundation subset of the Mohalla design tokens. The full set lives in
-     packages/tokens and is generated, not hand-copied. */
   --color-surface: #ffffff;
-  --color-ink: #10242b;
-  --color-muted: #5b7078;
-  --color-accent: #125f70;
-  --color-border: #dfe7ea;
+  --color-ink: #1c2530;
+  --color-muted: #566573;
+  --color-accent: #145a73;
+  --color-border: #e2ded5;
 
   --space-2: 0.5rem;
   --space-4: 1rem;
@@ -75,6 +77,10 @@ main {
   text-align: start;
 }
 
+h1 {
+  font-size: 1.5rem;
+}
+
 .card {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -86,4 +92,42 @@ main {
 
 .muted {
   color: var(--color-muted);
+}
+
+.mono {
+  font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+/* Key/value grid - `start` alignment so it mirrors in Urdu. */
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin-block: var(--space-2) 0;
+}
+
+.kv dt {
+  color: var(--color-muted);
+  text-align: start;
+}
+
+.kv dd {
+  margin: 0;
+  text-align: start;
+}
+
+button {
+  margin-block-start: var(--space-4);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  /* 48px minimum touch target - the same accessibility floor the Android
+     foundation uses, applied here so an admin on a tablet is not underserved. */
+  min-block-size: 44px;
 }

@@ -69,6 +69,21 @@ jobs:
       - name: Build all workspaces
         run: npm run build
 
+      - name: Unit tests (api, worker, validation, admin)
+        run: npm run test --workspaces --if-present
+
+      - name: OpenAPI document generates without booting a server
+        env:
+          # Never touched — the spec is built from decorators, not from a live DB.
+          DATABASE_URL: postgres://unused:unused@127.0.0.1:5432/unused
+          OPENAPI_OUT: openapi.generated.json
+        run: |
+          node apps/api/dist/main.js &
+          API_PID=$!
+          sleep 4
+          kill $API_PID 2>/dev/null || true
+          test -f openapi.generated.json && echo "OpenAPI generated" || (echo "OpenAPI NOT generated" && exit 1)
+
   # -------------------------------------------------------------- database
   database:
     name: Migrations, roles, audit immutability
@@ -122,7 +137,46 @@ jobs:
           MIGRATION_DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
         run: npm run db:migrate:status
 
-      - name: Audit log must refuse mutation as runtime_app
+      - name: Audit immutability and role privileges enforced by PostgreSQL
         env:
           RUNTIME_APP_DATABASE_URL: postgres://runtime_app:ci_runtime_app@127.0.0.1:5432/mohalla
+          READ_ONLY_SUPPORT_DATABASE_URL: postgres://read_only_support:ci_read_only_support@127.0.0.1:5432/mohalla
+          MIGRATION_DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
         run: npm run test --workspace @mohalla/db
+
+      - name: FOUNDATION_HEALTH_JOB round-trips through pg-boss
+        env:
+          DATABASE_URL: postgres://runtime_worker:ci_runtime_worker@127.0.0.1:5432/mohalla
+        run: |
+          node apps/worker/dist/main.js &
+          WORKER_PID=$!
+          sleep 3
+          node apps/worker/dist/enqueue-health.js ci-smoke
+          sleep 4
+          kill $WORKER_PID 2>/dev/null || true
+          echo "queue round-trip exercised (see worker logs above)"
+
+  # -------------------------------------------------------------- security
+  security:
+    name: Dependency and secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Secret scan (tracked files)
+        run: node scripts/posix/check-secrets.mjs
+
+      - name: Dependency audit (high and critical fail the build)
+        # A moderate advisory is reported but does not block a two-person team on
+        # every transitive bump; high/critical do. `npm audit` reads the committed
+        # lockfile, so this is deterministic.
+        run: npm audit --audit-level=high

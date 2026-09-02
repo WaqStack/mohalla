@@ -41,12 +41,16 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
+            // 10.0.2.2 is the host loopback as seen from the Android emulator.
+            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:3000\"")
         }
         release {
             // Signing config is deliberately absent. Release signing keys are
             // never committed and are not part of the Stage 5 foundation.
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Overridden per real environment at release time; never a real host in source.
+            buildConfigField("String", "API_BASE_URL", "\"https://api.invalid\"")
         }
     }
 
@@ -63,6 +67,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -103,11 +108,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.kotlinx.coroutines.android)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

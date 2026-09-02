@@ -1,23 +1,18 @@
 import { Module } from '@nestjs/common';
-import { Pool } from 'pg';
 import { HealthController } from './health.controller.js';
 import { HealthService } from './health.service.js';
-import { loadEnv } from '../config/env.js';
+import { DatabaseService } from '../database/database.service.js';
+import { ENV } from '../config/env.token.js';
+import type { Env } from '../config/env.js';
 
 @Module({
   controllers: [HealthController],
   providers: [
     {
-      provide: Pool,
-      useFactory: () => {
-        const env = loadEnv();
-        return new Pool({
-          connectionString: env.DATABASE_URL,
-          max: env.DATABASE_POOL_MAX,
-        });
-      },
+      provide: HealthService,
+      useFactory: (db: DatabaseService, env: Env) => new HealthService(db, env),
+      inject: [DatabaseService, ENV],
     },
-    HealthService,
   ],
 })
 export class HealthModule {}

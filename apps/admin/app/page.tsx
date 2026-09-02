@@ -1,12 +1,18 @@
+import { adminEnv } from '../lib/env';
 import { DEFAULT_LOCALE, directionFor } from '../lib/locale';
+import { HealthPanel } from '../components/health-panel';
 
 /**
  * Foundation landing page.
  *
- * STAGE 5 FOUNDATION. This page exists to prove the admin application builds,
- * renders, and mirrors correctly. It contains no admin feature - no moderation
- * queue, no user management, no reports. Those are built from UI/UX section 27
- * and SRS section 10.14 in their own epics.
+ * STAGE 5 FOUNDATION. Proves the admin application builds, renders, mirrors, and
+ * can reach the API. It contains NO admin feature - no moderation queue, no user
+ * management, no reports, no login. Those are built from UI/UX section 27 and
+ * SRS section 10.14 in their own epics.
+ *
+ * The environment/build panel is a development aid: it makes the running
+ * artefact and its target API identifiable at a glance, which is exactly what a
+ * smoke test needs to confirm.
  */
 export default function Page() {
   const locale = DEFAULT_LOCALE;
@@ -14,15 +20,25 @@ export default function Page() {
     <main>
       <h1>Mohalla Admin - Foundation</h1>
       <p className="muted">
-        Shehersaaz Community Platform. Development environment foundation only.
+        Shehersaaz Community Platform. Development environment foundation only. No administration
+        feature is implemented.
       </p>
 
       <div className="card">
-        <strong>Build status</strong>
-        <p className="muted">
-          This application compiles and renders. No administration feature is implemented.
-        </p>
+        <strong>Build</strong>
+        <dl className="kv">
+          <dt>environment</dt>
+          <dd>{adminEnv.NEXT_PUBLIC_ENVIRONMENT}</dd>
+          <dt>version</dt>
+          <dd className="mono">{adminEnv.NEXT_PUBLIC_APP_VERSION}</dd>
+          <dt>commit</dt>
+          <dd className="mono">{adminEnv.NEXT_PUBLIC_GIT_COMMIT}</dd>
+          <dt>API base</dt>
+          <dd className="mono">{adminEnv.NEXT_PUBLIC_API_BASE_URL}</dd>
+        </dl>
       </div>
+
+      <HealthPanel />
 
       <div className="card">
         <strong>Direction</strong>

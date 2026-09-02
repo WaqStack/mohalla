@@ -4,7 +4,7 @@
  * GENERATED - do not edit by hand. Source of truth is the `:root` block of the
  * approved Stage 3 prototype, `docs/prototype.html`. Regenerate with:
  *
- *     npm run generate --workspace @mohalla/tokens
+ *     npm run generate --workspace @mohalla/design-tokens
  *
  * 32 tokens are exported here, extracted verbatim from the approved prototype.
  * The Stage 3 UI/UX specification documents a larger token vocabulary

@@ -64,11 +64,23 @@ npm run db:migrate
 npm run db:migrate:status
 ```
 
-Build everything:
+Build everything (shared packages compile first, then the apps):
 
 ```bash
 npm run build
 ```
+
+Database operational scripts (all need a running PostgreSQL):
+
+```bash
+npm run backup  --workspace @mohalla/db      # pg_dump to .backups/
+npm run restore --workspace @mohalla/db -- <dump>   # into RESTORE_TARGET_URL
+npm run reset   --workspace @mohalla/db      # drop + recreate local schema (guarded)
+```
+
+The full backup/restore rehearsal, including re-checking audit privileges on the
+restored database, is in
+[`docs/foundation/backup-restore-rehearsal.md`](docs/foundation/backup-restore-rehearsal.md).
 
 ---
 
@@ -92,6 +104,24 @@ The smoke test reports **PASS**, **FAIL** or **BLOCKED** per step and exits `2` 
 ---
 
 ## 4. Before you push
+
+**One command runs every lane CI runs that can run locally:**
+
+```bash
+npm run verify
+```
+
+It reports `PASS`, `FAIL`, or `BLOCKED` per lane and exits:
+
+- `0` — every lane that ran passed, nothing blocked
+- `1` — a lane failed
+- `2` — nothing failed, but a lane was **BLOCKED** (e.g. no database, no Android toolchain in this shell)
+
+A blocked lane is never counted as a pass. The database lanes are BLOCKED until
+Docker is available ([`docs/foundation/WINDOWS-ADMIN-SETUP.md`](docs/foundation/WINDOWS-ADMIN-SETUP.md)); the
+Android lane runs only from a shell where `JAVA_HOME` and `ANDROID_HOME` are set.
+
+Or run the pieces individually:
 
 ```bash
 npm run guard:all

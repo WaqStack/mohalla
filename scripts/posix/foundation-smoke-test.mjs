@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
  *   4. audit_log refuses UPDATE as runtime_app
  *   5. The API health endpoints answer
  *   6. A FOUNDATION_HEALTH_JOB round-trips through pg-boss
+ *   7. A Socket.IO foundation ping returns a pong
  *
  * Every step reports PASS or FAIL with its real output. A step that cannot run
  * reports BLOCKED and names what is missing - it is never silently skipped and
@@ -160,6 +161,36 @@ if (!pg) {
   } catch (e) {
     record('FOUNDATION_HEALTH_JOB round trip', 'BLOCKED', e.message);
   }
+}
+
+// ------------------------------------------------------- 7. socket.io ping
+const socketPath = process.env.SOCKET_IO_PATH ?? '/realtime';
+try {
+  const { io } = await import('socket.io-client');
+  const client = io(apiUrl, {
+    path: socketPath,
+    transports: ['websocket'],
+    timeout: 5000,
+    reconnection: false,
+  });
+
+  const pong = await new Promise((resolvePong) => {
+    const timer = setTimeout(() => resolvePong({ ok: false, detail: 'no pong within 5s' }), 5000);
+    client.on('connect_error', (e) =>
+      resolvePong({ ok: false, detail: `connect_error: ${e.message}` }),
+    );
+    client.on('connect', () => {
+      client.emit('foundation:ping', { nonce: 'smoke' }, (ack) => {
+        clearTimeout(timer);
+        resolvePong({ ok: Boolean(ack), detail: JSON.stringify(ack ?? {}).slice(0, 120) });
+      });
+    });
+  });
+
+  client.close();
+  record('Socket.IO foundation ping/pong', pong.ok ? 'PASS' : 'FAIL', pong.detail);
+} catch (e) {
+  record('Socket.IO foundation ping/pong', 'BLOCKED', `API/socket not reachable - ${e.message}`);
 }
 
 await pg?.end().catch(() => {});

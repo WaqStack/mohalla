@@ -1,0 +1,37 @@
+/*
+ * GENERATED from docs/prototype.html (approved Stage 3). Do not edit by hand.
+ */
+:root {
+  --bg-primary: #F6F4EF;
+  --bg-secondary: #EFECE5;
+  --surface-primary: #FFFFFF;
+  --surface-sunken: #F1EEE7;
+  --text-primary: #1C2530;
+  --text-secondary: #566573;
+  --text-tertiary: #8B98A5;
+  --text-inverse: #FFFFFF;
+  --border-default: #E2DED5;
+  --border-strong: #CFC9BD;
+  --brand-primary: #145A73;
+  --brand-primary-hover: #0F485C;
+  --brand-primary-subtle: #E4EFF4;
+  --brand-secondary: #6B4E9E;
+  --brand-secondary-subtle: #EFEAF7;
+  --success: #1F7A5C;
+  --success-subtle: #E3F1EC;
+  --warning: #9A6510;
+  --warning-subtle: #FBF0DE;
+  --error: #A32C2C;
+  --error-subtle: #FAE7E5;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 999px;
+  --e1: 0 1px 2px rgba(28,37,48,.04), 0 2px 8px rgba(28,37,48,.06);
+  --e2: 0 2px 4px rgba(28,37,48,.06), 0 8px 24px rgba(28,37,48,.10);
+  --e3: 0 4px 8px rgba(28,37,48,.08), 0 16px 40px rgba(28,37,48,.14);
+  --shell: #20303C;
+  --shell-2: #2A3D4B;
+  --shell-t: #C6D4DE;
+}
