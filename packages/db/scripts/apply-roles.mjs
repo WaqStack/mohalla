@@ -1,12 +1,14 @@
-import { spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runPsqlFile } from './psql-runner.mjs';
 
 /**
  * Applies roles/roles.sql via psql, passing role passwords as psql variables so
  * that no password is ever written to a file or into the repository.
  *
- * Requires `psql` on PATH and ADMIN_DATABASE_URL (the cluster owner).
+ * Uses host psql when available, otherwise the psql inside the project's
+ * PostgreSQL container - the dev environment is Docker-first and does not
+ * install a native client. Requires ADMIN_DATABASE_URL (the cluster owner).
  */
 const here = dirname(fileURLToPath(import.meta.url));
 const sqlPath = resolve(here, '../roles/roles.sql');
@@ -35,27 +37,12 @@ if (placeholders.length > 0) {
 
 const dbName = process.env.DATABASE_NAME ?? 'mohalla';
 
-const args = [
-  process.env.ADMIN_DATABASE_URL,
-  '-v',
+const vars = [
   `migration_owner_password=${process.env.ROLE_MIGRATION_OWNER_PASSWORD}`,
-  '-v',
   `runtime_app_password=${process.env.ROLE_RUNTIME_APP_PASSWORD}`,
-  '-v',
   `runtime_worker_password=${process.env.ROLE_RUNTIME_WORKER_PASSWORD}`,
-  '-v',
   `read_only_support_password=${process.env.ROLE_READ_ONLY_SUPPORT_PASSWORD}`,
-  '-v',
   `db_name=${dbName}`,
-  '-f',
-  sqlPath,
 ];
 
-const r = spawnSync('psql', args, { stdio: 'inherit' });
-
-if (r.error) {
-  console.error(`FAIL: could not run psql - ${r.error.message}`);
-  console.error('psql must be on PATH. It ships with PostgreSQL client tools.');
-  process.exit(1);
-}
-process.exit(r.status ?? 1);
+process.exit(runPsqlFile(process.env.ADMIN_DATABASE_URL, vars, sqlPath));

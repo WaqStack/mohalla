@@ -57,7 +57,7 @@ export class FoundationGateway implements OnGatewayConnection, OnGatewayDisconne
   handlePing(
     @MessageBody() body: unknown,
     @ConnectedSocket() client: Socket,
-  ): { event: string; data: Record<string, unknown> } {
+  ): { nonce: string | null; serverTime: string } {
     const nonce =
       typeof body === 'object' && body !== null && 'nonce' in body
         ? String((body as { nonce: unknown }).nonce)
@@ -65,9 +65,12 @@ export class FoundationGateway implements OnGatewayConnection, OnGatewayDisconne
 
     this.logger.debug(JSON.stringify({ event: 'foundation_ping', id: client.id }), 'realtime');
 
-    return {
-      event: 'foundation:pong',
-      data: { nonce, serverTime: new Date().toISOString() },
-    };
+    // Return the payload DIRECTLY (not wrapped in a WsResponse `{event,data}`).
+    // A WsResponse makes NestJS EMIT a separate 'foundation:pong' event; but a
+    // request/response ping uses socket.io's acknowledgement callback, and
+    // NestJS routes a plain return value into that ack. Returning the wrapped
+    // shape left the client's ack waiting forever - which the smoke test caught
+    // as "no pong within 5s".
+    return { nonce, serverTime: new Date().toISOString() };
   }
 }

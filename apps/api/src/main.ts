@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { writeFileSync } from 'node:fs';
 import { AppModule } from './app.module.js';
 import { loadEnv } from './config/env.js';
@@ -22,6 +23,13 @@ async function bootstrap(): Promise<void> {
   const logger = new StructuredLogger('api', env.LOG_LEVEL);
 
   const app = await NestFactory.create(AppModule, { logger, bufferLogs: false });
+
+  // Socket.IO transport. NestJS does not apply the IoAdapter automatically
+  // merely because @nestjs/platform-socket.io is installed - it must be set
+  // explicitly, or the gateway silently never mounts (both the namespace and
+  // the default /socket.io path return 404). The foundation ping proved this by
+  // failing until the adapter was set.
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // ---- security headers -------------------------------------------------
   // The API serves JSON to an Android client and to the admin console; it

@@ -73,6 +73,14 @@ GRANT CONNECT ON DATABASE :"db_name" TO runtime_app;
 GRANT CONNECT ON DATABASE :"db_name" TO runtime_worker;
 GRANT CONNECT ON DATABASE :"db_name" TO read_only_support;
 
+-- migration_owner is the DDL role. It needs CREATE on the database to create
+-- schemas and to install TRUSTED extensions (e.g. pgcrypto, used for the
+-- peppered ban-list hash and audit IP hashing). This is a migration-time
+-- privilege, not a runtime one: the runtime roles are never granted it, so the
+-- application can never run DDL. An UNtrusted extension would still require a
+-- superuser and would be pre-created out of band - none is used.
+GRANT CREATE ON DATABASE :"db_name" TO migration_owner;
+
 -- The public schema is not a dumping ground. Only the owner may create in it.
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 ALTER SCHEMA public OWNER TO migration_owner;

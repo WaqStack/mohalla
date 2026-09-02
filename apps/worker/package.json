@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/main.js",
     "enqueue:health": "node dist/enqueue-health.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "queue:install": "node dist/install-queue.js"
   },
   "dependencies": {
     "pg": "8.23.0",
