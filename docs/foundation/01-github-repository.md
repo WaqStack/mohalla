@@ -1,48 +1,63 @@
 # 01 — GitHub Repository
 
 **Stage 5 · Project Foundation · Shehersaaz Community Platform (Mohalla — محلہ)**
-Status: ✅ **CREATED AND PUSHED** · 3 September 2026 · authorised by the owner in chat
+Status: ✅ **CREATED, PUSHED, PROTECTED** · 3 September 2026 · authorised by the owner in chat
 
 ---
 
 ## 1. Created — record of what was done
 
-The owner authorised creation under their **personal account `waqaskhan0`** and it was carried out.
-
-| Field | Actual |
+| Field | Actual (final) |
 |---|---|
-| **URL** | https://github.com/waqaskhan0/mohalla |
-| **Visibility** | 🔒 **PRIVATE** (verified `isPrivate: true`) |
+| **URL** | https://github.com/WaqStack/mohalla |
+| **Visibility** | 🌐 **PUBLIC** — see the decision record below |
+| **Owner** | `WaqStack` organisation (owner is org admin) |
 | **Default branch** | `main` |
-| **Push** | `main` pushed; remote HEAD matches local exactly |
+| **Push** | `main` pushed; remote HEAD matched local exactly |
 | **Auth** | `gh` CLI, owner-authenticated (`gh auth login`) — the assistant never handled the credential |
 | **Secret scan before push** | ✅ 266 tracked files, 0 findings |
-| **CI on first push** | ✅ **all 4 jobs green** — guards, node build/test, database (migrations + roles + audit + queue round-trip), security scan |
-| **Dependabot** | opened dependency-bump PRs automatically (espresso, AGP, kotlinx-coroutines) |
+| **CI** | ✅ all jobs green — guards, node build/test, database (migrations + roles + audit + queue round-trip), security scan |
+| **Branch protection** | ✅ **APPLIED** — ruleset `main protection` (id 22181590), verified by a rejected direct push |
+| **Dependabot** | retuned to security-only; 10 initial version-chasing PRs closed per the pinning policy |
 
-> This section was the proposal before creation; it is now the record. The commands used were
-> `gh repo create waqaskhan0/mohalla --private --source . --remote origin` then `git push -u origin main`.
+### How it got here — the honest path, including a mistake
 
-### ⚠️ Branch protection — BLOCKED by the GitHub plan, not applied
+1. Created **private** under the personal account `waqaskhan0`, pushed, CI green.
+2. **Branch protection could not be applied on a free personal private repo** — GitHub gates
+   rulesets and classic protection behind a paid plan there.
+3. The repo was transferred into the **`WaqStack`** org **on my incorrect assumption** that a free
+   org unlocks private-repo protection. **It does not** — orgs need **GitHub Team**, personal
+   accounts need **GitHub Pro**. The assumption was wrong and is recorded as such.
+4. Presented the real options (pay for Team/Pro, keep unprotected, or make public). **The owner
+   explicitly chose to make the repository public**, with the consequences spelled out: the
+   architecture — ban-list structure, audit-privilege model, anti-enumeration, security controls —
+   becomes world-readable, and public exposure is effectively permanent (clones/forks/caches persist
+   after any later re-privatising). No secrets or user data are in the repo (scan: 0 findings), so
+   what is exposed is the **design**, not credentials.
+5. Set visibility **public** and applied the branch ruleset (free on public repos).
 
-Branch protection **could not be applied**. Both the classic branch-protection API and repository
-**rulesets** return:
+> This **reverses the private-repository decision** argued in §3, on the owner's explicit, informed
+> instruction. §3 is left intact below as the original rationale; this section is the authoritative
+> record of the final state.
 
-> *"Upgrade to GitHub Pro or make this repository public to enable this feature."*
+### Branch protection — applied
 
-On a **free personal account, a private repo gets no branch protection or rulesets.** The private
-decision stands on its security rationale (§3 originally), so **the repo was NOT made public to
-unlock protection.** Options, none blocking development:
+Ruleset **`main protection`**, enforcement **active**, no bypass actors (so it applies to admins too):
 
-1. **GitHub Pro** on the account — unlocks rulesets/branch protection for private repos.
-2. **Move the repo into a GitHub organisation** — free orgs get rulesets on private repos.
-3. Until then, the PR-review discipline in [`03-branching-strategy.md`](03-branching-strategy.md) is
-   convention-enforced, and **CI still runs on every push and PR** — it simply cannot yet be made a
-   *required* gate.
+| Rule | Effect |
+|---|---|
+| `pull_request` | Changes to `main` must go through a PR; squash-merge only; stale reviews dismissed on push; conversations must resolve |
+| `required_status_checks` (strict) | The four CI jobs must pass and the branch must be up to date before merge |
+| `non_fast_forward` | No force-pushes |
+| `deletion` | `main` cannot be deleted |
+| `required_linear_history` | Linear history only |
 
-The intended protection (1 approval, dismiss-stale, linear history, no force-push/deletion, admins
-included; Code-Owner review and signed commits deferred on OD-020) is recorded in §4 for whenever a
-plan or org makes it available.
+**Required approvals = 0, deliberately.** With a single maintainer, GitHub forbids self-approval, so
+requiring 1 would make `main` unmergeable. PRs and green CI are still mandatory. **Raise to 1 the
+moment a second maintainer joins.** Code-Owner review and signed commits remain deferred on OD-020.
+
+**Verified real:** a direct `git push origin main` is rejected with `GH013: Repository rule
+violations`. Protection is not just configured — it was observed to block a push.
 
 ---
 
