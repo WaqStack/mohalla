@@ -111,7 +111,7 @@ paths:
               type: object
               required: [identifier, code]
               properties:
-                identifier: { type: string, example: "+923004471902" }
+                identifier: { type: string, example: "+923001234567" }
                 code: { type: string, pattern: '^[0-9]{6}$' }
       responses:
         '200':

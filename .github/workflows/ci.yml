@@ -12,6 +12,12 @@ on:
   pull_request:
     branches: [main]
 
+# Least privilege (public repo): the default token is read-only for every job.
+# No job here needs write access - CI only builds and tests. A job that ever
+# needs more must request it explicitly at the JOB level, never here.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -22,6 +28,9 @@ env:
 jobs:
   # ---------------------------------------------------------------- guards
   guards:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Architecture and safety guards
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +57,9 @@ jobs:
 
   # ------------------------------------------------------------ node build
   node:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
@@ -86,6 +98,9 @@ jobs:
 
   # -------------------------------------------------------------- database
   database:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Migrations, roles, audit immutability
     runs-on: ubuntu-latest
 
@@ -179,6 +194,9 @@ jobs:
 
   # -------------------------------------------------------------- security
   security:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Dependency and secret scanning
     runs-on: ubuntu-latest
     steps:

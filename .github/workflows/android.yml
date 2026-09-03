@@ -16,12 +16,21 @@ on:
     branches: [main]
     paths: ['apps/android/**', '.github/workflows/android.yml']
 
+# Least privilege (public repo): the default token is read-only for every job.
+# No job here needs write access - CI only builds and tests. A job that ever
+# needs more must request it explicitly at the JOB level, never here.
+permissions:
+  contents: read
+
 concurrency:
   group: android-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Assemble debug and test
     runs-on: ubuntu-latest
 
