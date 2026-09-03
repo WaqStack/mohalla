@@ -28,14 +28,26 @@ const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
 const results = [];
 
-function run(
-  name,
-  cmd,
-  args,
-  { cwd = repoRoot, env = process.env, allowSkip = false, useShell = isWindows } = {},
-) {
+/**
+ * Spawn WITHOUT `shell: true`.
+ *
+ * `shell: true` makes Node concatenate arguments into one command string
+ * without escaping them (Node's own DEP0190 warning says exactly that), which
+ * CodeQL flags as "shell command built from environment values" - a real risk
+ * if a path segment ever held a shell metacharacter. Windows still cannot exec
+ * a .cmd/.bat directly, so those go through an explicit cmd.exe argv array
+ * where every element stays a separate argument.
+ */
+function winInvocation(cmd, args) {
+  return isWindows && /\.(cmd|bat)$/i.test(cmd)
+    ? ['cmd.exe', ['/d', '/s', '/c', cmd, ...args]]
+    : [cmd, args];
+}
+
+function run(name, cmd, args, { cwd = repoRoot, env = process.env, allowSkip = false } = {}) {
   process.stdout.write(`\n▶ ${name}\n`);
-  const r = spawnSync(cmd, args, { cwd, env, stdio: 'inherit', shell: useShell });
+  const [spawnCmd, spawnArgs] = winInvocation(cmd, args);
+  const r = spawnSync(spawnCmd, spawnArgs, { cwd, env, stdio: 'inherit', shell: false });
 
   if (r.error) {
     if (allowSkip) {
@@ -113,15 +125,9 @@ if (existsSync(gradlew) && process.env.ANDROID_HOME && process.env.JAVA_HOME) {
         'e.g. D:\toolchain\jdk-21.0.12.1+1 - MSYS_NO_PATHCONV=1 suppresses the usual conversion.',
     );
   } else {
-    const gradleArgs = ['test', 'lint', '--no-daemon', '--console=plain'];
-    const [gCmd, gArgs] = isWindows
-      ? ['cmd.exe', ['/d', '/s', '/c', gradlew, ...gradleArgs]]
-      : [gradlew, gradleArgs];
-
-    run('android lint + unit tests', gCmd, gArgs, {
+    run('android lint + unit tests', gradlew, ['test', 'lint', '--no-daemon', '--console=plain'], {
       cwd: resolve(repoRoot, 'apps/android'),
       allowSkip: true,
-      useShell: false,
     });
   }
 } else {
