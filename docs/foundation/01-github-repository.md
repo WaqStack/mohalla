@@ -1,7 +1,7 @@
 # 01 — GitHub Repository
 
 **Stage 5 · Project Foundation · Shehersaaz Community Platform (Mohalla — محلہ)**
-Status: **PROPOSAL — awaiting explicit confirmation** · 1 September 2026
+Status: **PROPOSAL — awaiting explicit confirmation** · updated 2 September 2026
 
 ---
 
@@ -46,11 +46,15 @@ The complete Stage 5 foundation and the frozen Stage 1–4 documentation. **No p
 | `apps/api/` | NestJS foundation — 2 health routes, 17 empty module shells |
 | `apps/worker/` | pg-boss worker — `FOUNDATION_HEALTH_JOB` only |
 | `apps/admin/` | Next.js foundation — one page proving build and RTL mirroring |
-| `apps/android/` | Kotlin/Compose foundation — one screen, Gradle wrapper pinned by SHA-256 |
-| `packages/` | tokens · localization · db · eslint rules |
-| `infrastructure/` | Docker Compose, staging placeholders |
-| `scripts/` | guards, smoke test, dev scripts |
+| `apps/android/` | Kotlin/Compose foundation — one screen, runtime en↔ur switch, Gradle wrapper pinned by SHA-256 |
+| `packages/` | contracts · validation · design-tokens · localization · db · config · eslint-plugin |
+| `infrastructure/` | Docker Compose (PostgreSQL 18, verified running), staging placeholders |
+| `scripts/` | guards, smoke test, `verify`, dev scripts |
 | `.github/` | CI workflows, CODEOWNERS, templates, dependabot |
+
+**Snapshot at proposal time:** `main`, **5 commits**, **266 tracked files**, **0 remotes**. The
+last commit's tree is fully verified — `npm run smoke` 8/8 and `npm run verify` 10/10 executable
+lanes against a live PostgreSQL 18.6 / pg-boss / Socket.IO stack.
 
 ### Secret-scan confirmation
 
