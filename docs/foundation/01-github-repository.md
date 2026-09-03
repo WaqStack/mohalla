@@ -1,20 +1,48 @@
 # 01 — GitHub Repository
 
 **Stage 5 · Project Foundation · Shehersaaz Community Platform (Mohalla — محلہ)**
-Status: **PROPOSAL — awaiting explicit confirmation** · updated 2 September 2026
+Status: ✅ **CREATED AND PUSHED** · 3 September 2026 · authorised by the owner in chat
 
 ---
 
-## 1. Nothing has been created
+## 1. Created — record of what was done
 
-**No GitHub repository exists. No remote has been added. Nothing has been pushed.**
+The owner authorised creation under their **personal account `waqaskhan0`** and it was carried out.
 
-```
-$ git remote -v
-(no output)
-```
+| Field | Actual |
+|---|---|
+| **URL** | https://github.com/waqaskhan0/mohalla |
+| **Visibility** | 🔒 **PRIVATE** (verified `isPrivate: true`) |
+| **Default branch** | `main` |
+| **Push** | `main` pushed; remote HEAD matches local exactly |
+| **Auth** | `gh` CLI, owner-authenticated (`gh auth login`) — the assistant never handled the credential |
+| **Secret scan before push** | ✅ 266 tracked files, 0 findings |
+| **CI on first push** | ✅ **all 4 jobs green** — guards, node build/test, database (migrations + roles + audit + queue round-trip), security scan |
+| **Dependabot** | opened dependency-bump PRs automatically (espresso, AGP, kotlinx-coroutines) |
 
-Creating a repository on GitHub is an **external action** under the Stage 5 authorisation rules, and Gate C requires the proposal to be presented and confirmed first. This document **is** that proposal. It is not a record of something done.
+> This section was the proposal before creation; it is now the record. The commands used were
+> `gh repo create waqaskhan0/mohalla --private --source . --remote origin` then `git push -u origin main`.
+
+### ⚠️ Branch protection — BLOCKED by the GitHub plan, not applied
+
+Branch protection **could not be applied**. Both the classic branch-protection API and repository
+**rulesets** return:
+
+> *"Upgrade to GitHub Pro or make this repository public to enable this feature."*
+
+On a **free personal account, a private repo gets no branch protection or rulesets.** The private
+decision stands on its security rationale (§3 originally), so **the repo was NOT made public to
+unlock protection.** Options, none blocking development:
+
+1. **GitHub Pro** on the account — unlocks rulesets/branch protection for private repos.
+2. **Move the repo into a GitHub organisation** — free orgs get rulesets on private repos.
+3. Until then, the PR-review discipline in [`03-branching-strategy.md`](03-branching-strategy.md) is
+   convention-enforced, and **CI still runs on every push and PR** — it simply cannot yet be made a
+   *required* gate.
+
+The intended protection (1 approval, dismiss-stale, linear history, no force-push/deletion, admins
+included; Code-Owner review and signed commits deferred on OD-020) is recorded in §4 for whenever a
+plan or org makes it available.
 
 ---
 
@@ -103,15 +131,10 @@ Independently verified at audit time:
 
 ---
 
-## 6. Confirmation required
+## 6. Outcome
 
-**Nothing in this document has been executed.** On explicit confirmation, and only then:
-
-1. Create the private repository with the settings in §2
-2. `git remote add origin …`
-3. Re-run the secret scan against the populated index
-4. Push `main`
-5. Apply the branch protection in §4, minus the two items OD-020 blocks
-6. Report the result, including anything that failed
-
-**If any part of §2 is wrong — the name, the owner, the visibility — say so and it changes before anything is created.**
+**Done, 3 September 2026.** Repository created private under `waqaskhan0`, `main` pushed, first CI run
+green across all four jobs. The one item not completed is **branch protection**, blocked by the free
+plan on a private repo (§1) — a plan upgrade or an organisation unlocks it, and neither blocks feature
+development. The GitHub remote line item of Stage 5 is therefore **complete**, with branch protection
+recorded as a follow-up.
