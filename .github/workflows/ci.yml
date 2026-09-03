@@ -28,6 +28,9 @@ env:
 jobs:
   # ---------------------------------------------------------------- guards
   guards:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Architecture and safety guards
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +57,9 @@ jobs:
 
   # ------------------------------------------------------------ node build
   node:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
@@ -92,6 +98,9 @@ jobs:
 
   # -------------------------------------------------------------- database
   database:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Migrations, roles, audit immutability
     runs-on: ubuntu-latest
 
@@ -185,6 +194,9 @@ jobs:
 
   # -------------------------------------------------------------- security
   security:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Dependency and secret scanning
     runs-on: ubuntu-latest
     steps:

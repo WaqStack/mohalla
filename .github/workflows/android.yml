@@ -28,6 +28,9 @@ concurrency:
 
 jobs:
   build:
+    # Least privilege at the JOB level: this job only reads the repo.
+    permissions:
+      contents: read
     name: Assemble debug and test
     runs-on: ubuntu-latest
 

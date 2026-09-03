@@ -24,30 +24,56 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '../..');
 
 const isWindows = process.platform === 'win32';
-const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+
+/**
+ * NO SHELL, NO cmd.exe - ANYWHERE IN THIS SCRIPT.
+ *
+ * `shell: true` makes Node concatenate arguments into one unescaped command
+ * string (Node's own DEP0190 warning), and routing through `cmd.exe /c` is no
+ * better because cmd then parses that string itself. Either way a repository
+ * path containing a shell metacharacter could break or inject - which is what
+ * CodeQL's "shell command built from environment values" rule flags.
+ *
+ * So the `.cmd`/`.bat` shims are bypassed and their real entry points are
+ * executed directly, exactly as those shims do internally:
+ *
+ *   npm    -> node <npm-cli.js> ...
+ *   gradle -> java -classpath <gradle-wrapper.jar> GradleWrapperMain ...
+ *
+ * Every argument stays a distinct argv element that no shell ever sees.
+ */
+const npmCli = resolve(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+
+/** Build an argv for an npm script without touching a shell. */
+function npmRun(...args) {
+  return existsSync(npmCli)
+    ? [process.execPath, [npmCli, ...args]]
+    : // POSIX (and any layout without the bundled CLI): `npm` is a real executable.
+      ['npm', args];
+}
+
+/** Build an argv that runs the Gradle wrapper via the JVM, bypassing gradlew(.bat). */
+function gradleRun(androidDir, args) {
+  const jar = resolve(androidDir, 'gradle/wrapper/gradle-wrapper.jar');
+  const javaHome = process.env.JAVA_HOME ?? '';
+  const javaBin = resolve(javaHome, 'bin', isWindows ? 'java.exe' : 'java');
+  return [
+    javaBin,
+    [
+      '-Dorg.gradle.appname=gradlew',
+      '-classpath',
+      jar,
+      'org.gradle.wrapper.GradleWrapperMain',
+      ...args,
+    ],
+  ];
+}
 
 const results = [];
 
-/**
- * Spawn WITHOUT `shell: true`.
- *
- * `shell: true` makes Node concatenate arguments into one command string
- * without escaping them (Node's own DEP0190 warning says exactly that), which
- * CodeQL flags as "shell command built from environment values" - a real risk
- * if a path segment ever held a shell metacharacter. Windows still cannot exec
- * a .cmd/.bat directly, so those go through an explicit cmd.exe argv array
- * where every element stays a separate argument.
- */
-function winInvocation(cmd, args) {
-  return isWindows && /\.(cmd|bat)$/i.test(cmd)
-    ? ['cmd.exe', ['/d', '/s', '/c', cmd, ...args]]
-    : [cmd, args];
-}
-
 function run(name, cmd, args, { cwd = repoRoot, env = process.env, allowSkip = false } = {}) {
   process.stdout.write(`\n▶ ${name}\n`);
-  const [spawnCmd, spawnArgs] = winInvocation(cmd, args);
-  const r = spawnSync(spawnCmd, spawnArgs, { cwd, env, stdio: 'inherit', shell: false });
+  const r = spawnSync(cmd, args, { cwd, env, stdio: 'inherit', shell: false });
 
   if (r.error) {
     if (allowSkip) {
@@ -67,7 +93,7 @@ function blocked(name, detail) {
 
 // ---------------------------------------------------------------- packages
 // Shared packages compile first; every downstream lane depends on their output.
-run('build shared packages', npmCmd, ['run', 'build:packages']);
+run('build shared packages', ...npmRun('run', 'build:packages'));
 
 // -------------------------------------------------------------------- guards
 run('guard: module dependency direction', process.execPath, [
@@ -79,22 +105,20 @@ run('guard: localization parity', process.execPath, [
 run('guard: secret scan', process.execPath, [resolve(repoRoot, 'scripts/posix/check-secrets.mjs')]);
 
 // ---------------------------------------------------------------- node lanes
-run('format check', npmCmd, ['run', 'format:check']);
-run('lint (includes the RTL gate)', npmCmd, ['run', 'lint']);
-run('build all apps', npmCmd, ['run', 'build:apps']);
-run('unit tests (api, worker, validation, admin)', npmCmd, [
-  'run',
-  'test',
-  '--workspaces',
-  '--if-present',
-]);
+run('format check', ...npmRun('run', 'format:check'));
+run('lint (includes the RTL gate)', ...npmRun('run', 'lint'));
+run('build all apps', ...npmRun('run', 'build:apps'));
+run(
+  'unit tests (api, worker, validation, admin)',
+  ...npmRun('run', 'test', '--workspaces', '--if-present'),
+);
 
 // ---------------------------------------------------------------- database
 // Only if a database is reachable. Absent one, these are BLOCKED, not failures.
 if (process.env.DATABASE_URL) {
-  run('migration status', npmCmd, ['run', 'db:migrate:status'], { allowSkip: true });
+  run('migration status', ...npmRun('run', 'db:migrate:status'), { allowSkip: true });
   if (process.env.RUNTIME_APP_DATABASE_URL) {
-    run('audit append-only test', npmCmd, ['run', 'test', '--workspace', '@mohalla/db'], {
+    run('audit append-only test', ...npmRun('run', 'test', '--workspace', '@mohalla/db'), {
       allowSkip: true,
     });
   } else {
@@ -125,10 +149,12 @@ if (existsSync(gradlew) && process.env.ANDROID_HOME && process.env.JAVA_HOME) {
         'e.g. D:\toolchain\jdk-21.0.12.1+1 - MSYS_NO_PATHCONV=1 suppresses the usual conversion.',
     );
   } else {
-    run('android lint + unit tests', gradlew, ['test', 'lint', '--no-daemon', '--console=plain'], {
-      cwd: resolve(repoRoot, 'apps/android'),
-      allowSkip: true,
-    });
+    const androidDir = resolve(repoRoot, 'apps/android');
+    run(
+      'android lint + unit tests',
+      ...gradleRun(androidDir, ['test', 'lint', '--no-daemon', '--console=plain']),
+      { cwd: androidDir, allowSkip: true },
+    );
   }
 } else {
   blocked(
