@@ -20,9 +20,9 @@
   },
   "devDependencies": {
     "typescript": "6.0.3",
-    "@types/node": "24.7.0",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.1",
+    "@types/node": "26.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
     "vitest": "4.1.11"
   }
 }

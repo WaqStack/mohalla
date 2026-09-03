@@ -40,7 +40,7 @@
     "verify": "node scripts/posix/verify.mjs"
   },
   "devDependencies": {
-    "@types/node": "24.7.0",
+    "@types/node": "26.4.0",
     "eslint": "10.9.1",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
