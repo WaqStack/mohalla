@@ -28,9 +28,14 @@ const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
 const results = [];
 
-function run(name, cmd, args, { cwd = repoRoot, env = process.env, allowSkip = false } = {}) {
+function run(
+  name,
+  cmd,
+  args,
+  { cwd = repoRoot, env = process.env, allowSkip = false, useShell = isWindows } = {},
+) {
   process.stdout.write(`\n▶ ${name}\n`);
-  const r = spawnSync(cmd, args, { cwd, env, stdio: 'inherit', shell: isWindows });
+  const r = spawnSync(cmd, args, { cwd, env, stdio: 'inherit', shell: useShell });
 
   if (r.error) {
     if (allowSkip) {
@@ -93,12 +98,32 @@ if (process.env.DATABASE_URL) {
 const gradlew = resolve(repoRoot, 'apps/android', isWindows ? 'gradlew.bat' : 'gradlew');
 if (existsSync(gradlew) && process.env.ANDROID_HOME && process.env.JAVA_HOME) {
   // Invoke the wrapper by its ABSOLUTE path. A bare `gradlew.bat` is not found
-  // by cmd.exe because the current directory is not on PATH, which is exactly
-  // how the first version of this lane failed.
-  run('android lint + unit tests', gradlew, ['test', 'lint', '--console=plain'], {
-    cwd: resolve(repoRoot, 'apps/android'),
-    allowSkip: true,
-  });
+  // by cmd.exe because the current directory is not on PATH - that is how the
+  // first version of this lane failed.
+  //
+  // GUARD: Gradle is a Windows program and needs a WINDOWS JAVA_HOME. Git Bash
+  // normally converts `/d/toolchain/...` to `D:	oolchain\...` automatically,
+  // but `MSYS_NO_PATHCONV=1` (needed elsewhere for Docker paths) turns that off,
+  // and Gradle then dies with a bare `exit 3`. Detect it and say so plainly
+  // rather than letting an opaque code surface.
+  if (isWindows && /^\/[a-z]\//i.test(process.env.JAVA_HOME ?? '')) {
+    blocked(
+      'android lint + unit tests',
+      `JAVA_HOME is a POSIX path ("${process.env.JAVA_HOME}"). Gradle needs Windows form, ` +
+        'e.g. D:\toolchain\jdk-21.0.12.1+1 - MSYS_NO_PATHCONV=1 suppresses the usual conversion.',
+    );
+  } else {
+    const gradleArgs = ['test', 'lint', '--no-daemon', '--console=plain'];
+    const [gCmd, gArgs] = isWindows
+      ? ['cmd.exe', ['/d', '/s', '/c', gradlew, ...gradleArgs]]
+      : [gradlew, gradleArgs];
+
+    run('android lint + unit tests', gCmd, gArgs, {
+      cwd: resolve(repoRoot, 'apps/android'),
+      allowSkip: true,
+      useShell: false,
+    });
+  }
 } else {
   blocked(
     'android lint + unit tests',
