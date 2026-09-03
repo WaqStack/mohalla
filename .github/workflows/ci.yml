@@ -12,6 +12,12 @@ on:
   pull_request:
     branches: [main]
 
+# Least privilege (public repo): the default token is read-only for every job.
+# No job here needs write access - CI only builds and tests. A job that ever
+# needs more must request it explicitly at the JOB level, never here.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true

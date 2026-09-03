@@ -1,1 +1,7 @@
 blank_issues_enabled: true
+contact_links:
+  - name: 🔒 Report a security vulnerability (private)
+    url: https://github.com/waqaskhan0/mohalla/security/advisories/new
+    about: >-
+      Do NOT open a public issue for a security vulnerability. Use private vulnerability
+      reporting so the report stays confidential until a fix is available.
