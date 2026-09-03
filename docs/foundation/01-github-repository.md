@@ -9,9 +9,9 @@ Status: ✅ **CREATED, PUSHED, PROTECTED** · 3 September 2026 · authorised by 
 
 | Field | Actual (final) |
 |---|---|
-| **URL** | https://github.com/WaqStack/mohalla |
+| **URL** | https://github.com/waqaskhan0/mohalla |
 | **Visibility** | 🌐 **PUBLIC** — see the decision record below |
-| **Owner** | `WaqStack` organisation (owner is org admin) |
+| **Owner** | Personal account **`waqaskhan0`** |
 | **Default branch** | `main` |
 | **Push** | `main` pushed; remote HEAD matched local exactly |
 | **Auth** | `gh` CLI, owner-authenticated (`gh auth login`) — the assistant never handled the credential |
@@ -35,6 +35,10 @@ Status: ✅ **CREATED, PUSHED, PROTECTED** · 3 September 2026 · authorised by 
    after any later re-privatising). No secrets or user data are in the repo (scan: 0 findings), so
    what is exposed is the **design**, not credentials.
 5. Set visibility **public** and applied the branch ruleset (free on public repos).
+6. **On the owner's instruction, transferred the repo back out of the org to the personal account
+   `waqaskhan0`.** Because the repo is public, branch protection is free on a personal account too,
+   so the ruleset **survived the transfer** and remains active — verified again by a rejected direct
+   push. Final home: `waqaskhan0/mohalla`, public, protected.
 
 > This **reverses the private-repository decision** argued in §3, on the owner's explicit, informed
 > instruction. §3 is left intact below as the original rationale; this section is the authoritative
