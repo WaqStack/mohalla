@@ -1,27 +1,34 @@
 version: 2
 
-# Grouped weekly updates. Ungrouped daily PRs would drown a two-person team and
-# get ignored, which is worse than a slower cadence that actually gets reviewed.
+# Dependency update policy — consistent with the version-pinning discipline in
+# docs/foundation/04-toolchain-versions.md §1: the foundation pins EXACT versions
+# and does not adopt a newer release merely because it exists. Chasing every
+# upstream bump contradicts that and drowns a two-person team in noise.
+#
+# So routine VERSION updates are disabled (open-pull-requests-limit: 0), while
+# Dependabot SECURITY updates remain on — a security advisory is the documented
+# exception to "don't chase newer", and it is exactly what we want surfaced.
+#
+# To take a specific version bump deliberately: bump it locally, run
+# `npm run verify` (and the Android build), update 04-toolchain-versions.md, and
+# commit — rather than merging an unreviewed bot PR.
 
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      production:
-        dependency-type: production
-      development:
-        dependency-type: development
+      interval: monthly
+    # 0 = no routine version-update PRs; security updates still open PRs.
+    open-pull-requests-limit: 0
 
   - package-ecosystem: gradle
     directory: /apps/android
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 0
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 0
