@@ -25,7 +25,7 @@ jobs:
     name: Architecture and safety guards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           # Full history so the secret scan sees what is actually tracked.
           fetch-depth: 0
@@ -51,7 +51,7 @@ jobs:
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -115,7 +115,7 @@ jobs:
       ROLE_READ_ONLY_SUPPORT_PASSWORD: ci_read_only_support
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -182,7 +182,7 @@ jobs:
     name: Dependency and secret scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
