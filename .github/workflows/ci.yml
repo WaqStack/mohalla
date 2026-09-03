@@ -144,17 +144,38 @@ jobs:
           MIGRATION_DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
         run: npm run test --workspace @mohalla/db
 
+      - name: Build the worker (needed to run the queue round-trip)
+        run: npm run build --workspace @mohalla/worker
+
+      - name: Install the pg-boss schema as migration_owner (DDL — runtime roles cannot)
+        env:
+          DATABASE_URL: postgres://migration_owner:ci_migration_owner@127.0.0.1:5432/mohalla
+        run: npm run queue:install --workspace @mohalla/worker
+
       - name: FOUNDATION_HEALTH_JOB round-trips through pg-boss
         env:
-          DATABASE_URL: postgres://runtime_worker:ci_runtime_worker@127.0.0.1:5432/mohalla
+          # The worker runs as runtime_worker (DML only). The schema already
+          # exists from the install step above, so no DDL is attempted here -
+          # which is exactly the privilege boundary being verified.
+          WORKER_DATABASE_URL: postgres://runtime_worker:ci_runtime_worker@127.0.0.1:5432/mohalla
+          ENQUEUE_DATABASE_URL: postgres://runtime_app:ci_runtime_app@127.0.0.1:5432/mohalla
+          PGPASSWORD: ci_migration_owner
         run: |
-          node apps/worker/dist/main.js &
+          set -euo pipefail
+          DATABASE_URL="$WORKER_DATABASE_URL" node apps/worker/dist/main.js &
           WORKER_PID=$!
-          sleep 3
-          node apps/worker/dist/enqueue-health.js ci-smoke
           sleep 4
+          DATABASE_URL="$ENQUEUE_DATABASE_URL" node apps/worker/dist/enqueue-health.js ci-smoke
+          # Poll for terminal state rather than assuming a fixed sleep is enough.
+          STATE=""
+          for i in $(seq 1 20); do
+            STATE=$(psql -h 127.0.0.1 -U migration_owner -d mohalla -tAc               "select state from pgboss.job where name='foundation.health' and data->>'marker'='ci-smoke' order by created_on desc limit 1" | tr -d '[:space:]')
+            if [ "$STATE" = "completed" ]; then break; fi
+            sleep 2
+          done
           kill $WORKER_PID 2>/dev/null || true
-          echo "queue round-trip exercised (see worker logs above)"
+          echo "final job state: $STATE"
+          test "$STATE" = "completed"
 
   # -------------------------------------------------------------- security
   security:
